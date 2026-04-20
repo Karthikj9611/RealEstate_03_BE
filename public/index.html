@@ -92,7 +92,25 @@ nav{position:sticky;top:0;z-index:200;background:rgba(248,247,244,0.92);backdrop
 .search-field label{font-size:0.72rem;font-weight:600;color:var(--ink3);letter-spacing:0.3px;text-transform:uppercase}
 .search-field select,.search-field input{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 13px;font-size:0.88rem;font-family:inherit;color:var(--ink);background:var(--surface);outline:none;transition:border-color 0.2s;min-width:0}
 .search-field select:focus,.search-field input:focus{border-color:var(--gold)}
-.search-btn{background:var(--ink);color:#fff;border:none;padding:11px 28px;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background 0.2s;align-self:flex-end}
+.search-btn{
+  background:var(--ink);
+  color:#fff;
+  border:none;
+  padding:8px 16px;   /* 🔥 reduced */
+  border-radius:var(--radius-sm);
+  font-size:0.8rem;   /* slightly smaller text */
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;            /* reduced gap */
+  white-space:nowrap;
+  transition:background 0.2s;
+  align-self:flex-end;
+}
+
+
 .search-btn:hover{background:var(--gold-dark)}
 @media(max-width:640px){
 
@@ -116,7 +134,7 @@ nav{position:sticky;top:0;z-index:200;background:rgba(248,247,244,0.92);backdrop
 
   .search-btn{
     flex:0 0 auto;
-    min-width:120px;
+    min-width:60px;
   }
 
   .search-bar::-webkit-scrollbar{
@@ -710,7 +728,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.6);padding:3rem 5% 2rem}
           <option value="New Launch">New Launch</option>
         </select>
       </div>-->
-      <button class="search-btn" onclick="filterProps()">&#128269; Search</button>
+      <button class="search-btn" onclick="filterProps()">🔍</button>
+<button class="search-btn" style="background:#999" onclick="resetFilters()">↺</button>
     </div>
   </div>
 </div>
@@ -1187,6 +1206,38 @@ function setOptions(id, dataSet) {
 }
 
 populateFilters();
+
+function resetFilters(){
+
+  // Reset dropdowns
+  document.getElementById('sCity').value = 'all';
+  document.getElementById('sBhk').value = 'all';
+  document.getElementById('sBudget').value = 'all';
+
+  if(document.getElementById('sFurnishing')) document.getElementById('sFurnishing').value = 'all';
+  if(document.getElementById('sToilet')) document.getElementById('sToilet').value = 'all';
+  if(document.getElementById('sCar')) document.getElementById('sCar').value = 'all';
+  if(document.getElementById('sBike')) document.getElementById('sBike').value = 'all';
+
+  if(document.getElementById('sFloor')) document.getElementById('sFloor').value = 'all';
+  if(document.getElementById('sAge')) document.getElementById('sAge').value = 'all';
+  if(document.getElementById('sFacing')) document.getElementById('sFacing').value = 'all';
+
+  // Reset amenities (checkboxes)
+  document.querySelectorAll('#amenitiesBox input').forEach(cb => cb.checked = false);
+
+  // Reset top filter chips
+  activeFilter = 'all';
+  document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
+  document.querySelector('.filter-chip').classList.add('active');
+
+  // Re-render all properties
+  renderProps(PROPERTIES);
+
+  // Optional: scroll to listings
+  document.querySelector('#listings').scrollIntoView({behavior:'smooth'});
+}
+
 
 </script>
 </body>
