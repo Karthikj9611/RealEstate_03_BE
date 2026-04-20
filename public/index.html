@@ -1094,9 +1094,14 @@ async function submitForm() {
       body: JSON.stringify({ firstName, lastName, email, mobile })
     });
 
-    const data = await res.json();
+   const data = await res.json();
 
-    showToast(data.message || "Submitted!");
+	if (!res.ok) {
+	  showToast(data.message); // shows "Email already exists"
+	  return;
+	}
+
+	showToast(data.message);
 
     // Clear form
     document.getElementById('firstName').value = "";

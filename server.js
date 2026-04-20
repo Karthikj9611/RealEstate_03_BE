@@ -17,8 +17,8 @@ mongoose.connect("mongodb://127.0.0.1:27017/kr_realestate")
 const UserSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  email: String,
-  mobile: String,
+  email: { type: String, unique: true },
+  mobile: { type: String, unique: true },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -33,6 +33,23 @@ app.post("/submit", async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
+    // 🔍 Check email
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      return res.status(400).json({
+        message: "Email already exists"
+      });
+    }
+
+    // 🔍 Check mobile
+    const mobileExists = await User.findOne({ mobile });
+    if (mobileExists) {
+      return res.status(400).json({
+        message: "Mobile number already exists"
+      });
+    }
+
+    // ✅ Save new user
     const newUser = new User({ firstName, lastName, email, mobile });
     await newUser.save();
 
@@ -42,6 +59,8 @@ app.post("/submit", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
 app.use(express.static("public"));
 // Start server
 const PORT = process.env.PORT || 5000;
