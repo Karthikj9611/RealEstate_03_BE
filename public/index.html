@@ -2179,7 +2179,7 @@ footer {
 		  </select>
 		</div>
 
-
+<!--
 		<div class="search-field">
 		  <label>Car Parking</label>
 		  <select id="sCar" onchange="filterProps()">
@@ -2193,6 +2193,7 @@ footer {
 			<option value="all">Any</option>
 		  </select>
 		</div>
+-->
       <button class="search-btn" onclick="filterProps()">🔍</button>
 <button class="search-btn" style="background:#999" onclick="resetFilters()">↺</button>
     </div>
@@ -2452,7 +2453,7 @@ function filterProps(){
 
   const furnishing = document.getElementById('sFurnishing').value;
   const toilet = document.getElementById('sToilet').value;
-  const car = document.getElementById('sCar').value;
+//  const car = document.getElementById('sCar').value;
 //  const bike = document.getElementById('sBike').value;
 
   let list = PROPERTIES;
@@ -2476,7 +2477,7 @@ function filterProps(){
   // NEW FILTERS
   if(furnishing!=='all') list = list.filter(p=>p.furnishing===furnishing);
   if(toilet!=='all') list = list.filter(p=>p.toilet==toilet);
-  if(car!=='all') list = list.filter(p=>p.parking===car);
+//  if(car!=='all') list = list.filter(p=>p.parking===car);
 
   // simple bike logic (customize later if needed)
 //  if(bike!=='all') list = list.filter(p=>true);
