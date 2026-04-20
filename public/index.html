@@ -2403,8 +2403,10 @@ footer {
       <div class="modal-details-grid" id="modalDetails"></div>
       <div class="modal-desc" id="modalDesc"></div>
       <div class="modal-actions">
-        <button class="modal-btn-call" onclick="showToast('Calling agent...')">&#128222; Call Agent</button>
-        <button class="modal-btn-enquire" onclick="showToast('Enquiry sent! Agent will contact you.')">&#9993; Send Enquiry</button>
+		<button class="modal-btn-call" onclick="window.location.href='tel:9611459960'">
+  📞 Call
+</button>
+<!--        <button class="modal-btn-enquire" onclick="showToast('Enquiry sent! Agent will contact you.')">&#9993; Send Enquiry</button> -->
       </div>
     </div>
   </div>
@@ -2438,7 +2440,7 @@ function renderProps(list){
           <span class="prop-chip">🪑 ${p.furnishing}</span>
         </div>
         <div class="prop-footer">
-          <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();showToast('Calling agent for ${p.title.substring(0,20)}...')">📞 Call</button>
+          <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation(); window.location.href='tel:9611459960'"> 📞 Call </button>
           <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">View Details</button>
         </div>
       </div>
@@ -2609,8 +2611,8 @@ async function submitForm() {
   }
 
   try {
-//    const res = await fetch("http://localhost:5000/submit", {
-	const res = await fetch("https://kr-realestate.onrender.com/submit", {
+    const res = await fetch("http://localhost:5000/submit", {
+//	const res = await fetch("https://kr-realestate.onrender.com/submit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
