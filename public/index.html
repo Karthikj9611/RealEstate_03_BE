@@ -2453,7 +2453,7 @@ function filterProps(){
   const furnishing = document.getElementById('sFurnishing').value;
   const toilet = document.getElementById('sToilet').value;
   const car = document.getElementById('sCar').value;
-  const bike = document.getElementById('sBike').value;
+//  const bike = document.getElementById('sBike').value;
 
   let list = PROPERTIES;
 
@@ -2479,7 +2479,7 @@ function filterProps(){
   if(car!=='all') list = list.filter(p=>p.parking===car);
 
   // simple bike logic (customize later if needed)
-  if(bike!=='all') list = list.filter(p=>true);
+//  if(bike!=='all') list = list.filter(p=>true);
 
   if(activeFilter!=='all') list = list.filter(p=>p.status===activeFilter);
 
@@ -2653,7 +2653,7 @@ function populateFilters() {
     }
 
     // you can customize bike logic
-    bikeSet.add("Available"); // simple version
+//    bikeSet.add("Available"); // simple version
   });
 
   setOptions("sFurnishing", furnishingSet);
