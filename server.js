@@ -54,7 +54,7 @@ app.post("/submit", async (req, res) => {
     const newUser = new User({ firstName, lastName, email, mobile });
     await newUser.save();
 
-    res.json({ message: "Saved successfully" });
+    res.json({ message: "Your details have been successfully submitted. Our team will contact you shortly." });
 
   } catch (err) {
     res.status(500).json({ message: "Server error" });
