@@ -382,21 +382,17 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-function getInitials(first,last){
-  return ((first||'').charAt(0)+(last||'').charAt(0)).toUpperCase()||'?';
-}
+
 
 function renderName(row){
-  const full=escapeHtml((row.firstName||'')+" "+(row.lastName||'')).trim()||'Unknown';
-  const initials=getInitials(row.firstName,row.lastName);
+  const full = escapeHtml((row.firstName || '') + " " + (row.lastName || '')).trim() || 'Unknown';
+
   return `<div class="customer-name">
-    <div class="customer-avatar">${initials}</div>
     <div>
       <div class="customer-text-name">${full}</div>
     </div>
   </div>`;
 }
-
 function renderPhone(row){
   if(row.mobile){
     return `<a href="tel:${row.mobile}" class="phone-link">
@@ -495,8 +491,8 @@ function addExcelHyperlink(xlsx, sheet, cellRef, url, display){
 $(document).ready(function(){
   dataTable=$('#bookingTable').DataTable({
     ajax:{
-//	  url: "http://localhost:5000/api/users",
-      url:'https://kr-realestate.onrender.com/api/users',
+	  url: "http://localhost:5000/api/users",
+//    url:'https://kr-realestate.onrender.com/api/users',
       dataSrc:function(res){
         if(!Array.isArray(res)) return [];
         updateStats(res);
@@ -555,21 +551,43 @@ $(document).ready(function(){
           columns:[0,1,2,3],
           /* For phone col (1) and email col (2) emit the HYPERLINK formula */
           format:{
-            body:function(data, row, col, node){
-              /* Get raw row data from DataTable */
-              var rowData = dataTable.row(row).data();
-              if(!rowData) return data;
-              if(col===1){
-                var ph=plainPhone(rowData);
-                return ph ? '=HYPERLINK("tel:'+ph+'","'+ph+'")' : '—';
-              }
-              if(col===2){
-                var em=plainEmail(rowData);
-                return em ? '=HYPERLINK("mailto:'+em+'","'+em+'")' : '—';
-              }
-              return data;
-            }
-          }
+		  body:function(data, row, col, node){
+			var rowData = dataTable.row(row).data();
+			if(!rowData) return data;
+
+			// ✅ Customer (remove HTML)
+			if(col===0){
+			  return ((rowData.firstName||'') + ' ' + (rowData.lastName||'')).trim() || '—';
+			}
+
+			// ✅ Phone (with hyperlink)
+			if(col===1){
+			  var ph = plainPhone(rowData);
+			  return ph ? '=HYPERLINK("tel:'+ph+'","'+ph+'")' : '—';
+			}
+
+			// ✅ Email (with hyperlink)
+			if(col===2){
+			  var em = plainEmail(rowData);
+			  return em ? '=HYPERLINK("mailto:'+em+'","'+em+'")' : '—';
+			}
+
+			// ✅ Date (remove HTML)
+			if(col===3){
+			  if(!rowData.createdAt) return '—';
+			  const d = new Date(rowData.createdAt);
+			  const date = d.toLocaleDateString('en-GB');
+			  const time = d.toLocaleTimeString('en-US',{
+				hour:'2-digit',
+				minute:'2-digit',
+				hour12:true
+			  });
+			  return `${date} ${time}`;
+			}
+
+			return data;
+		  }
+		}
         }
       },
 
