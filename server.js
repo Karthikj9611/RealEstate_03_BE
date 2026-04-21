@@ -85,4 +85,41 @@ app.get("/api/users", async (req, res) => {
 });
 
 
+// ✅ ADD THIS
+
+const ReviewSchema = new mongoose.Schema({
+  name: String,
+  role: String,
+  comment: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Review = mongoose.model("Review", ReviewSchema);
+
+
+// GET reviews
+app.get("/api/reviews", async (req, res) => {
+  try {
+    const reviews = await Review.find().sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (err) {
+    res.status(500).json([]);
+  }
+});
+
+// POST review
+app.post("/api/reviews", async (req, res) => {
+  try {
+    const { name, role, comment } = req.body;
+
+    const newReview = new Review({ name, role, comment });
+    await newReview.save();
+
+    res.json({ message: "Saved" });
+  } catch (err) {
+    res.status(500).json({ message: "Error" });
+  }
+});
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
