@@ -1,646 +1,718 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>KR Real-Estate | Admin Dashboard</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>KR Real-Estate · Admin</title>
 
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css"/>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-	
-	<!-- Buttons CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-
-<!-- Buttons JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
-<!-- Required for Excel export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-<!-- PDF export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+:root{
+  --ink:#0c0d10;
+  --ink2:#3a3d4a;
+  --ink3:#8a8fa0;
+  --bg:#f4f1ec;
+  --surface:#ffffff;
+  --surface2:#f8f5f0;
+  --gold:#b8903c;
+  --gold2:#d4a84b;
+  --gold-light:#faf3e0;
+  --gold-dark:#8a6820;
+  --red:#e04444;
+  --red-light:#fff0f0;
+  --green:#1a7a5e;
+  --green-light:#e8f7f3;
+  --border:#e4dfd7;
+  --border2:#d4cec5;
+  --shadow:0 1px 8px rgba(12,13,16,0.06);
+  --shadow-md:0 6px 28px rgba(12,13,16,0.1);
+  --shadow-lg:0 16px 52px rgba(12,13,16,0.14);
+  --radius:20px;
+  --radius-sm:12px;
+  --radius-xs:8px;
+}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #fefaf6;
-            margin: 0;
-            padding: 20px;
-            color: #1e1a17;
-        }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--ink);
+  min-height:100vh;padding:24px clamp(12px,3vw,32px) 40px;
+}
 
-        .admin-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+/* ── HEADER ── */
+.admin-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;flex-wrap:wrap;gap:12px;
+}
+.header-brand{display:flex;align-items:center;gap:14px}
+.header-logo{
+  width:46px;height:46px;background:var(--ink);border-radius:13px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.header-logo span{
+  font-family:'Cormorant Garamond',serif;font-size:1.1rem;
+  font-weight:700;color:#fff;letter-spacing:-0.5px;
+}
+.header-logo span em{color:var(--gold2);font-style:italic}
+.header-title h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:700;color:var(--ink);line-height:1;
+}
+.header-title p{font-size:0.78rem;color:var(--ink3);margin-top:3px;font-weight:500}
+.header-badge{
+  display:flex;align-items:center;gap:7px;
+  background:var(--green-light);color:var(--green);
+  font-size:0.74rem;font-weight:700;padding:7px 14px;border-radius:99px;
+  border:1px solid rgba(26,122,94,0.2);
+}
+.header-badge::before{content:'';width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-        .admin-header h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e1a17;
-            margin-bottom: 8px;
-        }
+/* ── STATS ── */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:16px;margin-bottom:28px;
+}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;gap:12px}}
+@media(max-width:360px){.stats-grid{grid-template-columns:1fr}}
 
-        .admin-header h2 span {
-            color: #a76d4a;
-        }
+.stat-card{
+  background:var(--surface);border-radius:var(--radius);
+  padding:20px 22px;border:1px solid var(--border);
+  box-shadow:var(--shadow);transition:all 0.2s;position:relative;overflow:hidden;
+}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.stat-card::after{
+  content:'';position:absolute;right:-20px;top:-20px;
+  width:80px;height:80px;border-radius:50%;opacity:0.06;
+}
+.stat-card:nth-child(1)::after{background:var(--gold)}
+.stat-card:nth-child(2)::after{background:var(--green)}
+.stat-card:nth-child(3)::after{background:#5b7be8}
+.stat-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.95rem;margin-bottom:12px;
+}
+.stat-card:nth-child(1) .stat-icon{background:var(--gold-light);color:var(--gold)}
+.stat-card:nth-child(2) .stat-icon{background:var(--green-light);color:var(--green)}
+.stat-card:nth-child(3) .stat-icon{background:#eef1fc;color:#5b7be8}
+.stat-number{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.2rem;font-weight:700;color:var(--ink);line-height:1;
+}
+.stat-label{font-size:0.75rem;color:var(--ink3);margin-top:5px;font-weight:600;letter-spacing:0.3px}
 
-        .admin-header p {
-            color: #7e695b;
-            font-size: 14px;
-        }
+/* ── MAIN CARD ── */
+.card{
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-md);border:1px solid var(--border);overflow:hidden;
+}
+.card-header{
+  padding:20px 24px 0;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.card-title{font-size:1rem;font-weight:700;color:var(--ink)}
+.card-sub{font-size:0.76rem;color:var(--ink3);margin-top:2px}
+.table-wrapper{padding:16px 20px 20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 
-        .stats-grid {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: nowrap;
-            margin-bottom: 30px;
-        }
+/* ── TABLE ── */
+table.dataTable{
+  border-collapse:collapse!important;width:100%!important;
+  font-family:'Plus Jakarta Sans',sans-serif;min-width:680px;
+}
+table.dataTable thead th{
+  background:var(--surface2);color:var(--ink3);
+  font-weight:700;font-size:0.72rem;letter-spacing:0.8px;
+  text-transform:uppercase;padding:13px 14px;
+  border-bottom:1px solid var(--border)!important;border-top:none!important;
+  white-space:nowrap;
+}
+table.dataTable thead th:first-child{border-radius:var(--radius-xs) 0 0 var(--radius-xs)}
+table.dataTable thead th:last-child{border-radius:0 var(--radius-xs) var(--radius-xs) 0}
+table.dataTable tbody td{
+  padding:13px 14px;border-bottom:1px solid #f5f2ee!important;
+  font-size:0.84rem;vertical-align:middle;
+}
+table.dataTable tbody tr:last-child td{border-bottom:none!important}
+table.dataTable tbody tr:hover td{background:#fdfaf6}
+table.dataTable.no-footer{border-bottom:none!important}
 
-        .stat-card {
-            background: white;
-            padding: 18px 28px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            border: 1px solid #f0e4db;
-            min-width: 140px;
-        }
+/* ── CUSTOMER NAME ── */
+.customer-name{display:flex;align-items:center;gap:9px}
+.customer-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--gold-light);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.78rem;font-weight:700;flex-shrink:0;border:2px solid rgba(184,144,60,0.2);
+}
+.customer-text-name{font-weight:600;font-size:0.88rem;color:var(--ink)}
+.customer-text-id{font-size:0.68rem;color:var(--ink3);margin-top:1px}
 
-        .stat-card i {
-            font-size: 28px;
-            color: #a76d4a;
-            margin-bottom: 8px;
-            display: block;
-        }
+/* ── PHONE / EMAIL LINKS ── */
+.contact-col{display:flex;flex-direction:column;gap:6px}
+.phone-link{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--green-light);color:var(--green);
+  text-decoration:none;font-size:0.8rem;font-weight:600;
+  padding:5px 11px;border-radius:99px;border:1px solid rgba(26,122,94,0.18);
+  transition:all 0.18s;white-space:nowrap;
+}
+.phone-link:hover{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(26,122,94,0.3)}
+.phone-link i{font-size:0.72rem}
+.email-link{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--gold-light);color:var(--gold-dark);
+  text-decoration:none;font-size:0.76rem;font-weight:500;
+  padding:4px 10px;border-radius:99px;border:1px solid rgba(184,144,60,0.2);
+  transition:all 0.18s;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.email-link:hover{background:var(--gold);color:var(--ink);box-shadow:0 4px 12px rgba(184,144,60,0.3)}
+.email-link i{font-size:0.68rem;flex-shrink:0}
+.no-contact{font-size:0.78rem;color:var(--ink3);font-style:italic}
 
-        .stat-number {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e1a17;
-            font-family: 'Playfair Display', serif;
-        }
+/* ── DATE CELL ── */
+.date-cell{display:flex;flex-direction:column;gap:3px}
+.date-main{font-size:0.82rem;font-weight:600;color:var(--ink)}
+.date-time{
+  display:inline-block;font-size:0.7rem;color:var(--gold-dark);
+  background:var(--gold-light);padding:2px 8px;border-radius:99px;font-weight:600;
+}
 
-        .stat-label {
-            font-size: 13px;
-            color: #7e695b;
-            margin-top: 5px;
-            letter-spacing: 0.5px;
-        }
+/* ── BUTTONS ── */
+.btn-delete{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--red-light);color:var(--red);
+  border:1px solid rgba(224,68,68,0.2);padding:6px 14px;
+  border-radius:99px;cursor:pointer;font-size:0.76rem;
+  font-weight:600;transition:all 0.18s;font-family:inherit;
+}
+.btn-delete:hover{background:var(--red);color:#fff;box-shadow:0 4px 12px rgba(224,68,68,0.3)}
+.btn-delete i{font-size:0.72rem}
 
-        .card {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-            overflow: hidden;
-            border: 1px solid #f0e4db;
-        }
+/* ── DATATABLES CONTROLS ── */
+.dataTables_wrapper .dataTables_filter{margin-bottom:16px}
+.dataTables_wrapper .dataTables_filter label{
+  font-size:0.82rem;color:var(--ink2);display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.dataTables_wrapper .dataTables_filter input{
+  border:1.5px solid var(--border);border-radius:99px;
+  padding:8px 16px;font-family:inherit;font-size:0.82rem;
+  outline:none;width:220px;background:var(--surface2);color:var(--ink);
+  transition:border-color 0.18s;
+}
+.dataTables_wrapper .dataTables_filter input:focus{border-color:var(--gold);background:var(--surface)}
+.dataTables_wrapper .dataTables_info{font-size:0.78rem;color:var(--ink3);padding-top:14px}
+.dataTables_wrapper .dataTables_paginate{margin-top:14px}
+.dataTables_wrapper .dataTables_paginate .paginate_button{
+  padding:5px 11px!important;margin:0 2px!important;
+  border-radius:99px!important;font-size:0.78rem!important;
+  border:1px solid var(--border)!important;background:var(--surface)!important;
+  color:var(--ink2)!important;cursor:pointer!important;transition:all 0.15s!important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+  background:var(--surface2)!important;border-color:var(--border2)!important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current{
+  background:var(--ink)!important;color:#fff!important;
+  border-color:var(--ink)!important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled{
+  opacity:0.35!important;cursor:default!important;
+}
+.dataTables_length label{font-size:0.82rem;color:var(--ink2)}
+.dataTables_length select{
+  border:1.5px solid var(--border);border-radius:8px;
+  padding:4px 8px;font-family:inherit;font-size:0.82rem;
+  outline:none;background:var(--surface2);
+}
 
-        .table-wrapper {
-            padding: 20px;
-            overflow-x: auto;
-        }
+/* ── EXPORT BUTTONS ── */
+.dt-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.dt-button{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;
+  background:var(--surface)!important;color:var(--ink2)!important;
+  border:1.5px solid var(--border)!important;padding:7px 15px!important;
+  border-radius:99px!important;font-size:0.78rem!important;font-weight:600!important;
+  font-family:inherit!important;cursor:pointer!important;transition:all 0.18s!important;
+  box-shadow:none!important;text-shadow:none!important;
+}
+.dt-button:hover{
+  background:var(--ink)!important;color:#fff!important;
+  border-color:var(--ink)!important;box-shadow:0 4px 14px rgba(12,13,16,0.15)!important;
+}
+.dt-button span{line-height:1!important}
 
-        table.dataTable {
-            border-collapse: collapse !important;
-            width: 100% !important;
-            font-family: 'Inter', sans-serif;
-        }
+/* ── EMPTY STATE ── */
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--ink3);
+  font-size:0.88rem;
+}
+.empty-state i{font-size:2.5rem;margin-bottom:12px;display:block;opacity:0.3}
 
-        table.dataTable thead th {
-            background: #faf6f2;
-            color: #a76d4a;
-            font-weight: 600;
-            padding: 14px 12px;
-            border-bottom: 2px solid #e6dbd1;
-            font-size: 14px;
-        }
+/* ── FOOTER ── */
+footer{
+  text-align:center;margin-top:28px;
+  font-size:0.74rem;color:var(--ink3);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+footer i{color:var(--gold)}
 
-        table.dataTable tbody td {
-            padding: 12px 12px;
-            border-bottom: 1px solid #f2ece7;
-            font-size: 13px;
-            vertical-align: middle;
-        }
+/* ── MOBILE ── */
+@media(max-width:768px){
+  body{padding:14px 12px 32px}
+  .admin-header{margin-bottom:20px}
+  .header-title h1{font-size:1.25rem}
+  .stat-number{font-size:1.8rem}
+  .card-header{padding:16px 16px 0}
+  .table-wrapper{padding:12px 14px 16px}
+  .dataTables_wrapper .dataTables_filter input{width:160px;font-size:0.78rem}
+  .dt-button{padding:6px 12px!important;font-size:0.72rem!important}
+}
+@media(max-width:480px){
+  .stats-grid{gap:10px}
+  .stat-card{padding:16px 16px}
+  .dataTables_wrapper .dataTables_filter{text-align:left}
+  .dataTables_wrapper .dataTables_filter label{flex-direction:column;align-items:flex-start;gap:6px}
+  .dataTables_wrapper .dataTables_filter input{width:100%;margin-left:0}
+  .header-badge{display:none}
+}
 
-        table.dataTable tbody tr:hover {
-            background: #fcf8f4;
-        }
-
-        .btn-delete {
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-delete:hover {
-            background: #e03e3e;
-            transform: scale(1.02);
-        }
-
-        .btn-delete i {
-            font-size: 11px;
-        }
-
-        /* Clickable phone link styling */
-        .phone-link {
-            text-decoration: none;
-            background: #eef2f0;
-            padding: 4px 10px;
-            border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            color: #2c6e2f;
-            font-size: 13px;
-            transition: 0.2s;
-        }
-        .phone-link:hover {
-            background: #a76d4a;
-            color: white;
-        }
-        .phone-link i {
-            font-size: 12px;
-        }
-        .contact-details {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .email-small {
-            font-size: 11px;
-            color: #8f7765;
-            word-break: break-all;
-        }
-        .mobile-badge {
-            background: #e8e0d9;
-            color: #5e4b3c;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: inline-block;
-            font-weight: 500;
-        }
-        .notes-preview {
-            max-width: 200px;
-            white-space: normal;
-            word-break: break-word;
-            font-size: 12px;
-            line-height: 1.3;
-        }
-        .customer-name {
-            font-weight: 700;
-            color: #2c241f;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .customer-name i {
-            color: #a76d4a;
-            font-size: 13px;
-        }
-
-        /* DataTables search & pagination */
-        .dataTables_filter {
-            margin-bottom: 20px;
-            text-align: right;
-        }
-        .dataTables_filter label {
-            font-size: 13px;
-            color: #5e4b3c;
-        }
-        .dataTables_filter input {
-            border: 1px solid #e2d4cb;
-            border-radius: 40px;
-            padding: 8px 16px;
-            margin-left: 8px;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            width: 220px;
-            background: #fffcf9;
-        }
-        .dataTables_filter input:focus {
-            border-color: #a76d4a;
-        }
-        .dataTables_info {
-            font-size: 13px;
-            color: #7e695b;
-            padding-top: 15px;
-        }
-        .dataTables_paginate {
-            margin-top: 15px;
-        }
-        .paginate_button {
-            padding: 6px 12px !important;
-            margin: 0 3px !important;
-            border-radius: 30px !important;
-            font-size: 12px !important;
-        }
-        .paginate_button.current {
-            background: #a76d4a !important;
-            color: white !important;
-            border: none !important;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #b8a392;
-        }
-
-        /* ============================================= */
-        /* CRITICAL MOBILE FIX: Ensure ALL columns visible 
-           No hidden columns on any mobile size */
-        /* ============================================= */
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-            .admin-header h2 {
-                font-size: 22px;
-            }
-            .stats-grid {
-                gap: 12px;
-            }
-            .stat-card {
-                padding: 12px 18px;
-                min-width: 110px;
-            }
-            .stat-number {
-                font-size: 24px;
-            }
-            .table-wrapper {
-                padding: 12px;
-                overflow-x: auto;
-            }
-            /* Force table to show all columns by allowing horizontal scroll if needed */
-            table.dataTable {
-                min-width: 700px;  /* Ensures all columns have enough space, but if screen smaller, user can scroll horizontally */
-                width: 100% !important;
-            }
-            table.dataTable thead th {
-                padding: 10px 8px;
-                font-size: 12px;
-                white-space: nowrap;
-            }
-            table.dataTable tbody td {
-                padding: 10px 8px;
-                font-size: 12px;
-            }
-            .btn-delete {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
-            .phone-link {
-                font-size: 12px;
-                padding: 3px 8px;
-            }
-            .mobile-badge {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-            .notes-preview {
-                max-width: 160px;
-                font-size: 11px;
-            }
-            .dataTables_filter input {
-                width: 180px;
-                font-size: 12px;
-            }
-            /* Override DataTables responsive auto-hide: we disable column hiding */
-            table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
-            table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
-                display: none !important;
-            }
-            /* Ensure no child row details are forced */
-            .dtr-control {
-                display: none !important;
-            }
-        }
-
-        @media (max-width: 550px) {
-            .stats-grid {
-                gap: 8px;
-            }
-            .stat-card {
-                padding: 10px 12px;
-                min-width: 90px;
-            }
-            .stat-number {
-                font-size: 20px;
-            }
-            .dataTables_filter {
-                text-align: left;
-                margin-bottom: 15px;
-            }
-            .dataTables_filter input {
-                width: 100%;
-                margin-left: 0;
-                margin-top: 5px;
-            }
-            /* Table scroll for very narrow screens but all columns visible */
-            table.dataTable {
-                min-width: 680px;
-            }
-            table.dataTable thead th {
-                font-size: 11px;
-                padding: 8px 5px;
-            }
-            table.dataTable tbody td {
-                font-size: 11px;
-                padding: 8px 5px;
-            }
-            .customer-name {
-                font-size: 12px;
-            }
-            .phone-link {
-                font-size: 10px;
-                padding: 2px 6px;
-            }
-            .contact-details .email-small {
-                font-size: 9px;
-            }
-            .btn-delete {
-                padding: 4px 8px;
-                font-size: 10px;
-            }
-        }
-
-        /* Disable responsive child row toggles completely for full visibility */
-        table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control,
-        table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control {
-            padding-left: 30px !important;
-        }
-        /* Remove the toggle icons to prevent hiding columns */
-        table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
-        table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
-            content: none !important;
-            display: none !important;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: #b8a392;
-        }
-    </style>
+/* hide DT sorting arrows for cleaner look */
+table.dataTable thead th.sorting::after,
+table.dataTable thead th.sorting_asc::after,
+table.dataTable thead th.sorting_desc::after{
+  font-size:0.65rem;opacity:0.5;
+}
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc{
+  background-image:none!important;
+  padding-right:14px!important;
+}
+</style>
 </head>
 <body>
 
-<div class="dashboard-container">
-    <div class="admin-header">
-        <h2>K<span>R</span> Admin</h2>
-        <p><i class="fas fa-calendar-alt"></i> Registered customer details</p>
-    </div>
+<div class="dashboard-container" style="max-width:1380px;margin:0 auto">
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <i class="fas fa-users"></i>
-            <div class="stat-number" id="totalCount">0</div>
-            <div class="stat-label">Total Bookings</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-calendar-day"></i>
-            <div class="stat-number" id="todayCount">0</div>
-            <div class="stat-label">Today's Appointments</div>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-phone-alt"></i>
-            <div class="stat-number" id="phoneCount">0</div>
-            <div class="stat-label">With Mobile Number</div>
-        </div>
+  <!-- HEADER -->
+  <div class="admin-header">
+    <div class="header-brand">
+      <div class="header-logo"><span><em>K</em>R</span></div>
+      <div class="header-title">
+        <h1>Admin Dashboard</h1>
+        <p><i class="fas fa-shield-halved"></i> Registered customer details</p>
+      </div>
     </div>
+    <div class="header-badge"><i class="fas fa-circle-dot"></i> Live</div>
+  </div>
 
-    <div class="card">
-        <div class="table-wrapper">
-            <table id="bookingTable" class="display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Customer Name</th>
-                        <th>Mobile No.</th>
-                        <th>Service</th>
-                        <th>Date & Time</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="6" class="empty-state">Loading bookings...</td></tr>
-                </tbody>
-            </table>
-        </div>
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-users"></i></div>
+      <div class="stat-number" id="totalCount">—</div>
+      <div class="stat-label">Total Leads</div>
     </div>
-    <footer>
-        <i class="fas fa-phone"></i> Tap phone number to call directly • All columns visible on mobile (horizontal scroll if needed)
-    </footer>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+      <div class="stat-number" id="todayCount">—</div>
+      <div class="stat-label">Today's Sign-ups</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-phone"></i></div>
+      <div class="stat-number" id="phoneCount">—</div>
+      <div class="stat-label">With Mobile</div>
+    </div>
+  </div>
+
+  <!-- TABLE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Customer Registrations</div>
+        <div class="card-sub">Tap phone numbers to call · Tap email to compose</div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table id="bookingTable" class="display nowrap" style="width:100%">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Registered</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <i class="fas fa-mobile-screen-button"></i>
+    Tap phone number to call · Tap email to open mail app
+  </footer>
 </div>
-
-<!-- Buttons CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-
-<!-- Buttons JS -->
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
-<!-- Required for Excel export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-<!-- PDF export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 <script>
 let dataTable;
 
-// Escape
-function escapeHtml(str) {
-    if (!str) return '—';
-    return String(str).replace(/[&<>]/g, m =>
-        ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])
-    );
+function escapeHtml(str){
+  if(!str) return '—';
+  return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-// CONTACT FIX (mobile + email)
-function getContactDisplay(row) {
-    const mobile = row.mobile;
-    const email = row.email || '—';
-
-    if (mobile) {
-        return `
-            <div class="contact-details">
-                <a href="tel:${mobile}" class="phone-link">
-                    <i class="fas fa-phone-alt"></i> ${escapeHtml(mobile)}
-                </a>
-            </div>
-        `;
-    }
-
-    return `<span class="email-small">${escapeHtml(email)}</span>`;
+function getInitials(first,last){
+  return ((first||'').charAt(0)+(last||'').charAt(0)).toUpperCase()||'?';
 }
 
-// DATE FIX (createdAt only)
-function formatDateTime(createdAt) {
-    if (!createdAt) return '—';
-
-    const d = new Date(createdAt);
-
-    const date = d.toLocaleDateString('en-GB');
-
-    const time = d.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true   // ✅ THIS ENABLES AM/PM
-    });
-
-    return `
-        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <i class="far fa-calendar-alt" style="color:#a76d4a;"></i>
-            <strong>${date}</strong>
-            <span style="background:#f0e4db;padding:2px 8px;border-radius:20px;font-size:11px;">
-                ${time}
-            </span>
-        </div>
-    `;
+function renderName(row){
+  const full=escapeHtml((row.firstName||'')+" "+(row.lastName||'')).trim()||'Unknown';
+  const initials=getInitials(row.firstName,row.lastName);
+  return `<div class="customer-name">
+    <div class="customer-avatar">${initials}</div>
+    <div>
+      <div class="customer-text-name">${full}</div>
+    </div>
+  </div>`;
 }
 
-// DELETE FIX (correct URL)
-window.deleteBooking = async function(id) {
-    if (!confirm("Delete this user?")) return;
-//	const res = await fetch(`http://localhost:5000/api/user/${id}`, {
-	const res = await fetch(`https://kr-realestate.onrender.com/api/user/${id}`, {
-        method: "DELETE"
-    });
+function renderPhone(row){
+  if(row.mobile){
+    return `<a href="tel:${row.mobile}" class="phone-link">
+      <i class="fas fa-phone-flip"></i>${escapeHtml(row.mobile)}
+    </a>`;
+  }
+  return `<span class="no-contact">—</span>`;
+}
 
-    if (res.ok) {
-        dataTable.ajax.reload(null, false);
-    } else {
-        alert("Delete failed");
-    }
+function renderEmail(row){
+  if(row.email){
+    return `<a href="mailto:${row.email}" class="email-link" title="${escapeHtml(row.email)}">
+      <i class="fas fa-envelope"></i>${escapeHtml(row.email)}
+    </a>`;
+  }
+  return `<span class="no-contact">—</span>`;
+}
+
+/* Export text — plain values used by customize callbacks below */
+function plainPhone(row){ return row.mobile||''; }
+function plainEmail(row){ return row.email||''; }
+
+function formatDateTime(createdAt){
+  if(!createdAt) return '—';
+  const d=new Date(createdAt);
+  const date=d.toLocaleDateString('en-GB');
+  const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  return `<div class="date-cell">
+    <div class="date-main"><i class="far fa-calendar-alt" style="color:var(--gold);margin-right:5px"></i>${date}</div>
+    <span class="date-time">${time}</span>
+  </div>`;
+}
+
+window.deleteBooking=async function(id){
+  if(!confirm('Delete this lead?')) return;
+  const res=await fetch(`https://kr-realestate.onrender.com/api/user/${id}`,{method:'DELETE'});
+  if(res.ok) dataTable.ajax.reload(null,false);
+  else alert('Delete failed. Please try again.');
 };
 
-// STATS FIX
-function updateStats(data) {
-    const today = new Date().toISOString().split('T')[0];
-
-    let total = data.length;
-    let todayCount = 0;
-    let mobileCount = 0;
-
-    data.forEach(r => {
-        if (r.createdAt && r.createdAt.startsWith(today)) todayCount++;
-        if (r.mobile) mobileCount++;
-    });
-
-    document.getElementById("totalCount").innerText = total;
-    document.getElementById("todayCount").innerText = todayCount;
-    document.getElementById("phoneCount").innerText = mobileCount;
+function updateStats(data){
+  const today=new Date().toISOString().split('T')[0];
+  let total=data.length,todayCount=0,mobileCount=0;
+  data.forEach(r=>{
+    if(r.createdAt&&r.createdAt.startsWith(today)) todayCount++;
+    if(r.mobile) mobileCount++;
+  });
+  document.getElementById('totalCount').innerText=total;
+  document.getElementById('todayCount').innerText=todayCount;
+  document.getElementById('phoneCount').innerText=mobileCount;
 }
 
-$(document).ready(function () {
+/* ── Excel hyperlink helper ──────────────────────────────────────────────
+   Adds a proper relationship + <hyperlinks> entry so the cell becomes a
+   real clickable hyperlink in the downloaded .xlsx file.                 */
+function addExcelHyperlink(xlsx, sheet, cellRef, url, display){
+  /* 1. Add relationship to the sheet's .rels file */
+  var relsPath = 'xl/worksheets/_rels/sheet1.xml.rels';
+  if(!xlsx.xl.worksheets._rels) xlsx.xl.worksheets._rels={};
+  if(!xlsx.xl.worksheets._rels['sheet1.xml.rels']){
+    xlsx.xl.worksheets._rels['sheet1.xml.rels']=
+      $.parseXML('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>');
+  }
+  var rels = xlsx.xl.worksheets._rels['sheet1.xml.rels'];
+  var rId  = 'rIdKR'+(Math.random().toString(36).slice(2,8));
+  $(rels).find('Relationships').append(
+    '<Relationship Id="'+rId+'" '+
+    'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '+
+    'Target="'+url+'" TargetMode="External"/>'
+  );
 
-    dataTable = $('#bookingTable').DataTable({
-    ajax: {
-//        url: "http://localhost:5000/api/users",
-		url: "https://kr-realestate.onrender.com/api/users",
-        dataSrc: function(res) {
-            if (!Array.isArray(res)) return [];
-            updateStats(res);
-            return res;
-        }
+  /* 2. Add <hyperlink> element to worksheet */
+  var $sheet=$(sheet);
+  var hyperlinks=$sheet.find('hyperlinks');
+  if(!hyperlinks.length){
+    /* Insert before <pageMargins> or at end of <worksheet> */
+    var pm=$sheet.find('pageMargins');
+    var hlNode=$(sheet.createElementNS(
+      'http://schemas.openxmlformats.org/spreadsheetml/2006/main','hyperlinks'));
+    if(pm.length) pm.before(hlNode); else $sheet.find('worksheet').append(hlNode);
+    hyperlinks=$sheet.find('hyperlinks');
+  }
+  var hl=sheet.createElementNS(
+    'http://schemas.openxmlformats.org/spreadsheetml/2006/main','hyperlink');
+  hl.setAttribute('ref', cellRef);
+  hl.setAttributeNS(
+    'http://schemas.openxmlformats.org/officeDocument/2006/relationships','r:id',rId);
+  hyperlinks[0].appendChild(hl);
+
+  /* 3. Apply hyperlink cell style (index 4 in default DT xlsx = blue underline) */
+  var cell=$sheet.find('c[r="'+cellRef+'"]');
+  cell.attr('s','4'); // style 4 = hyperlink style in DataTables default xlsx
+}
+
+$(document).ready(function(){
+  dataTable=$('#bookingTable').DataTable({
+    ajax:{
+//	  url: "http://localhost:5000/api/users",
+      url:'https://kr-realestate.onrender.com/api/users',
+      dataSrc:function(res){
+        if(!Array.isArray(res)) return [];
+        updateStats(res);
+        return res;
+      }
     },
 
-    columns: [
-        { data: null, render: (d,t,row) =>
-            `<div class="customer-name">
-                <i class="fas fa-user-circle"></i>
-                <strong>${escapeHtml(row.firstName + " " + row.lastName)}</strong>
-            </div>`
-        },
-        { data: null, render: (d,t,row) => getContactDisplay(row) },
-        { data: "email" },
-        { data: "createdAt", render: d => formatDateTime(d) },
-        { data: "_id", render: id =>
-            `<button class="btn-delete" onclick="deleteBooking('${id}')">
-                <i class="fas fa-trash-alt"></i> Delete
-            </button>`
+    columns:[
+      /* 0 – Customer name (display) */
+      { data:null, render:(d,t,row)=> t==='display' ? renderName(row) : ((row.firstName||'')+' '+(row.lastName||'')).trim() },
+      /* 1 – Phone (display = pill link, export = plain number) */
+      { data:null, render:(d,t,row)=>{
+          if(t==='display') return renderPhone(row);
+          return plainPhone(row);  // ← plain text for CSV/Excel/PDF/Print
         }
+      },
+      /* 2 – Email (display = pill link, export = plain email) */
+      { data:null, render:(d,t,row)=>{
+          if(t==='display') return renderEmail(row);
+          return plainEmail(row);  // ← plain text for CSV/Excel/PDF/Print
+        }
+      },
+      /* 3 – Date */
+      { data:'createdAt', render:(d,t)=> t==='display' ? formatDateTime(d) : (d||'—') },
+      /* 4 – Action (excluded from exports) */
+      { data:'_id', orderable:false, render:id=>
+          `<button class="btn-delete" onclick="deleteBooking('${id}')">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>`
+      }
     ],
 
-    order: [[3, "desc"]],
-    pageLength: 5,
-    scrollX: true,
+    order:[[3,'desc']],
+    pageLength:10,
+    scrollX:true,
+    language:{
+      emptyTable:'<div class="empty-state"><i class="fas fa-inbox"></i>No customers yet</div>',
+      zeroRecords:'<div class="empty-state"><i class="fas fa-magnifying-glass"></i>No matching records</div>',
+      search:'',
+      searchPlaceholder:'Search customers…',
+      lengthMenu:'Show _MENU_ entries',
+      info:'Showing _START_–_END_ of _TOTAL_ leads',
+      paginate:{previous:'‹ Prev',next:'Next ›'}
+    },
 
-    // ✅ ADD THIS
-    dom: 'Bfrtip',
-    buttons: [
-        {
-            extend: 'csv',
-            text: 'CSV',
-			exportOptions: {
-				columns: [0,1,2,3]   // exclude Action
-			}
-        },
-        {
-            extend: 'excel',
-            text: 'Excel',
-			exportOptions: {
-				columns: [0,1,2,3]   // exclude Action
-			}
-        },
-        {
-            extend: 'pdf',
-            text: 'PDF',
-            orientation: 'landscape',
-            pageSize: 'A4',
-			exportOptions: {
-				columns: [0,1,2,3]   // exclude Action
-			}
-        },
-        {
-            extend: 'print',
-            text: 'Print',
-			exportOptions: {
-				columns: [0,1,2,3]   // exclude Action
-			}
+    dom:'<"top-controls"Bf>rt<"bottom-controls"ip>',
+
+    buttons:[
+
+      /* ── CSV — Excel HYPERLINK() formula so the cell is a clickable link ── */
+      {
+        extend:'csv',
+        text:'<i class="fas fa-file-csv"></i> CSV',
+        title:'KR Real-Estate Leads',
+        exportOptions:{
+          columns:[0,1,2,3],
+          /* For phone col (1) and email col (2) emit the HYPERLINK formula */
+          format:{
+            body:function(data, row, col, node){
+              /* Get raw row data from DataTable */
+              var rowData = dataTable.row(row).data();
+              if(!rowData) return data;
+              if(col===1){
+                var ph=plainPhone(rowData);
+                return ph ? '=HYPERLINK("tel:'+ph+'","'+ph+'")' : '—';
+              }
+              if(col===2){
+                var em=plainEmail(rowData);
+                return em ? '=HYPERLINK("mailto:'+em+'","'+em+'")' : '—';
+              }
+              return data;
+            }
+          }
         }
-    ]
-});
+      },
 
+      /* ── Excel — inject real hyperlink relationships into the xlsx ── */
+      {
+        extend:'excel',
+        text:'<i class="fas fa-file-excel"></i> Excel',
+        title:'KR Real-Estate Leads',
+        exportOptions:{columns:[0,1,2,3]},
+        customize:function(xlsx){
+          /* Walk every sheet's sharedStrings and worksheet cells.
+             We patch phone (col C = index 2) and email (col D = index 3)
+             rows with proper Excel hyperlink XML.                         */
+          var sheet = xlsx.xl.worksheets['sheet1.xml'];
+          var $sheet = $(sheet);
+
+          /* Collect all row data in export order */
+          var rows = dataTable.rows({search:'applied'}).data().toArray();
+
+          /* Excel rows: row 1 = title, row 2 = header, rows 3+ = data */
+          var excelDataRowStart = 3; // adjust if title row present
+
+          rows.forEach(function(rowData, i){
+            var excelRow = excelDataRowStart + i;
+
+            var phone = plainPhone(rowData);
+            var email = plainEmail(rowData);
+
+            /* Column C = phone (col index 3 in Excel, 1-based) */
+            if(phone){
+              /* Find or create the cell; set it to inline string with hyperlink style */
+              var phoneCell = $sheet.find('c[r="C'+excelRow+'"]');
+              phoneCell.attr('t','str').find('v').text(phone);
+              /* Add hyperlink relationship */
+              addExcelHyperlink(xlsx, sheet, 'C'+excelRow, 'tel:'+phone, phone);
+            }
+
+            /* Column D = email */
+            if(email){
+              var emailCell = $sheet.find('c[r="D'+excelRow+'"]');
+              emailCell.attr('t','str').find('v').text(email);
+              addExcelHyperlink(xlsx, sheet, 'D'+excelRow, 'mailto:'+email, email);
+            }
+          });
+        }
+      },
+
+      /* ── PDF — pdfmake link property makes cells clickable ── */
+      {
+        extend:'pdf',
+        text:'<i class="fas fa-file-pdf"></i> PDF',
+        orientation:'landscape',
+        pageSize:'A4',
+        title:'KR Real-Estate — Customer Leads',
+        exportOptions:{columns:[0,1,2,3]},
+        customize:function(doc){
+          /* Style header */
+          doc.styles.tableHeader={
+            fillColor:'#0c0d10', color:'white',
+            bold:true, fontSize:10, alignment:'center'
+          };
+          doc.defaultStyle={fontSize:9, color:'#0c0d10'};
+
+          /* Walk every body row and patch phone + email cells with links */
+          var rows = dataTable.rows({search:'applied'}).data().toArray();
+
+          /* doc.content[0]=title, doc.content[1]=table */
+          var tableBody = doc.content[1] && doc.content[1].table
+                          ? doc.content[1].table.body
+                          : null;
+          if(!tableBody) return;
+
+          /* tableBody[0] = header row, tableBody[1..] = data rows */
+          rows.forEach(function(rowData, i){
+            var pdfRow = tableBody[i+1]; // +1 to skip header
+            if(!pdfRow) return;
+
+            var phone = plainPhone(rowData);
+            var email = plainEmail(rowData);
+
+            /* col 1 = phone */
+            if(phone && pdfRow[1]){
+              pdfRow[1] = {
+                text: phone,
+                link: 'tel:'+phone,
+                color: '#1a7a5e',
+                decoration: 'underline',
+                fontSize: 9
+              };
+            }
+            /* col 2 = email */
+            if(email && pdfRow[2]){
+              pdfRow[2] = {
+                text: email,
+                link: 'mailto:'+email,
+                color: '#8a6820',
+                decoration: 'underline',
+                fontSize: 9
+              };
+            }
+          });
+        }
+      },
+
+      /* ── Print — inject <a href> tags into the printed window ── */
+      {
+        extend:'print',
+        text:'<i class="fas fa-print"></i> Print',
+        title:'KR Real-Estate Leads',
+        exportOptions:{columns:[0,1,2,3]},
+        customize:function(win){
+          /* Add link styles */
+          $(win.document.head).append(
+            '<style>'+
+            'table td a{color:inherit;text-decoration:underline}'+
+            'table td a.ph{color:#1a7a5e}'+
+            'table td a.em{color:#8a6820}'+
+            '</style>'
+          );
+
+          /* Replace plain text in phone (col 2) and email (col 3) with <a> tags */
+          $(win.document.body).find('table tbody tr').each(function(){
+            var cells = $(this).find('td');
+            /* phone — col index 1 */
+            var phCell = cells.eq(1);
+            var phText = phCell.text().trim();
+            if(phText && phText!=='—'){
+              phCell.html('<a class="ph" href="tel:'+phText+'">'+phText+'</a>');
+            }
+            /* email — col index 2 */
+            var emCell = cells.eq(2);
+            var emText = emCell.text().trim();
+            if(emText && emText!=='—'){
+              emCell.html('<a class="em" href="mailto:'+emText+'">'+emText+'</a>');
+            }
+          });
+        }
+      }
+
+    ],
+
+    drawCallback:function(){ /* nothing extra needed */ }
+  });
 });
 </script>
 
