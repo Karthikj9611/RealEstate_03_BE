@@ -1153,6 +1153,7 @@ function showToast(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
+/*
 function calcEMI(){
   const P=document.getElementById('cPrice').value;
   const dp=document.getElementById('cDown').value;
@@ -1175,6 +1176,7 @@ function calcEMI(){
   document.getElementById('totalAmt').textContent='₹'+(totalPay/100000).toFixed(1)+'L';
   document.getElementById('downPmt').textContent='₹'+downAmt+'L';
 }
+*/
 
 window.addEventListener('scroll',()=>{
   document.getElementById('btt').classList.toggle('show',window.scrollY>400);
@@ -1254,8 +1256,8 @@ async function submitReview(){
 
 async function loadReviews(){
   try{
-//	const res = await fetch("http://localhost:5000/api/reviews");
-    const res=await fetch("https://kr-realestate.onrender.com/api/reviews");
+	const res = await fetch("http://localhost:5000/api/reviews");
+//  const res=await fetch("https://kr-realestate.onrender.com/api/reviews");
     const data=await res.json();
     const grid=document.getElementById('testimonialsGrid');
     if(!grid) return;
@@ -1275,8 +1277,9 @@ async function loadReviews(){
 
 populateFilters();
 renderProps(PROPERTIES);
-calcEMI();
-document.addEventListener('DOMContentLoaded',()=>loadReviews());
+// calcEMI();
+loadReviews();  // Immediate load
+document.addEventListener('DOMContentLoaded', () => loadReviews());
 </script>
 </body>
 </html>
