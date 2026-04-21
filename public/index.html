@@ -1969,6 +1969,26 @@ footer {
 	}
 }
 
+
+
+.properties-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.prop-img {
+  aspect-ratio: 4/3;
+  height: auto;
+}
+
+.modal-img {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-sm);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 </style>
 </head>
 <body>
@@ -2511,7 +2531,11 @@ function toggleFav(e, id){
 function openModal(id){
   const p = PROPERTIES[id];
   document.getElementById('modalImg').style.background = p.color;
-  document.getElementById('modalImg').innerHTML = `<span style="font-size:3.5rem">${p.icon}</span>`;
+  const img = document.getElementById('modalImg');
+img.style.backgroundImage = `url(${p.image})`;
+img.style.backgroundSize = "cover";
+img.style.backgroundPosition = "center";
+img.style.backgroundRepeat = "no-repeat";
   document.getElementById('modalPrice').innerHTML = p.displayPrice;
   document.getElementById('modalTitle').textContent = p.title;
   document.getElementById('modalLoc').innerHTML = '📍 '+p.loc;
