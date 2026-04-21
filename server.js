@@ -121,5 +121,23 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
+app.delete("/api/users/mobile/:mobile", async (req, res) => {
+  try {
+    const mobile = req.params.mobile;
+
+    const deleted = await User.findOneAndDelete({ mobile });
+
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "Deleted successfully" });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -496,11 +496,29 @@ function formatDateTime(createdAt){
   </div>`;
 }
 
-window.deleteBooking=async function(id){
+window.deleteBooking = async function(mobile){
   if(!confirm('Delete this lead?')) return;
-  const res=await fetch(`https://kr-realestate.onrender.com/api/user/${id}`,{method:'DELETE'});
-  if(res.ok) dataTable.ajax.reload(null,false);
-  else alert('Delete failed. Please try again.');
+
+const res = await fetch(
+  // Local development
+  // `http://localhost:5000/api/users/mobile/${mobile}`,
+
+  // Production
+  `https://kr-realestate.onrender.com/api/users/mobile/${mobile}`,
+  { method: "DELETE" }
+);
+
+  const data = await res.json().catch(()=>({}));
+
+  console.log("STATUS:", res.status);
+  console.log("RESPONSE:", data);
+
+  if(res.ok){
+    alert("Deleted successfully");
+    dataTable.ajax.reload(null,false);
+  } else {
+    alert(data.message || "Delete failed");
+  }
 };
 
 function updateStats(data){
@@ -561,8 +579,8 @@ function addExcelHyperlink(xlsx, sheet, cellRef, url, display){
 $(document).ready(function(){
   dataTable=$('#bookingTable').DataTable({
     ajax:{
-//	  url: "http://localhost:5000/api/users",
-      url:'https://kr-realestate.onrender.com/api/users',
+//	url: "http://localhost:5000/api/users",
+    url:'https://kr-realestate.onrender.com/api/users',
       dataSrc:function(res){
         if(!Array.isArray(res)) return [];
         updateStats(res);
@@ -588,11 +606,18 @@ $(document).ready(function(){
       /* 3 – Date */
       { data:'createdAt', render:(d,t)=> t==='display' ? formatDateTime(d) : (d||'—') },
       /* 4 – Action (excluded from exports) */
-      { data:'_id', orderable:false, render:id=>
-          `<button class="btn-delete" onclick="deleteBooking('${id}')">
-            <i class="fas fa-trash-alt"></i> Delete
-          </button>`
-      }
+      {
+  data: null,
+  orderable: false,
+  render: function (data, type, row) {
+    return `
+      <button class="btn-delete"
+        onclick="deleteBooking('${row.mobile}')">
+        <i class="fas fa-trash-alt"></i> Delete
+      </button>
+    `;
+  }
+}
     ],
 
     order:[[3,'desc']],
