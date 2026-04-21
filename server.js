@@ -91,6 +91,7 @@ const ReviewSchema = new mongoose.Schema({
   name: String,
   role: String,
   comment: String,
+  rating: { type: Number, min: 1, max: 5, required: true },  // ADD THIS LINE
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -110,14 +111,20 @@ app.get("/api/reviews", async (req, res) => {
 // POST review
 app.post("/api/reviews", async (req, res) => {
   try {
-    const { name, role, comment } = req.body;
+    const { name, role, comment, rating } = req.body;
 
-    const newReview = new Review({ name, role, comment });
+    // Validate rating
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+
+    const newReview = new Review({ name, role, comment, rating });
     await newReview.save();
 
-    res.json({ message: "Saved" });
+    res.json({ message: "Review submitted successfully!" });
   } catch (err) {
-    res.status(500).json({ message: "Error" });
+    console.error("Error saving review:", err);
+    res.status(500).json({ message: "Error saving review" });
   }
 });
 
