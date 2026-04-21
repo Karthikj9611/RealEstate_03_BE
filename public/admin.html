@@ -491,8 +491,8 @@ function addExcelHyperlink(xlsx, sheet, cellRef, url, display){
 $(document).ready(function(){
   dataTable=$('#bookingTable').DataTable({
     ajax:{
-	  url: "http://localhost:5000/api/users",
-//    url:'https://kr-realestate.onrender.com/api/users',
+//	  url: "http://localhost:5000/api/users",
+      url:'https://kr-realestate.onrender.com/api/users',
       dataSrc:function(res){
         if(!Array.isArray(res)) return [];
         updateStats(res);
