@@ -926,9 +926,16 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   <textarea id="comment" placeholder="Write your review…"></textarea>
   <button onclick="submitReview()">Submit Review</button>
   
-  <div class="testimonials-grid" id="testimonialsGrid">
+<!-- Ratings Summary - ADD THIS LINE FIRST -->
+<div style="background:var(--gold-light); border-radius:var(--radius); padding:0.8rem 1.2rem; margin-bottom:1rem; text-align:center;">
+  <strong style="color:var(--ink);">⭐ Overall Rating: <span id="avgRating">0</span>/5</strong> 
+  <span style="color:var(--ink3);">|</span> 
+  <span id="totalReviewsCount" style="color:var(--ink2);">0 reviews</span>
+</div>
+
+<div class="testimonials-grid" id="testimonialsGrid">
     <p style="color:var(--ink3);font-size:0.9rem">No reviews yet. Be the first!</p>
-  </div>
+</div>
 </div>
 
 
@@ -1338,6 +1345,12 @@ async function loadReviews() {
     const data = await res.json();
     const grid = document.getElementById('testimonialsGrid');
     if (!grid) return;
+    
+    // ➕ ADD THESE 4 LINES - Calculate and display totals
+    const total = data.length;
+    const avg = total > 0 ? (data.reduce((sum, r) => sum + (r.rating || 0), 0) / total).toFixed(1) : 0;
+    document.getElementById('avgRating').textContent = avg;
+    document.getElementById('totalReviewsCount').textContent = `${total} review${total !== 1 ? 's' : ''}`;
     
     if (!data.length) {
       grid.innerHTML = '<p style="color:var(--ink3);font-size:0.9rem">No reviews yet. Be the first!</p>';
