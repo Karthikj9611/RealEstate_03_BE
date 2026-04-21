@@ -305,6 +305,76 @@ table.dataTable thead .sorting_desc{
   background-image:none!important;
   padding-right:14px!important;
 }
+
+/* Center align all table content */
+#bookingTable th,
+#bookingTable td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* Keep special layouts centered */
+.customer-name,
+.contact-col,
+.date-cell {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+
+.customer-name {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ADD THIS */
+  gap: 9px;
+}
+
+.btn-delete {
+  margin: 0 auto;
+}
+
+/* Center ALL table content (header + body) */
+#bookingTable th,
+#bookingTable td {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* Force DataTables header alignment */
+table.dataTable thead th {
+  text-align: center !important;
+}
+
+/* Center flex-based cells */
+.customer-name,
+.contact-col,
+.date-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Center action button */
+.btn-delete {
+  margin: 0 auto;
+}
+
+@media(max-width:600px){
+  .stats-grid{
+    display:flex;
+    flex-direction:row;
+    gap:10px;
+    overflow-x:auto;   /* allows scroll if needed */
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .stat-card{
+    min-width:140px;   /* keeps cards readable */
+    flex:0 0 auto;     /* prevent shrinking */
+  }
+}
 </style>
 </head>
 <body>
@@ -592,48 +662,54 @@ $(document).ready(function(){
       },
 
       /* ── Excel — inject real hyperlink relationships into the xlsx ── */
-      {
-        extend:'excel',
-        text:'<i class="fas fa-file-excel"></i> Excel',
-        title:'KR Real-Estate Leads',
-        exportOptions:{columns:[0,1,2,3]},
-        customize:function(xlsx){
-          /* Walk every sheet's sharedStrings and worksheet cells.
-             We patch phone (col C = index 2) and email (col D = index 3)
-             rows with proper Excel hyperlink XML.                         */
-          var sheet = xlsx.xl.worksheets['sheet1.xml'];
-          var $sheet = $(sheet);
+     {
+  extend:'excel',
+  text:'<i class="fas fa-file-excel"></i> Excel',
+  title:'KR Real-Estate Leads',
 
-          /* Collect all row data in export order */
-          var rows = dataTable.rows({search:'applied'}).data().toArray();
+  exportOptions:{
+    columns:[0,1,2,3],
+    format:{
+      body:function(data, row, col){
+        var rowData = dataTable.row(row).data();
+        if(!rowData) return data;
 
-          /* Excel rows: row 1 = title, row 2 = header, rows 3+ = data */
-          var excelDataRowStart = 3; // adjust if title row present
+        // Customer
+        if(col===0){
+          return ((rowData.firstName||'') + ' ' + (rowData.lastName||'')).trim() || '—';
+        }
 
-          rows.forEach(function(rowData, i){
-            var excelRow = excelDataRowStart + i;
+        // Phone (plain text)
+        if(col===1){
+          return rowData.mobile || '—';
+        }
 
-            var phone = plainPhone(rowData);
-            var email = plainEmail(rowData);
+        // Email (plain text)
+        if(col===2){
+          return rowData.email || '—';
+        }
 
-            /* Column C = phone (col index 3 in Excel, 1-based) */
-            if(phone){
-              /* Find or create the cell; set it to inline string with hyperlink style */
-              var phoneCell = $sheet.find('c[r="C'+excelRow+'"]');
-              phoneCell.attr('t','str').find('v').text(phone);
-              /* Add hyperlink relationship */
-              addExcelHyperlink(xlsx, sheet, 'C'+excelRow, 'tel:'+phone, phone);
-            }
+        // Date + Time (AM/PM)
+        if(col===3){
+          if(!rowData.createdAt) return '—';
 
-            /* Column D = email */
-            if(email){
-              var emailCell = $sheet.find('c[r="D'+excelRow+'"]');
-              emailCell.attr('t','str').find('v').text(email);
-              addExcelHyperlink(xlsx, sheet, 'D'+excelRow, 'mailto:'+email, email);
-            }
+          const d = new Date(rowData.createdAt);
+
+          return d.toLocaleString('en-GB',{
+            day:'2-digit',
+            month:'2-digit',
+            year:'numeric',
+            hour:'2-digit',
+            minute:'2-digit',
+            hour12:true
           });
         }
-      },
+
+        return data;
+      }
+    }
+  }
+},
 
       /* ── PDF — pdfmake link property makes cells clickable ── */
       {
