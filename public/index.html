@@ -531,7 +531,7 @@ nav{
 .agent-name{font-size:0.9rem;font-weight:700;color:var(--ink);margin-bottom:3px}
 .agent-role{font-size:0.72rem;color:var(--ink3);margin-bottom:10px}
 .agent-stats{display:flex;justify-content:center;gap:1.2rem;font-size:0.74rem;color:var(--ink2)}
-.agent-stat-num{font-weight:700;color:var(--ink);display:block;font-size:1rem}
+.agent-phone{color:#16a34a;font-weight:600;font-size:0.82rem}
 
 
 .agents-grid{
@@ -629,29 +629,32 @@ nav{
 
 /* ── CONTACT FORM ── */
 .contact-section{
-  background:var(--gold-light);
-  padding:clamp(1.5rem,3vw,2.5rem) clamp(1.2rem,4%,3rem);
+  background:linear-gradient(135deg,var(--gold-light) 0%,#f9f5ec 100%);
+  padding:clamp(2rem,4vw,3.5rem) clamp(1.2rem,4%,3rem);
   width:100%;
+  border-top:1px solid var(--border);
 }
-.contact-inner{max-width:100%;width:100%;margin:0 auto;text-align:center}
-.contact-inner h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--ink);margin-bottom:0.5rem}
-.contact-inner p{font-size:0.88rem;color:var(--ink2);margin-bottom:1.8rem;line-height:1.7}
-.contact-form{display:flex;flex-direction:column;gap:10px;width:100%}
+.contact-inner{max-width:520px;width:100%;margin:0 auto;text-align:center}
+.contact-inner h2{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--ink);margin-bottom:0.5rem;letter-spacing:-0.3px}
+.contact-inner p{font-size:0.9rem;color:var(--ink2);margin-bottom:2rem;line-height:1.7}
+.contact-form{display:flex;flex-direction:column;gap:12px;width:100%;text-align:left}
+.contact-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .contact-form input{
   width:100%;border:1.5px solid var(--border);border-radius:var(--radius-xs);
-  padding:12px 16px;font-size:0.9rem;font-family:inherit;outline:none;
-  background:var(--surface);transition:border-color 0.18s;color:var(--ink);
+  padding:13px 16px;font-size:0.9rem;font-family:inherit;outline:none;
+  background:var(--surface);transition:all 0.18s;color:var(--ink);
   box-sizing:border-box;
 }
-.contact-form input:focus{border-color:var(--gold)}
+.contact-form input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,144,60,0.12)}
 .contact-form button{
   background:var(--ink);color:#fff;border:none;
-  padding:13px 22px;border-radius:var(--radius-xs);
-  font-size:0.9rem;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;
-  width:100%;
+  padding:14px 22px;border-radius:var(--radius-xs);
+  font-size:0.92rem;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;
+  width:100%;margin-top:4px;
 }
-.contact-form button:hover{background:var(--gold-dark)}
+.contact-form button:hover{background:var(--gold);color:var(--ink);transform:translateY(-2px);box-shadow:0 8px 24px rgba(184,144,60,0.3)}
+@media(max-width:480px){.contact-form-row{grid-template-columns:1fr}}
 
 /* ── FOOTER ── */
 footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw,3.5rem) clamp(1.2rem,4%,3rem) 2rem}
@@ -661,7 +664,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .footer-links{display:flex;flex-direction:column;gap:7px}
 .footer-links a{color:rgba(255,255,255,0.5);font-size:0.8rem;text-decoration:none;transition:color 0.15s}
 .footer-links a:hover{color:var(--gold2)}
-.footer-bottom{display:flex;justify-content:flex-end;align-items:center;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08);gap:1rem;flex-wrap:wrap}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08);gap:1rem;flex-wrap:wrap}
+.footer-copy{font-size:0.75rem;color:rgba(255,255,255,0.3);margin-right:auto}
 .footer-social{display:flex;gap:8px}
 .social-btn{
   width:34px;height:34px;border-radius:8px;
@@ -752,14 +756,69 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 /* ── TOAST ── */
 .toast{
   position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%) scale(0.92);
-  background:var(--ink);color:#fff;font-size:0.88rem;
-  padding:13px 22px;border-radius:13px;box-shadow:var(--shadow-md);
-  z-index:600;opacity:0;transition:all 0.3s ease;pointer-events:none;
+  transform:translate(-50%,-50%) scale(0.88);
+  background:var(--ink);color:#fff;
+  font-size:1.05rem;font-weight:600;
+  padding:18px 36px;border-radius:18px;
+  box-shadow:0 24px 64px rgba(12,13,16,0.35);
+  z-index:600;opacity:0;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;text-align:center;
+  min-width:240px;max-width:380px;
+  border:1px solid rgba(255,255,255,0.1);
+  letter-spacing:0.1px;line-height:1.5;
 }
 .toast.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+.toast-icon{display:block;font-size:1.6rem;margin-bottom:6px}
 
-/* ── ANIMATIONS ── */
+/* ── TOAST OVERLAY ── */
+.toast-backdrop{
+  position:fixed;inset:0;z-index:599;
+  background:rgba(12,13,16,0.45);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity 0.28s;
+}
+.toast-backdrop.show{opacity:1}
+
+/* ── AGENT PHOTO ── */
+.agent-photo{
+  width:80px;height:80px;border-radius:50%;
+  margin:0 auto 12px;object-fit:cover;
+  border:3px solid var(--gold-light);
+  box-shadow:0 4px 16px rgba(184,144,60,0.2);
+  transition:transform 0.2s;
+  display:block;
+}
+.agent-card:hover .agent-photo{transform:scale(1.05)}
+.agent-initials{
+  width:80px;height:80px;border-radius:50%;
+  margin:0 auto 12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:700;
+  border:3px solid var(--gold-light);
+  box-shadow:0 4px 16px rgba(184,144,60,0.15);
+  transition:transform 0.2s;
+}
+.agent-card:hover .agent-initials{transform:scale(1.05)}
+
+/* ── MODERN POLISH ── */
+.prop-card:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(12,13,16,0.14);border-color:rgba(184,144,60,0.4)}
+
+.rating-summary{
+  background:linear-gradient(135deg,var(--gold-light),#fefcf5);
+  border:1px solid rgba(184,144,60,0.25);
+  border-radius:var(--radius);padding:1rem 1.4rem;
+  margin-top:1.2rem;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;
+}
+.rating-summary strong{font-size:1.05rem;color:var(--ink);font-family:'Cormorant Garamond',serif}
+.rating-summary span{font-size:0.88rem;color:var(--ink2);font-weight:500}
+.testi-form-wrap{border-top:2px solid var(--border)}
+.testi-form input:focus,.testi-form textarea:focus{box-shadow:0 0 0 3px rgba(184,144,60,0.12)}
+.testi-card{border-left:none;border-top:3px solid var(--gold)}
+.testi-avatar{background:linear-gradient(135deg,var(--ink),#2a2d3a)}
+.agent-card{border-top:3px solid transparent}
+.agent-card:hover{border-top-color:var(--gold)}
+.modal{border-top:4px solid var(--gold)}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{opacity:0;animation:fadeUp 0.5s ease forwards}
 .fade-up:nth-child(1){animation-delay:0.04s}
@@ -772,6 +831,12 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 /* ── TESTIMONIALS SECTION WRAPPER ── */
 .testi-section{padding:clamp(1.5rem,3vw,2.8rem) clamp(1.2rem,4%,3rem);background:var(--surface2)}
 .testi-section-inner{max-width:1100px;margin:0 auto}
+
+/* Review form wrapper fix — move inside section properly */
+.testi-form-wrap{
+  max-width:1100px;margin:0 auto;padding:0 clamp(1.2rem,4%,3rem) clamp(1.5rem,3vw,2.8rem);
+  background:var(--surface2);
+}
 
 /* Mobile: reviews 2 per row with horizontal sliding */
 @media(max-width:640px){
@@ -797,8 +862,96 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     scrollbar-width: none;
   }
 }
-</style>
-</head>
+/* ── MODERN POLISH ── */
+
+/* Better section heading eyebrow */
+.section-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:0.68rem;font-weight:700;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--gold-dark);
+  margin-bottom:0.5rem;
+}
+.section-eyebrow::before{content:'◆';font-size:0.55rem;color:var(--gold)}
+
+/* Testi form improvements */
+.testi-form h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.7rem;font-weight:700;margin-bottom:4px;
+  letter-spacing:-0.2px;
+}
+
+/* Better modal close button */
+.modal-close-btn{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--surface2);border:1.5px solid var(--border);
+  color:var(--ink2);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;transition:all 0.18s;
+}
+.modal-close-btn:hover{background:var(--red-light);color:var(--red);border-color:transparent}
+
+/* Footer copyright text */
+.footer-copy{
+  font-size:0.76rem;color:rgba(255,255,255,0.3);
+  margin-right:auto;
+}
+
+/* Hero inner single column fix */
+.hero-inner{
+  max-width:760px;
+  grid-template-columns:1fr;
+}
+
+/* Input consistent focus ring */
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--gold)!important;
+  box-shadow:0 0 0 3px rgba(184,144,60,0.12)!important;
+}
+
+/* Listings section padding balance */
+#listings{padding-bottom:2.5rem}
+
+/* Agents section consistent padding */
+#agents{padding:clamp(2rem,4vw,3rem) clamp(1.2rem,4%,3rem)}
+
+/* Agent card phone number style */
+.agent-phone{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(22,163,74,0.08);color:#16a34a;
+  border-radius:99px;padding:5px 14px;
+  font-size:0.8rem;font-weight:600;
+  border:1px solid rgba(22,163,74,0.2);
+  transition:all 0.18s;
+}
+.agent-card:hover .agent-phone{
+  background:rgba(22,163,74,0.15);
+}
+
+/* Testi card left border fix - prevent double border */
+.testi-card{border-left:3px solid var(--gold)!important}
+
+/* Rating summary box */
+.rating-summary{
+  background:linear-gradient(135deg,var(--gold-light),#fef8e7);
+  border-radius:var(--radius);
+  padding:1rem 1.5rem;
+  margin-top:1rem;
+  text-align:center;
+  border:1px solid rgba(184,144,60,0.2);
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  flex-wrap:wrap;
+}
+
+/* Smooth page transitions */
+section,div[class*="section"]{transition:background 0.2s}
+
+/* Footer copyright left aligned */
+@media(max-width:640px){
+  .footer-bottom{justify-content:center}
+  .footer-copy{text-align:center;width:100%}
+}
+
 <body>
 
 <!-- NAV -->
@@ -821,9 +974,29 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   </button>
 </nav>
 
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">HSR Layout · Premium Real Estate</div>
+      <h1>Find Your <em>Perfect</em><br>Home in HSR</h1>
+      <p class="hero-desc">Verified listings across HSR Layout. Transparent pricing, trusted agents.</p>
+      <div class="hero-btns">
+        <a href="#listings" class="btn-primary">Browse Properties</a>
+        <a href="#about" class="btn-ghost">📞 Contact Us</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-num">12+</div><div class="hero-stat-label">Properties</div></div>
+        <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Expert Agents</div></div>
+        <div><div class="hero-stat-num">100%</div><div class="hero-stat-label">Verified</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
-<!-- STATS STRIP -->
 <!--
 <div class="stats-strip">
   <div class="stats-inner">
@@ -943,50 +1116,42 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     <div class="agents-grid">
 
       <div class="agent-card" onclick="window.location.href='tel:9611459960'">
-        <div class="agent-avatar" style="background:#fdf6e8;color:#8a6820">PS</div>
+        <img class="agent-photo" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya Sharma" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="agent-initials" style="background:#fdf6e8;color:#8a6820;display:none">PS</div>
         <div class="agent-name">Priya Sharma</div>
         <div class="agent-role">Senior Property Advisor</div>
-
         <div class="agent-stats">
-          <div style="color:#16a34a;font-weight:600;">
-            📞 <span>9611459960</span>
-          </div>
+          <div class="agent-phone">📞 9611459960</div>
         </div>
       </div>
 
       <div class="agent-card" onclick="window.location.href='tel:9611459961'">
-        <div class="agent-avatar" style="background:#e0f4f1;color:#0f6e56">AR</div>
+        <img class="agent-photo" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Arjun Rao" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="agent-initials" style="background:#e0f4f1;color:#0f6e56;display:none">AR</div>
         <div class="agent-name">Arjun Rao</div>
         <div class="agent-role">Luxury Homes Specialist</div>
-
         <div class="agent-stats">
-          <div style="color:#16a34a;font-weight:600;">
-            📞 <span>9611459961</span>
-          </div>
+          <div class="agent-phone">📞 9611459961</div>
         </div>
       </div>
 
       <div class="agent-card" onclick="window.location.href='tel:9611459962'">
-        <div class="agent-avatar" style="background:#fdecea;color:#a32d2d">MN</div>
+        <img class="agent-photo" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Meera Nair" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="agent-initials" style="background:#fdecea;color:#a32d2d;display:none">MN</div>
         <div class="agent-name">Meera Nair</div>
         <div class="agent-role">Commercial Expert</div>
-
         <div class="agent-stats">
-          <div style="color:#16a34a;font-weight:600;">
-            📞 <span>9611459962</span>
-          </div>
+          <div class="agent-phone">📞 9611459962</div>
         </div>
       </div>
 
       <div class="agent-card" onclick="window.location.href='tel:9611459963'">
-        <div class="agent-avatar" style="background:#e6f1fb;color:#185fa5">VS</div>
+        <img class="agent-photo" src="https://randomuser.me/api/portraits/men/75.jpg" alt="Vikram Singh" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="agent-initials" style="background:#e6f1fb;color:#185fa5;display:none">VS</div>
         <div class="agent-name">Vikram Singh</div>
         <div class="agent-role">Investment Consultant</div>
-
         <div class="agent-stats">
-          <div style="color:#16a34a;font-weight:600;">
-            📞 <span>9611459963</span>
-          </div>
+          <div class="agent-phone">📞 9611459963</div>
         </div>
       </div>
 
@@ -999,8 +1164,10 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     <h2>Get in Touch</h2>
     <p>Fill your details and our team will contact you shortly.</p>
     <div class="contact-form">
-      <input type="text" placeholder="First Name" id="firstName" required/>
-      <input type="text" placeholder="Last Name" id="lastName" required/>
+      <div class="contact-form-row">
+        <input type="text" placeholder="First Name" id="firstName" required/>
+        <input type="text" placeholder="Last Name" id="lastName" required/>
+      </div>
       <input type="email" placeholder="Email Address" id="email" required/>
       <input type="tel" placeholder="Mobile Number" id="mobile" required/>
       <button onclick="submitForm()">Submit →</button>
@@ -1026,7 +1193,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 </div>
 
 <!-- TESTIMONIALS -->
-<div class="testi-form" style="margin-top:1rem">
+<div class="testi-form-wrap">
+<div class="testi-form" style="margin-top:0">
   <h3>Add Your Review</h3>
 
   <!-- LOGIN GATE: shown when not logged in -->
@@ -1060,67 +1228,19 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   </div>
 
   <!-- Ratings Summary -->
-  <div style="background:var(--gold-light);border-radius:var(--radius);padding:0.8rem 1.2rem;margin-top:1rem;text-align:center">
-    <strong style="color:var(--ink)">⭐ Overall Rating: <span id="avgRating">0</span>/5</strong>
-    <span style="color:var(--ink3)"> | </span>
-    <span id="totalReviewsCount" style="color:var(--ink2)">0 reviews</span>
+  <div class="rating-summary">
+    <strong style="color:var(--ink);font-size:1rem">⭐ <span id="avgRating">0</span><span style="color:var(--ink3);font-weight:400">/5</span></strong>
+    <span style="color:var(--border2)">|</span>
+    <span id="totalReviewsCount" style="color:var(--ink2);font-size:0.88rem">0 reviews</span>
   </div>
 
   <div class="testimonials-grid" id="testimonialsGrid">
     <p style="color:var(--ink3);font-size:0.9rem">No reviews yet. Be the first!</p>
   </div>
 </div>
+</div><!-- end testi-form-wrap -->
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-noise"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div>
-<!--      <div class="hero-eyebrow">India's Premier Realty Platform</div> -->
-      <h1>Find Your <em>Perfect</em><br>House for Rent</h1>
-      <p class="hero-desc">Verified listings across HSR Layout. Transparent pricing.</p>
-      <div class="hero-btns">
-<!--          <a href="#listings" class="btn-primary">Browse Properties</a>
-      <button class="btn-ghost" onclick="showToast('Virtual tours coming soon!')">▶ Virtual Tour</button> -->
-      </div>
-<!--
-      <div class="hero-stats">
-        <div><div class="hero-stat-num">12,400+</div><div class="hero-stat-label">Properties</div></div>
-        <div><div class="hero-stat-num">98%</div><div class="hero-stat-label">Satisfaction</div></div>
-        <div><div class="hero-stat-num">320+</div><div class="hero-stat-label">Agents</div></div>
-      </div>
-	  
--->
-    </div>
-	
-<!--
-    <div class="hero-visual">
-      <div class="hero-card-big" onclick="openModal(0)">
-        <div class="hero-card-img" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
-          <div class="hero-card-img-label">3 BHK · Ready to Move</div>
-        </div>
-        <div class="hero-card-row">
-          <div><div class="hero-card-title">Prestige Lakeside Terrace</div><div class="hero-card-loc">📍 Koramangala, Bengaluru</div></div>
-          <div class="hero-card-price">₹1.85 Cr</div>
-        </div>
-      </div>
-      <div class="hero-cards-row">
-        <div class="hero-mini-card" onclick="openModal(1)">
-          <div class="hero-mini-price">₹68L</div>
-          <div class="hero-mini-title">Sobha Dream Acres</div>
-          <div class="hero-mini-sub">2 BHK · Panathur, Blr</div>
-        </div>
-        <div class="hero-mini-card" onclick="openModal(2)">
-          <div class="hero-mini-price">₹42K/mo</div>
-          <div class="hero-mini-title">Galaxy Penthouse</div>
-          <div class="hero-mini-sub">4 BHK · Bandra, Mumbai</div>
-        </div>
-      </div>
--->
-    </div>
-  </div>
-</section>
+
 
 
 <!-- EMI CALCULATOR -->
@@ -1201,6 +1321,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
       </div>
     </div>
     <div class="footer-bottom">
+      <span class="footer-copy">© 2025 KR Real Estate · HSR Layout, Bengaluru</span>
       <div class="footer-social">
         <a class="social-btn" href="#" title="Facebook">f</a>
         <a class="social-btn" href="#" title="Instagram">in</a>
@@ -1214,7 +1335,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 <!-- BACK TO TOP -->
 <button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 
-<!-- TOAST -->
+<!-- TOAST BACKDROP + TOAST -->
+<div class="toast-backdrop" id="toastBackdrop"></div>
 <div class="toast" id="toast"></div>
 
 <!-- PROPERTY DETAIL MODAL -->
@@ -1427,8 +1549,8 @@ function setTab(btn,val){
 
 function toggleFav(e,id){
   e.stopPropagation();
-  if(favs.has(id)){favs.delete(id);showToast('Removed from favourites');}
-  else{favs.add(id);showToast('Added to favourites ❤️');}
+  if(favs.has(id)){favs.delete(id);showToast('Removed from favourites','🤍');}
+  else{favs.add(id);showToast('Added to favourites','❤️');}
   filterProps();
 }
 
@@ -1460,11 +1582,21 @@ function toggleNav(){document.getElementById('navLinks').classList.toggle('open'
 function closeNav(){document.getElementById('navLinks').classList.remove('open')}
 
 let toastTimer;
-function showToast(msg){
+function showToast(msg, icon){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
+  const bd=document.getElementById('toastBackdrop');
+  if(icon){
+    t.innerHTML=`<span class="toast-icon">${icon}</span>${msg}`;
+  } else {
+    t.textContent=msg;
+  }
+  t.classList.add('show');
+  if(bd) bd.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+  toastTimer=setTimeout(()=>{
+    t.classList.remove('show');
+    if(bd) bd.classList.remove('show');
+  },2800);
 }
 
 /*
@@ -1539,7 +1671,7 @@ async function submitForm(){
   const lastName=document.getElementById('lastName').value;
   const email=document.getElementById('email').value;
   const mobile=document.getElementById('mobile').value;
-  if(!firstName||!lastName||!email||!mobile){showToast('Please fill all fields');return;}
+  if(!firstName||!lastName||!email||!mobile){showToast('Please fill all fields','⚠️');return;}
   try{
 //	  const res = await fetch("http://localhost:5000/submit", {
 	  const res=await fetch("https://kr-realestate.onrender.com/submit",{
@@ -1547,14 +1679,14 @@ async function submitForm(){
       body:JSON.stringify({firstName,lastName,email,mobile})
     });
     const data=await res.json();
-    if(!res.ok){showToast(data.message);return;}
-    showToast(data.message);
+    if(!res.ok){showToast(data.message,'⚠️');return;}
+    showToast(data.message,'✅');
     unlockReviewForm(firstName, lastName);
     document.getElementById('firstName').value='';
     document.getElementById('lastName').value='';
     document.getElementById('email').value='';
     document.getElementById('mobile').value='';
-  }catch(err){showToast('Server error!');}
+  }catch(err){showToast('Server error. Please try again.','❌');}
 }
 
 // STAR RATING HANDLER
@@ -1610,12 +1742,12 @@ async function submitReview() {
   const rating = parseInt(document.getElementById('ratingValue').value);
   
   if (!name || !comment) {
-    showToast('Please fill name and review');
+    showToast('Please fill name and review','⚠️');
     return;
   }
   
   if (rating === 0) {
-    showToast('Please select a star rating');
+    showToast('Please select a star rating','⭐');
     return;
   }
   
@@ -1629,11 +1761,11 @@ async function submitReview() {
     
     const data = await response.json();
     if (!response.ok) {
-      showToast(data.message || 'Error submitting review');
+      showToast(data.message || 'Error submitting review','⚠️');
       return;
     }
     
-    showToast('Review submitted! Thank you.');
+    showToast('Review submitted! Thank you.','⭐');
     document.getElementById('name').value = '';
     document.getElementById('role').value = '';
     document.getElementById('comment').value = '';
@@ -1645,7 +1777,7 @@ async function submitReview() {
     
     loadReviews();
   } catch(err) {
-    showToast('Error submitting review.');
+    showToast('Error submitting review.','❌');
     console.error(err);
   }
 }
