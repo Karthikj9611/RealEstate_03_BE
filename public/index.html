@@ -806,10 +806,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   <a class="nav-logo" href="#"><span class="k">K</span>R</a>
   <div class="nav-links" id="navLinks">
     <a href="#listings" class="active" onclick="closeNav()">Properties</a>
-    <a href="#featured" onclick="closeNav()">Featured</a>
     <a href="#agents" onclick="closeNav()">Agents</a>
-    <a href="#about" onclick="closeNav()">About</a>
-    <a href="#contact" onclick="closeNav()">Contact</a>
+    <a href="#about" onclick="closeNav()">Contact</a>
     <a href="#about" id="navLoginLink" onclick="scrollToForm();closeNav()">Login</a>
   </div>
   <!-- User pill shown after login (outside nav-links so always visible) -->
@@ -823,56 +821,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   </button>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-noise"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div>
-<!--      <div class="hero-eyebrow">India's Premier Realty Platform</div> -->
-      <h1>Find Your <em>Perfect</em><br>House for Rent</h1>
-      <p class="hero-desc">Verified listings across HSR Layout. Transparent pricing.</p>
-      <div class="hero-btns">
-<!--          <a href="#listings" class="btn-primary">Browse Properties</a>
-      <button class="btn-ghost" onclick="showToast('Virtual tours coming soon!')">▶ Virtual Tour</button> -->
-      </div>
-<!--
-      <div class="hero-stats">
-        <div><div class="hero-stat-num">12,400+</div><div class="hero-stat-label">Properties</div></div>
-        <div><div class="hero-stat-num">98%</div><div class="hero-stat-label">Satisfaction</div></div>
-        <div><div class="hero-stat-num">320+</div><div class="hero-stat-label">Agents</div></div>
-      </div>
-	  
--->
-    </div>
-	
-<!--
-    <div class="hero-visual">
-      <div class="hero-card-big" onclick="openModal(0)">
-        <div class="hero-card-img" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
-          <div class="hero-card-img-label">3 BHK · Ready to Move</div>
-        </div>
-        <div class="hero-card-row">
-          <div><div class="hero-card-title">Prestige Lakeside Terrace</div><div class="hero-card-loc">📍 Koramangala, Bengaluru</div></div>
-          <div class="hero-card-price">₹1.85 Cr</div>
-        </div>
-      </div>
-      <div class="hero-cards-row">
-        <div class="hero-mini-card" onclick="openModal(1)">
-          <div class="hero-mini-price">₹68L</div>
-          <div class="hero-mini-title">Sobha Dream Acres</div>
-          <div class="hero-mini-sub">2 BHK · Panathur, Blr</div>
-        </div>
-        <div class="hero-mini-card" onclick="openModal(2)">
-          <div class="hero-mini-price">₹42K/mo</div>
-          <div class="hero-mini-title">Galaxy Penthouse</div>
-          <div class="hero-mini-sub">4 BHK · Bandra, Mumbai</div>
-        </div>
-      </div>
--->
-    </div>
-  </div>
-</section>
+
 
 <!-- STATS STRIP -->
 <!--
@@ -954,7 +903,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     <div class="section-head">
       <div>
         <div class="section-title">All <span>Listings</span></div>
-        <div class="section-sub">Verified properties across HSR Layout</div>
+        <div class="section-sub">Properties at HSR Layout</div>
       </div>
       <span class="filter-count" id="propCount">12 properties</span>
     </div>
@@ -1121,6 +1070,57 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     <p style="color:var(--ink3);font-size:0.9rem">No reviews yet. Be the first!</p>
   </div>
 </div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div>
+<!--      <div class="hero-eyebrow">India's Premier Realty Platform</div> -->
+      <h1>Find Your <em>Perfect</em><br>House for Rent</h1>
+      <p class="hero-desc">Verified listings across HSR Layout. Transparent pricing.</p>
+      <div class="hero-btns">
+<!--          <a href="#listings" class="btn-primary">Browse Properties</a>
+      <button class="btn-ghost" onclick="showToast('Virtual tours coming soon!')">▶ Virtual Tour</button> -->
+      </div>
+<!--
+      <div class="hero-stats">
+        <div><div class="hero-stat-num">12,400+</div><div class="hero-stat-label">Properties</div></div>
+        <div><div class="hero-stat-num">98%</div><div class="hero-stat-label">Satisfaction</div></div>
+        <div><div class="hero-stat-num">320+</div><div class="hero-stat-label">Agents</div></div>
+      </div>
+	  
+-->
+    </div>
+	
+<!--
+    <div class="hero-visual">
+      <div class="hero-card-big" onclick="openModal(0)">
+        <div class="hero-card-img" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
+          <div class="hero-card-img-label">3 BHK · Ready to Move</div>
+        </div>
+        <div class="hero-card-row">
+          <div><div class="hero-card-title">Prestige Lakeside Terrace</div><div class="hero-card-loc">📍 Koramangala, Bengaluru</div></div>
+          <div class="hero-card-price">₹1.85 Cr</div>
+        </div>
+      </div>
+      <div class="hero-cards-row">
+        <div class="hero-mini-card" onclick="openModal(1)">
+          <div class="hero-mini-price">₹68L</div>
+          <div class="hero-mini-title">Sobha Dream Acres</div>
+          <div class="hero-mini-sub">2 BHK · Panathur, Blr</div>
+        </div>
+        <div class="hero-mini-card" onclick="openModal(2)">
+          <div class="hero-mini-price">₹42K/mo</div>
+          <div class="hero-mini-title">Galaxy Penthouse</div>
+          <div class="hero-mini-sub">4 BHK · Bandra, Mumbai</div>
+        </div>
+      </div>
+-->
+    </div>
+  </div>
+</section>
 
 
 <!-- EMI CALCULATOR -->
