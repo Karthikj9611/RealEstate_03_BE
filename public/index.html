@@ -1730,6 +1730,12 @@ if ("serviceWorker" in navigator) {
 <script>
 let otpStage = "send";
 
+// ✅ AUTO SWITCH URL (local vs production)
+const BASE_URL =
+  location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://kr-realestate.onrender.com"; // 🔁 change if needed
+
 document.getElementById("otpBtn").addEventListener("click", async function () {
 
   const email = document.getElementById("email").value;
@@ -1740,12 +1746,19 @@ document.getElementById("otpBtn").addEventListener("click", async function () {
   if (otpStage === "send") {
 
     if (!email) {
-      alert("Enter email first");
+      Swal.fire({
+        icon: "warning",
+        title: "Enter Email",
+        text: "Please enter your email first"
+      });
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:5000/send-otp", {
+      btn.innerText = "Sending...";
+      btn.disabled = true;
+
+      const res = await fetch(BASE_URL + "/send-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -1756,85 +1769,100 @@ document.getElementById("otpBtn").addEventListener("click", async function () {
       const data = await res.json();
 
       if (data.success) {
-        alert("OTP sent ✅");
 
-        // show OTP input AFTER sending
+        Swal.fire({
+          icon: "success",
+          title: "OTP Sent 📩",
+          text: "Check your email for the OTP",
+          timer: 2000,
+          showConfirmButton: false
+        });
+
         otpInput.style.display = "block";
-
-        // change button
         btn.innerText = "Verify OTP";
+        btn.disabled = false;
+
+        // 🔒 lock email
+        document.getElementById("email").disabled = true;
 
         otpStage = "verify";
+
       } else {
-        alert("Failed to send OTP");
+        throw new Error();
       }
 
     } catch (err) {
       console.error(err);
-      alert("Server error");
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed ❌",
+        text: "Unable to send OTP"
+      });
+
+      btn.innerText = "Send OTP";
+      btn.disabled = false;
     }
   }
 
   // STEP 2: VERIFY OTP
-else if (otpStage === "verify") {
+  else if (otpStage === "verify") {
 
-  const otp = otpInput.value;
+    const otp = otpInput.value;
 
-  if (!otp) {
-    Swal.fire({
-      icon: "warning",
-      title: "Enter OTP",
-      text: "Please enter the OTP sent to your email",
-      confirmButtonColor: "#0d6efd"
-    });
-    return;
-  }
-
-  try {
-    const res = await fetch("http://localhost:5000/verify-otp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, otp })
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-
+    if (!otp) {
       Swal.fire({
-        icon: "success",
-        title: "Verified Successfully 🎉",
-        text: "Your email has been verified",
-        confirmButtonColor: "#0d6efd"
+        icon: "warning",
+        title: "Enter OTP",
+        text: "Please enter the OTP"
+      });
+      return;
+    }
+
+    try {
+      btn.innerText = "Verifying...";
+      btn.disabled = true;
+
+      const res = await fetch(BASE_URL + "/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, otp })
       });
 
-      btn.style.display = "none";
-      otpInput.style.display = "none";
+      const data = await res.json();
 
-      otpStage = "done";
+      if (data.success) {
 
-    } else {
+        Swal.fire({
+          icon: "success",
+          title: "Verified 🎉",
+          text: "Email verified successfully"
+        });
+
+        btn.style.display = "none";
+        otpInput.style.display = "none";
+
+        otpStage = "done";
+
+      } else {
+        throw new Error();
+      }
+
+    } catch (err) {
+      console.error(err);
+
       Swal.fire({
         icon: "error",
         title: "Invalid OTP ❌",
-        text: "Please check and try again",
-        confirmButtonColor: "#dc3545"
+        text: "Please try again"
       });
+
+      btn.innerText = "Verify OTP";
+      btn.disabled = false;
     }
-
-  } catch (err) {
-    console.error(err);
-
-    Swal.fire({
-      icon: "error",
-      title: "Server Error ⚠️",
-      text: "Please try again later",
-      confirmButtonColor: "#dc3545"
-    });
   }
-}
 
 });
 </script>
