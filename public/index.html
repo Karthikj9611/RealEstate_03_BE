@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>KR Real-Estate</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
 <link rel="manifest" href="/manifest.json">
@@ -1001,7 +1002,11 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     <div class="contact-form">
       <input type="text" placeholder="First Name" id="firstName" required/>
       <input type="text" placeholder="Last Name" id="lastName" required/>
-      <input type="email" placeholder="Email Address" id="email" required/>
+      <input type="email" id="email" placeholder="Enter Email" />
+
+<input type="text" id="otpInput" placeholder="Enter OTP" style="display:none;" />
+
+<button id="otpBtn">Send OTP</button>
       <input type="tel" placeholder="Mobile Number" id="mobile" required/>
       <button onclick="submitForm()">Submit →</button>
     </div>
@@ -1720,6 +1725,118 @@ if ("serviceWorker" in navigator) {
     .then(() => console.log("SW Registered"))
     .catch(err => console.log(err));
 }
+</script>
+
+<script>
+let otpStage = "send";
+
+document.getElementById("otpBtn").addEventListener("click", async function () {
+
+  const email = document.getElementById("email").value;
+  const otpInput = document.getElementById("otpInput");
+  const btn = document.getElementById("otpBtn");
+
+  // STEP 1: SEND OTP
+  if (otpStage === "send") {
+
+    if (!email) {
+      alert("Enter email first");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("OTP sent ✅");
+
+        // show OTP input AFTER sending
+        otpInput.style.display = "block";
+
+        // change button
+        btn.innerText = "Verify OTP";
+
+        otpStage = "verify";
+      } else {
+        alert("Failed to send OTP");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
+  }
+
+  // STEP 2: VERIFY OTP
+else if (otpStage === "verify") {
+
+  const otp = otpInput.value;
+
+  if (!otp) {
+    Swal.fire({
+      icon: "warning",
+      title: "Enter OTP",
+      text: "Please enter the OTP sent to your email",
+      confirmButtonColor: "#0d6efd"
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/verify-otp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, otp })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      Swal.fire({
+        icon: "success",
+        title: "Verified Successfully 🎉",
+        text: "Your email has been verified",
+        confirmButtonColor: "#0d6efd"
+      });
+
+      btn.style.display = "none";
+      otpInput.style.display = "none";
+
+      otpStage = "done";
+
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid OTP ❌",
+        text: "Please check and try again",
+        confirmButtonColor: "#dc3545"
+      });
+    }
+
+  } catch (err) {
+    console.error(err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Server Error ⚠️",
+      text: "Please try again later",
+      confirmButtonColor: "#dc3545"
+    });
+  }
+}
+
+});
 </script>
 
 </body>

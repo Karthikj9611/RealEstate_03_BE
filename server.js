@@ -147,4 +147,87 @@ app.delete("/api/users/mobile/:mobile", async (req, res) => {
 });
 
 
+const nodemailer = require("nodemailer");
+
+let otpStore = {}; // temporary store (use DB in production)
+
+// transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "karthikram1391@gmail.com",
+    pass: "gsbisdrdqoyzqoln"
+  }
+});
+
+
+app.post("/send-otp", async (req, res) => {
+  const { email } = req.body;
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  otpStore[email] = otp;
+
+  try {
+    await transporter.sendMail({
+      from: '"KR Real Estate" <karthikram1391@gmail.com>',
+      to: email,
+      subject: "Your OTP for Verification",
+      html: `
+      <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:30px;">
+        
+        <div style="max-width:500px;margin:auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 5px 20px rgba(0,0,0,0.1);">
+          
+          <div style="background:#0d6efd;padding:20px;text-align:center;color:white;">
+            <h2 style="margin:0;">KR Real Estate</h2>
+            <p style="margin:0;font-size:14px;">Secure Verification</p>
+          </div>
+
+          <div style="padding:30px;text-align:center;">
+            <h3>Your One-Time Password</h3>
+            <p style="color:#555;">Use the OTP below to verify your email address</p>
+
+            <div style="font-size:32px;font-weight:bold;letter-spacing:5px;
+                        background:#f1f3f5;padding:15px;border-radius:8px;
+                        display:inline-block;margin:20px 0;color:#0d6efd;">
+              ${otp}
+            </div>
+
+            <p style="color:#777;font-size:14px;">
+              This OTP is valid for <b>5 minutes</b>. Do not share it.
+            </p>
+          </div>
+
+          <div style="background:#f8f9fa;padding:15px;text-align:center;font-size:12px;color:#999;">
+            © ${new Date().getFullYear()} KR Real Estate<br/>
+            If you didn’t request this, ignore this email.
+          </div>
+
+        </div>
+
+      </div>
+      `
+    });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log("Mail error:", err);
+    res.json({ success: false });
+  }
+});
+
+// VERIFY OTP
+app.post("/verify-otp", (req, res) => {
+  const { email, otp } = req.body;
+
+  if (otpStore[email] === otp) {
+    delete otpStore[email];
+    res.json({ success: true });
+  } else {
+    res.json({ success: false });
+  }
+});
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
