@@ -85,6 +85,55 @@ app.get("/api/users", async (req, res) => {
 });
 
 
+// ── PROPERTY SCHEMA ──
+const PropertySchema = new mongoose.Schema({
+  title:        { type: String, required: true },
+  loc:          { type: String, required: true },
+  city:         { type: String, default: "Bengaluru" },
+  price:        { type: Number, required: true },
+  displayPrice: { type: String, required: true },
+  bhk:          { type: Number, required: true },
+  area:         { type: String },
+  status:       { type: String, enum: ["For Sale","For Rent","New Launch","Sold"], default: "For Sale" },
+  furnishing:   { type: String, default: "Unfurnished" },
+  floor:        { type: String },
+  floorLevel:   { type: String },
+  age:          { type: String },
+  facing:       { type: String },
+  parking:      { type: String },
+  toilet:       { type: String },
+  amenities:    [String],
+  images:       [String],
+  desc:         { type: String },
+  color:        { type: String },
+  icon:         { type: String },
+  createdAt:    { type: Date, default: Date.now }
+});
+
+const Property = mongoose.model("Property", PropertySchema);
+
+// GET all properties
+app.get("/api/properties", async (req, res) => {
+  try {
+    const properties = await Property.find().sort({ createdAt: -1 });
+    res.json(properties);
+  } catch (err) {
+    res.status(500).json([]);
+  }
+});
+
+// POST a new property (admin use)
+app.post("/api/properties", async (req, res) => {
+  try {
+    const prop = new Property(req.body);
+    await prop.save();
+    res.json({ message: "Property added successfully!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error saving property" });
+  }
+});
+
 // ✅ ADD THIS
 
 const ReviewSchema = new mongoose.Schema({

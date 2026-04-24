@@ -225,6 +225,7 @@ nav{
 
 /* ── SECTIONS ── */
 .section{padding:clamp(1.5rem,3vw,2.8rem) clamp(1.2rem,4%,3rem)}
+.section+.section{padding-top:0}
 .section-inner{max-width:1100px;margin:0 auto}
 .section-head{
   display:flex;justify-content:space-between;align-items:flex-end;
@@ -457,18 +458,17 @@ nav{
 
 /* ── TESTIMONIALS ── */
 .testimonials-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:1.5rem;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:1rem;
 }
 .testi-card{
-  background:var(--surface);padding:1.4rem;border-radius:var(--radius);
-  box-shadow:var(--shadow);border-left:3px solid var(--gold);
-  border:1px solid var(--border);transition:transform 0.2s;
-  display:flex;flex-direction:column;gap:10px;
+  background:var(--surface);padding:1.2rem;border-radius:var(--radius);
+  box-shadow:var(--shadow);border:1px solid var(--border);transition:transform 0.2s;
+  display:flex;flex-direction:column;gap:8px;
 }
 .testi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
 .testi-stars{color:var(--gold);font-size:0.85rem;letter-spacing:2px}
 .testi-text{font-size:0.86rem;color:var(--ink2);line-height:1.7;font-style:italic}
-.testi-author{display:flex;align-items:center;gap:10px;margin-top:5px}
+.testi-author{display:flex;align-items:center;gap:10px}
 .testi-avatar{
   width:38px;height:38px;border-radius:50%;
   background:var(--ink);color:#fff;
@@ -478,7 +478,7 @@ nav{
 .testi-name{font-size:0.84rem;font-weight:600;color:var(--ink)}
 .testi-role{font-size:0.72rem;color:var(--ink3)}
 @media(max-width:768px){
-  .testimonials-grid{grid-template-columns:1fr}
+  .testimonials-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:640px){
   .testimonials-grid{
@@ -491,12 +491,12 @@ nav{
 
 /* ── REVIEW FORM ── */
 .testi-form{
-  padding:clamp(1.5rem,4%,2.5rem);
+  padding:clamp(1.2rem,3%,2rem);
   background:var(--surface);border-radius:var(--radius);
-  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;
   max-width:1100px;margin:0 auto;border:1px solid var(--border);
 }
-.testi-form h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;margin-bottom:4px}
+.testi-form h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;margin-bottom:2px}
 .testi-form input,.testi-form textarea{
   width:100%;padding:11px 14px;border:1.5px solid var(--border);
   border-radius:var(--radius-xs);font-size:0.88rem;font-family:inherit;
@@ -816,6 +816,11 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 @media(max-width:480px){.toast{font-size:0.82rem;padding:11px 18px;bottom:80px}}
 
+/* ── SKELETON LOADING ── */
+@keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes skelPulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.skel-card div[style*="skelShimmer"]{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite}
+
 /* ── ANIMATIONS ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{opacity:0;animation:fadeUp 0.5s ease forwards}
@@ -829,31 +834,6 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 /* ── TESTIMONIALS SECTION WRAPPER ── */
 .testi-section{padding:clamp(1.5rem,3vw,2.8rem) clamp(1.2rem,4%,3rem);background:var(--surface2)}
 .testi-section-inner{max-width:1100px;margin:0 auto}
-
-/* Mobile: reviews 2 per row with horizontal sliding */
-@media(max-width:640px){
-  .testimonials-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 12px;
-    padding-bottom: 12px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-  .testimonials-grid .testi-card {
-    flex: 0 0 calc(50% - 6px);
-    min-width: calc(50% - 6px);
-    scroll-snap-align: start;
-  }
-  .testimonials-grid::-webkit-scrollbar {
-    display: none;
-  }
-  .testimonials-grid {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-}
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -1060,7 +1040,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 	-->
 
 <!-- ALL LISTINGS -->
-<section class="section" id="listings" style="padding-top:1.5rem;background:var(--surface2)">
+<section class="section" id="listings" style="background:var(--surface2)">
   <div class="section-inner">
     <div class="section-head">
       <div>
@@ -1155,7 +1135,6 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     </div>
   </div>
 </section>
-</div></div></section>
 
 <!-- CONTACT -->
 <div class="contact-section" id="about">
@@ -1374,20 +1353,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 </div>
 
 <script>
-const PROPERTIES=[
-{id:0,title:"Prestige Lakeside Terrace",loc:"HSR SECTOR - 1",city:"Bengaluru",price:18500000,displayPrice:"₹1.85 Cr",bhk:3,area:"1,850 sqft",status:"For Sale",furnishing:"Semi-Furnished",floor:"7th of 14",floorLevel:"Mid",age:"5 Years",facing:"East",parking:"2 Covered",toilet:"3",amenities:["Gym","Pool","Lift","Security"],images:["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format","https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&auto=format","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format"],desc:"Premium lake view apartment with luxury amenities.",color:"linear-gradient(135deg,#1a3a5c,#2d6a4f)",icon:"🏙️"},
-{id:1,title:"Sobha Dream Acres",loc:"HSR SECTOR - 2",city:"Bengaluru",price:6800000,displayPrice:"₹68L",bhk:2,area:"1,200 sqft",status:"New Launch",furnishing:"Unfurnished",floor:"3rd of 12",floorLevel:"Low",age:"New",facing:"West",parking:"1 Covered",toilet:"2",amenities:["Gym","Pool","Lift"],images:["https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800&auto=format","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&auto=format"],desc:"Affordable new launch in prime IT corridor.",color:"linear-gradient(135deg,#2d4a1e,#1a6a3c)",icon:"🌿"},
-{id:2,title:"Galaxy Penthouse",loc:"HSR SECTOR - 1",city:"Mumbai",price:42000,displayPrice:"₹42,000/mo",bhk:4,area:"3,200 sqft",status:"For Rent",furnishing:"Fully Furnished",floor:"22nd of 24",floorLevel:"High",age:"5 Years",facing:"Sea Facing",parking:"3 Covered",toilet:"4",amenities:["Gym","Pool","Lift","Security"],images:["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format","https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&auto=format"],desc:"Luxury penthouse with sea view and terrace.",color:"linear-gradient(135deg,#0d2a4a,#1a4a7a)",icon:"🌊"},
-{id:3,title:"DLF The Crest",loc:"HSR SECTOR - 5",city:"Delhi",price:32000000,displayPrice:"₹3.2 Cr",bhk:4,area:"3,000 sqft",status:"For Sale",furnishing:"Semi-Furnished",floor:"10th of 30",floorLevel:"High",age:"10 Years",facing:"North",parking:"2 Covered",toilet:"4",amenities:["Gym","Pool","Lift","Security"],images:["https://images.unsplash.com/photo-1507089947367-19c1da9775ae?w=800&auto=format","https://images.unsplash.com/photo-1599423300746-b62533397364?w=800&auto=format","https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format"],desc:"Luxury golf course facing apartment.",color:"linear-gradient(135deg,#2a1a4a,#4a2a7a)",icon:"⛳"},
-{id:4,title:"Purva Amaiti",loc:"HSR SECTOR - 2",city:"Bengaluru",price:25000,displayPrice:"₹25,000/mo",bhk:2,area:"1,100 sqft",status:"For Rent",furnishing:"Fully Furnished",floor:"6th of 16",floorLevel:"Mid",age:"5 Years",facing:"East",parking:"1 Covered",toilet:"2",amenities:["Gym","Lift","Security"],images:["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format","https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format"],desc:"Ready to move furnished rental.",color:"linear-gradient(135deg,#1a3a5a,#0a5a7a)",icon:"🔑"},
-{id:5,title:"Hiranandani Villa",loc:"HSR SECTOR - 6",city:"Mumbai",price:45000000,displayPrice:"₹4.5 Cr",bhk:4,area:"4,500 sqft",status:"For Sale",furnishing:"Fully Furnished",floor:"Ground",floorLevel:"Low",age:"10 Years",facing:"South",parking:"4 Covered",toilet:"5",amenities:["Gym","Pool","Security"],images:["https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&auto=format","https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&auto=format"],desc:"Independent villa with private pool.",color:"linear-gradient(135deg,#1a4a2a,#0a2a1a)",icon:"🏡"},
-{id:6,title:"Lodha Palava Studio",loc:"HSR SECTOR - 4",city:"Mumbai",price:3500000,displayPrice:"₹35L",bhk:1,area:"520 sqft",status:"For Sale",furnishing:"Semi-Furnished",floor:"4th of 10",floorLevel:"Low",age:"5 Years",facing:"West",parking:"1 Open",toilet:"1",amenities:["Lift","Security"],images:["https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&auto=format","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format"],desc:"Compact studio perfect for investment.",color:"linear-gradient(135deg,#3a1a1a,#6a2a2a)",icon:"🏢"},
-{id:7,title:"Tata Primanti",loc:"HSR SECTOR - 6",city:"Delhi",price:15000000,displayPrice:"₹1.5 Cr",bhk:3,area:"1,700 sqft",status:"For Sale",furnishing:"Unfurnished",floor:"8th of 24",floorLevel:"Mid",age:"5 Years",facing:"East",parking:"2 Covered",toilet:"3",amenities:["Gym","Pool","Lift"],images:["https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800&auto=format","https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&auto=format"],desc:"Premium township living.",color:"linear-gradient(135deg,#1a2a4a,#2a3a6a)",icon:"🌆"},
-{id:8,title:"Mantri Espana",loc:"HSR SECTOR - 1",city:"Bengaluru",price:7500000,displayPrice:"₹75L",bhk:2,area:"1,300 sqft",status:"For Sale",furnishing:"Semi-Furnished",floor:"2nd of 15",floorLevel:"Low",age:"10 Years",facing:"West",parking:"1 Covered",toilet:"2",amenities:["Pool","Lift"],images:["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format","https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format","https://images.unsplash.com/photo-1599423300746-b62533397364?w=800&auto=format"],desc:"Spanish themed apartments.",color:"linear-gradient(135deg,#4a3a0a,#7a5a1a)",icon:"🌴"},
-{id:9,title:"Brigade Utopia",loc:"HSR SECTOR - 1",city:"Bengaluru",price:9200000,displayPrice:"₹92L",bhk:3,area:"1,550 sqft",status:"New Launch",furnishing:"Unfurnished",floor:"11th of 28",floorLevel:"High",age:"New",facing:"North",parking:"2 Covered",toilet:"3",amenities:["Gym","Pool","Lift","Security"],images:["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&auto=format","https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800&auto=format","https://images.unsplash.com/photo-1507089947367-19c1da9775ae?w=800&auto=format"],desc:"Eco-friendly smart homes.",color:"linear-gradient(135deg,#0a3a2a,#1a5a3a)",icon:"🌱"},
-{id:10,title:"Purva Amaiti",loc:"HSR SECTOR - 2",city:"Bengaluru",price:25000,displayPrice:"₹25,000/mo",bhk:2,area:"1,100 sqft",status:"For Rent",furnishing:"Fully Furnished",floor:"6th of 16",floorLevel:"Mid",age:"5 Years",facing:"East",parking:"1 Covered",toilet:"2",amenities:["Gym","Lift","Security"],images:["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format","https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format"],desc:"Ready to move furnished rental.",color:"linear-gradient(135deg,#1a3a5a,#0a5a7a)",icon:"🔑"},
-{id:11,title:"Joyville Pune",loc:"HSR SECTOR - 4",city:"Pune",price:6200000,displayPrice:"₹62L",bhk:2,area:"1,050 sqft",status:"New Launch",furnishing:"Unfurnished",floor:"3rd of 20",floorLevel:"Low",age:"New",facing:"South",parking:"1 Covered",toilet:"2",amenities:["Gym","Pool","Security"],images:["https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&auto=format","https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&auto=format","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format"],desc:"Affordable IT hub housing.",color:"linear-gradient(135deg,#2a0a3a,#4a1a5a)",icon:"💻"}
-];
+const PROPERTIES=[];
 
 let activeFilter='all';
 let favs=new Set();
@@ -1479,6 +1445,8 @@ const BUDGET_BANDS = [
 
 function buildFilters(){
   const bar = document.getElementById('dynamicFilterBar');
+  // Remove existing dynamic selects before rebuilding
+  bar.querySelectorAll('.search-field').forEach(el => el.remove());
   // Collect unique sorted values for each key
   const keys = Object.keys(FILTER_CONFIG);
   let html = '';
@@ -1939,8 +1907,66 @@ function escapeHtml(str) {
   });
 }
 
+// ── SHOW LOADING SKELETONS IMMEDIATELY ──
+function showSkeletons() {
+  const grid = document.getElementById('propertyGrid');
+  const skeletonCard = `
+    <div style="background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);animation:skelPulse 1.4s ease-in-out infinite">
+      <div style="height:200px;background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite"></div>
+      <div style="padding:1rem 1.1rem;display:flex;flex-direction:column;gap:8px">
+        <div style="height:18px;width:55%;background:var(--surface2);border-radius:6px"></div>
+        <div style="height:13px;width:40%;background:var(--surface2);border-radius:6px"></div>
+        <div style="height:13px;width:70%;background:var(--surface2);border-radius:6px;margin-top:4px"></div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <div style="height:22px;width:60px;background:var(--surface2);border-radius:99px"></div>
+          <div style="height:22px;width:70px;background:var(--surface2);border-radius:99px"></div>
+          <div style="height:22px;width:80px;background:var(--surface2);border-radius:99px"></div>
+        </div>
+        <div style="height:34px;background:var(--surface2);border-radius:8px;margin-top:6px"></div>
+      </div>
+    </div>`;
+  grid.innerHTML = skeletonCard.repeat(6);
+  document.getElementById('propCount').textContent = 'Loading…';
+}
+
+// ── LOAD PROPERTIES FROM DB ──
+async function loadPropertiesFromDB() {
+  showSkeletons();
+  try {
+    const BASE = location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://kr-realestate.onrender.com";
+    const res = await fetch(BASE + "/api/properties");
+    if (!res.ok) throw new Error("API error");
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      const normalized = data.map((p, i) => ({
+        ...p,
+        id: i,
+        images: Array.isArray(p.images) && p.images.length
+          ? p.images
+          : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format"],
+        color: p.color || "linear-gradient(135deg,#1a3a5c,#2d6a4f)",
+        icon: p.icon || "🏠"
+      }));
+      PROPERTIES.length = 0;
+      normalized.forEach(p => PROPERTIES.push(p));
+      buildFilters();
+      renderProps(PROPERTIES);
+    } else {
+      const grid = document.getElementById('propertyGrid');
+      grid.innerHTML = '<p style="color:var(--ink3);padding:2rem 0;grid-column:1/-1;font-size:0.9rem">No properties listed yet. Check back soon!</p>';
+      document.getElementById('propCount').textContent = '0 properties';
+    }
+  } catch (e) {
+    const grid = document.getElementById('propertyGrid');
+    grid.innerHTML = '<p style="color:var(--red);padding:2rem 0;grid-column:1/-1;font-size:0.9rem">⚠️ Could not load properties. Please refresh the page.</p>';
+    document.getElementById('propCount').textContent = '—';
+  }
+}
+loadPropertiesFromDB();
 buildFilters();
-renderProps(PROPERTIES);
+
 loadReviews();
 document.addEventListener('DOMContentLoaded', () => {
   initStarRating();
