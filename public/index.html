@@ -1049,11 +1049,9 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
       </div>
       <span class="filter-count" id="propCount">12 properties</span>
     </div>
+    <!-- Status filter chips — populated dynamically by buildFilters() -->
     <div class="filter-bar" id="filterBar">
-      <button class="filter-chip active" onclick="setFilter(this,'all')">All</button>
-      <button class="filter-chip" onclick="setFilter(this,'For Sale')">For Sale</button>
-      <button class="filter-chip" onclick="setFilter(this,'For Rent')">For Rent</button>
-      <button class="filter-chip" onclick="setFilter(this,'New Launch')">New Launch</button>
+      <button class="filter-chip chip-all active" onclick="setFilter(this,'all')">All</button>
     </div>
     <!-- SEARCH BAR -->
     <div class="search-section" style="margin-bottom:1.2rem;border-radius:var(--radius);border:1px solid var(--border)">
@@ -1221,6 +1219,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
     <p style="color:var(--ink3);font-size:0.9rem">No reviews yet. Be the first!</p>
   </div>
 </div>
+</div>
+</section>
 
 
 <!-- EMI CALCULATOR -->
@@ -1423,7 +1423,6 @@ function renderProps(list){
 const FILTER_CONFIG = {
   city:       { label:'City',      allLabel:'All Cities',  type:'string' },
   bhk:        { label:'BHK',       allLabel:'Any BHK',     type:'bhk'    },
-  status:     { label:'Type',      allLabel:'Any Type',    type:'string' },
   furnishing: { label:'Furnishing',allLabel:'Any',         type:'string' },
   toilet:     { label:'Toilets',   allLabel:'Any',         type:'number' },
   facing:     { label:'Facing',    allLabel:'Any',         type:'string' },
@@ -1444,10 +1443,22 @@ const BUDGET_BANDS = [
 ];
 
 function buildFilters(){
+  // ── 1. Rebuild status chips from data ──
+  const filterBar = document.getElementById('filterBar');
+  const statuses = [...new Set(PROPERTIES.map(p=>p.status).filter(Boolean))].sort();
+  // Keep the "All" chip, remove any previous dynamic chips
+  filterBar.querySelectorAll('.filter-chip:not(.chip-all)').forEach(el=>el.remove());
+  statuses.forEach(s=>{
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip';
+    btn.textContent = s;
+    btn.onclick = function(){ setFilter(this, s); };
+    filterBar.appendChild(btn);
+  });
+
+  // ── 2. Rebuild dropdown filter bar ──
   const bar = document.getElementById('dynamicFilterBar');
-  // Remove existing dynamic selects before rebuilding
   bar.querySelectorAll('.search-field').forEach(el => el.remove());
-  // Collect unique sorted values for each key
   const keys = Object.keys(FILTER_CONFIG);
   let html = '';
 
@@ -1458,7 +1469,7 @@ function buildFilters(){
       if(cfg.type==='bhk') return Number(a)-Number(b);
       return String(a).localeCompare(String(b));
     });
-    if(vals.length < 2) continue; // skip if only one value (no filtering use)
+    if(vals.length < 1) continue; // skip only if no values at all
     let opts = `<option value="all">${cfg.allLabel}</option>`;
     for(const v of vals){
       const label = cfg.type==='bhk' ? `${v} BHK` : v;
@@ -1471,7 +1482,6 @@ function buildFilters(){
   const budgetOpts = BUDGET_BANDS.map(b=>`<option value="${b.value}">${b.label}</option>`).join('');
   const budgetHtml = `<div class="search-field"><label>Budget</label><select id="sf_budget" onchange="filterProps()">${budgetOpts}</select></div>`;
 
-  // Insert before the buttons
   bar.insertAdjacentHTML('afterbegin', budgetHtml + html);
 }
 
@@ -1506,11 +1516,10 @@ function filterProps(){
 }
 
 function resetFilters(){
-  // Reset all dynamic selects
   document.querySelectorAll('#dynamicFilterBar select').forEach(el=>el.value='all');
   activeFilter='all';
   document.querySelectorAll('.filter-chip').forEach(btn=>btn.classList.remove('active'));
-  document.querySelector('.filter-chip').classList.add('active');
+  document.querySelector('.filter-chip.chip-all').classList.add('active');
   renderProps(PROPERTIES);
   document.querySelector('#listings').scrollIntoView({behavior:'smooth'});
 }
@@ -1539,7 +1548,8 @@ function toggleFav(e,id){
 }
 
 function openModal(id){
-  const p=PROPERTIES[id];
+  const p = PROPERTIES.find(x => x.id === id) || PROPERTIES[id];
+  if(!p) return;
   // Reset slot to have fresh gallery
   document.getElementById('modalImgSlot').innerHTML = `<div class="modal-gallery">${buildGallery(p.images,'modal-gal',false)}</div>`;
   document.getElementById('modalPrice').innerHTML=p.displayPrice;
@@ -1899,7 +1909,7 @@ async function loadReviews() {
 // Helper function to escape HTML
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/[&<>]/g, function(m) {
+  return String(str).replace(/[&<>]/g, function(m) {
     if (m === '&') return '&amp;';
     if (m === '<') return '&lt;';
     if (m === '>') return '&gt;';
@@ -1965,12 +1975,10 @@ async function loadPropertiesFromDB() {
   }
 }
 loadPropertiesFromDB();
-buildFilters();
 
 loadReviews();
 document.addEventListener('DOMContentLoaded', () => {
   initStarRating();
-  loadReviews();
 });
 </script>
 
