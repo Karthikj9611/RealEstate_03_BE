@@ -1104,18 +1104,6 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 
     <div class="agents-grid">
 
-      <div class="agent-card" onclick="window.open('https://wa.me/919611459960','_blank')">
-        <div class="agent-avatar" style="background:#fdf6e8;color:#8a6820">PS</div>
-        <div class="agent-name">Priya Sharma</div>
-        <div class="agent-role">Senior Property Advisor</div>
-
-        <div class="agent-stats">
-          <div style="color:#16a34a;font-weight:600;">
-            📞 <span>9611459961</span>
-          </div>
-        </div>
-      </div>
-
       <div class="agent-card" onclick="window.location.href='tel:9611459961'">
         <div class="agent-avatar" style="background:#e0f4f1;color:#0f6e56">AR</div>
         <div class="agent-name">Arjun Rao</div>
@@ -1841,7 +1829,16 @@ async function submitForm(){
     document.getElementById('lastName').value='';
     document.getElementById('email').value='';
     document.getElementById('mobile').value='';
+	hideLoginForm();
+	
+	
   }catch(err){Swal.fire({icon:'error',title:'Connection Error',text:'Unable to reach the server. Please check your connection and try again.'});}
+}
+
+function hideLoginForm() {
+  const form = document.querySelector('.contact-section');
+  form.style.display = 'none';
+  
 }
 
 // STAR RATING HANDLER
@@ -1931,11 +1928,20 @@ async function submitReview() {
     document.querySelectorAll('.star').forEach(s => s.style.color = '#ccc');
     
     loadReviews();
+	hideReviewForm();
   } catch(err) {
     Swal.fire({icon:'error',title:'Connection Error',text:'Unable to submit your review. Please check your connection.'});
     console.error(err);
   }
 }
+
+
+function hideReviewForm() {
+  const form = document.querySelector('#reviewFormFields');
+  form.style.display = 'none';
+  
+}
+
 
 // Modified loadReviews function to display star ratings
 async function loadReviews() {
