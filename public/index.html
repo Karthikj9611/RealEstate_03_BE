@@ -1698,8 +1698,10 @@ let isLoggedIn = false;
 // ── On page load: restore session if exists ──
 (function restoreSession(){
   try {
+    const isLoggedInSaved = localStorage.getItem('kr_user_loggedin');
     const saved = localStorage.getItem('kr_user');
-    if (saved) {
+    
+    if (isLoggedInSaved === 'true' && saved) {
       const user = JSON.parse(saved);
       if (user && user.firstName) {
         applyLoginUI(user.firstName, user.lastName || '');
@@ -1708,8 +1710,40 @@ let isLoggedIn = false;
   } catch(e) {}
 })();
 
+function restoreReviewFormState() {
+  try {
+    const isLoggedInSaved = localStorage.getItem('kr_user_loggedin');
+    const reviewFormHidden = localStorage.getItem('kr_review_form_hidden');
+    const reviewSubmitted = localStorage.getItem('kr_review_submitted');
+    
+    // If user is logged in AND review form was hidden/submitted, keep it hidden
+    if (isLoggedInSaved === 'true' && (reviewFormHidden === 'true' || reviewSubmitted === 'true')) {
+      const form = document.querySelector('#reviewFormFields');
+      const addReviewTitle = document.getElementById('addYourReviewID');
+      if (form) form.style.display = 'none';
+      if (addReviewTitle) addReviewTitle.style.display = 'none';
+    }
+    // If user is logged in but review form hasn't been submitted yet, keep it visible
+    else if (isLoggedInSaved === 'true') {
+      const form = document.querySelector('#reviewFormFields');
+      const addReviewTitle = document.getElementById('addYourReviewID');
+      const gate = document.getElementById('reviewLoginGate');
+      if (form) form.style.display = 'flex';
+      if (addReviewTitle) addReviewTitle.style.display = 'block';
+      if (gate) gate.style.display = 'none';
+    }
+  } catch(e) {}
+}
+
 function applyLoginUI(firstName, lastName) {
   isLoggedIn = true;
+  
+  // Save login state to localStorage
+  try {
+    localStorage.setItem('kr_user_loggedin', 'true');
+    localStorage.setItem('kr_user_data', JSON.stringify({ firstName, lastName: lastName || '' }));
+  } catch(e) {}
+  
   // Nav: hide Login, show pill
   const loginLink = document.getElementById('navLoginLink');
   if (loginLink) loginLink.style.display = 'none';
@@ -1722,13 +1756,31 @@ function applyLoginUI(firstName, lastName) {
   if (avatar) avatar.textContent = initials;
   if (nameEl) nameEl.textContent = firstName + (lastName ? ' ' + lastName : '');
   if (menuName) menuName.textContent = '👤 ' + firstName + (lastName ? ' ' + lastName : '');
-  // Review form
+  
+  // Hide contact/login form
+  const contactForm = document.querySelector('.contact-section');
+  if (contactForm) contactForm.style.display = 'none';
+  
+  // Check if review was already submitted to decide visibility
+  const reviewSubmitted = localStorage.getItem('kr_review_submitted');
   const gate = document.getElementById('reviewLoginGate');
   const fields = document.getElementById('reviewFormFields');
   const label = document.getElementById('loggedInLabel');
   const nameInput = document.getElementById('name');
-  if (gate) gate.style.display = 'none';
-  if (fields) fields.style.display = 'flex';
+  const addReviewTitle = document.getElementById('addYourReviewID');
+  
+  if (reviewSubmitted === 'true') {
+    // Review already submitted, hide the form
+    if (gate) gate.style.display = 'none';
+    if (fields) fields.style.display = 'none';
+    if (addReviewTitle) addReviewTitle.style.display = 'none';
+  } else {
+    // First time login, show the review form
+    if (gate) gate.style.display = 'none';
+    if (fields) fields.style.display = 'flex';
+    if (addReviewTitle) addReviewTitle.style.display = 'block';
+  }
+  
   if (label) label.textContent = 'Logged in as ' + firstName;
   if (nameInput) nameInput.value = firstName;
 }
@@ -1746,10 +1798,12 @@ function goToLogin(){
   document.getElementById('about').scrollIntoView({behavior:'smooth'});
   setTimeout(()=>document.getElementById('firstName')?.focus(),500);
 }
+// Update unlockReviewForm function
 function unlockReviewForm(firstName, lastName){
   // Save to localStorage for persistence
   try {
     localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '' }));
+    localStorage.setItem('kr_user_loggedin', 'true');
   } catch(e) {}
   applyLoginUI(firstName, lastName);
 }
@@ -1778,8 +1832,16 @@ function logoutUser() {
     cancelButtonText: 'Cancel',
   }).then(result => {
     if (result.isConfirmed) {
-      try { localStorage.removeItem('kr_user'); } catch(e) {}
+      try { 
+        localStorage.removeItem('kr_user');
+        localStorage.removeItem('kr_user_loggedin');
+        localStorage.removeItem('kr_user_data');
+        localStorage.removeItem('kr_review_form_hidden');
+        localStorage.removeItem('kr_review_submitted');
+      } catch(e) {}
+      
       isLoggedIn = false;
+      
       // Nav: show Login, hide pill
       const loginLink = document.getElementById('navLoginLink');
       if (loginLink) loginLink.style.display = '';
@@ -1787,11 +1849,20 @@ function logoutUser() {
       if (pill) pill.style.display = 'none';
       const dropdown = document.getElementById('userMenuDropdown');
       if (dropdown) dropdown.style.display = 'none';
-      // Review form: hide form, show gate
+      
+      // Show contact/login form again
+      const contactForm = document.querySelector('.contact-section');
+      if (contactForm) contactForm.style.display = 'block';
+      
+      // Review form: show gate, hide form, show title
       const gate = document.getElementById('reviewLoginGate');
       const fields = document.getElementById('reviewFormFields');
+      const addReviewTitle = document.getElementById('addYourReviewID');
+      
       if (gate) gate.style.display = 'flex';
       if (fields) fields.style.display = 'none';
+      if (addReviewTitle) addReviewTitle.style.display = 'block';
+      
       Swal.fire({icon:'success', title:'Logged Out', text:'See you next time!', timer:1800, showConfirmButton:false});
     }
   });
@@ -1816,8 +1887,7 @@ async function submitForm(){
     return;
   }
   try{
-//	  const res = await fetch("http://localhost:5000/submit", {
-	  const res=await fetch("https://kr-realestate.onrender.com/submit",{
+    const res=await fetch("https://kr-realestate.onrender.com/submit",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({firstName,lastName,email,mobile})
     });
@@ -1829,9 +1899,12 @@ async function submitForm(){
     document.getElementById('lastName').value='';
     document.getElementById('email').value='';
     document.getElementById('mobile').value='';
-	hideLoginForm();
-	
-	
+    
+    // Mark as logged in
+    try {
+      localStorage.setItem('kr_user_loggedin', 'true');
+      localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '' }));
+    } catch(e) {}
   }catch(err){Swal.fire({icon:'error',title:'Connection Error',text:'Unable to reach the server. Please check your connection and try again.'});}
 }
 
@@ -1904,7 +1977,6 @@ async function submitReview() {
   }
   
   try {
-//	const response = await fetch("http://localhost:5000/api/reviews", {  
     const response = await fetch("https://kr-realestate.onrender.com/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1918,6 +1990,8 @@ async function submitReview() {
     }
     
     Swal.fire({icon:'success',title:'Review Submitted! 🎉',text:'Thank you for sharing your experience.',timer:2000,showConfirmButton:false});
+    
+    // Clear form fields
     document.getElementById('name').value = '';
     document.getElementById('role').value = '';
     document.getElementById('comment').value = '';
@@ -1927,8 +2001,15 @@ async function submitReview() {
     // Reset star colors
     document.querySelectorAll('.star').forEach(s => s.style.color = '#ccc');
     
+    // Save review submission state to localStorage so form stays hidden on refresh
+    try {
+      localStorage.setItem('kr_review_submitted', 'true');
+    } catch(e) {}
+    
+    // Hide review form and title
+    hideReviewForm();
+    
     loadReviews();
-	hideReviewForm();
   } catch(err) {
     Swal.fire({icon:'error',title:'Connection Error',text:'Unable to submit your review. Please check your connection.'});
     console.error(err);
@@ -1938,9 +2019,15 @@ async function submitReview() {
 
 function hideReviewForm() {
   const form = document.querySelector('#reviewFormFields');
-  form.style.display = 'none';
-  $('#addYourReviewID').hide();
+  const addReviewTitle = document.getElementById('addYourReviewID');
+  if (form) form.style.display = 'none';
+  if (addReviewTitle) addReviewTitle.style.display = 'none';
   
+  // Save to localStorage that review form is hidden (similar to login)
+  try {
+    localStorage.setItem('kr_review_form_hidden', 'true');
+    localStorage.setItem('kr_review_submitted', 'true');
+  } catch(e) {}
 }
 
 
@@ -2063,6 +2150,7 @@ loadPropertiesFromDB();
 loadReviews();
 document.addEventListener('DOMContentLoaded', () => {
   initStarRating();
+  restoreReviewFormState(); // Add this line
 });
 </script>
 
