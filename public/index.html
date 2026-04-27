@@ -692,7 +692,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .modal-price{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--ink);margin-bottom:4px}
 .modal-title{font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:4px}
 .modal-loc{font-size:0.8rem;color:var(--ink3);margin-bottom:1rem;display:flex;align-items:center;gap:4px}
-.modal-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:1.2rem}
+.modal-details-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:1.2rem}
 .modal-detail{background:var(--surface2);border-radius:var(--radius-xs);padding:10px 13px}
 .modal-detail-label{font-size:0.68rem;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
 .modal-detail-val{font-size:0.9rem;font-weight:600;color:var(--ink);margin-top:2px}
@@ -1547,19 +1547,69 @@ function toggleFav(e,id){
   filterProps();
 }
 
+// Fields to skip in the dynamic details grid (shown elsewhere or internal)
+const MODAL_SKIP = new Set(['id','title','loc','displayPrice','desc','images','color','icon','amenities','status']);
+
+// Human-readable labels for known keys
+const MODAL_LABELS = {
+  bhk:'BHK', area:'Area', furnishing:'Furnishing', floor:'Floor',
+  parking:'Parking', toilet:'Bathrooms', price:'Price (raw)',
+  city:'City', facing:'Facing', floorLevel:'Floor Level',
+  age:'Property Age', status:'Type'
+};
+
 function openModal(id){
   const p = PROPERTIES.find(x => x.id === id) || PROPERTIES[id];
   if(!p) return;
-  // Reset slot to have fresh gallery
-  document.getElementById('modalImgSlot').innerHTML = `<div class="modal-gallery">${buildGallery(p.images,'modal-gal',false)}</div>`;
-  document.getElementById('modalPrice').innerHTML=p.displayPrice;
-  document.getElementById('modalTitle').textContent=p.title;
-  document.getElementById('modalLoc').innerHTML='📍 '+p.loc;
-  document.getElementById('modalDetails').innerHTML=[
-    ['BHK',p.bhk+' BHK'],['Area',p.area],['Furnishing',p.furnishing],
-    ['Floor',p.floor],['Parking',p.parking],['Bathrooms',p.toilet]
-  ].map(([l,v])=>`<div class="modal-detail"><div class="modal-detail-label">${l}</div><div class="modal-detail-val">${v}</div></div>`).join('');
-  document.getElementById('modalDesc').textContent=p.desc;
+
+  // Image gallery
+  document.getElementById('modalImgSlot').innerHTML =
+    `<div class="modal-gallery">${buildGallery(p.images,'modal-gal',false)}</div>`;
+
+  // Price + status badge
+  const badgeClass = p.status==='For Sale'?'badge-sale':p.status==='For Rent'?'badge-rent':'badge-new';
+  document.getElementById('modalPrice').innerHTML =
+    `${p.displayPrice} <span class="prop-badge ${badgeClass}" style="position:relative;top:0;left:0;display:inline-block;margin-left:10px;font-size:0.72rem;vertical-align:middle">${p.status||''}</span>`;
+
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalLoc').innerHTML = '📍 ' + p.loc;
+
+  // ── Dynamic details grid: all keys not in MODAL_SKIP ──
+  const detailRows = Object.entries(p)
+    .filter(([k, v]) => !MODAL_SKIP.has(k) && v != null && v !== '')
+    .map(([k, v]) => {
+      const label = MODAL_LABELS[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g,' $1'));
+      const val   = k === 'bhk' ? v + ' BHK' : v;
+      return `<div class="modal-detail">
+        <div class="modal-detail-label">${escapeHtml(label)}</div>
+        <div class="modal-detail-val">${escapeHtml(String(val))}</div>
+      </div>`;
+    }).join('');
+  document.getElementById('modalDetails').innerHTML = detailRows || '<div style="color:var(--ink3);font-size:0.85rem">No details available.</div>';
+
+  // ── Amenities section ──
+  let amenitiesHtml = '';
+  if(Array.isArray(p.amenities) && p.amenities.length){
+    amenitiesHtml = `<div style="margin-bottom:1.2rem">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3);margin-bottom:8px">Amenities</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${
+        p.amenities.map(a=>`<span class="prop-chip" style="font-size:0.76rem;padding:4px 11px">${escapeHtml(a)}</span>`).join('')
+      }</div>
+    </div>`;
+  } else if(typeof p.amenities === 'string' && p.amenities.trim()){
+    amenitiesHtml = `<div style="margin-bottom:1.2rem">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3);margin-bottom:8px">Amenities</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${
+        p.amenities.split(',').map(a=>a.trim()).filter(Boolean)
+          .map(a=>`<span class="prop-chip" style="font-size:0.76rem;padding:4px 11px">${escapeHtml(a)}</span>`).join('')
+      }</div>
+    </div>`;
+  }
+
+  // Description + amenities
+  const descEl = document.getElementById('modalDesc');
+  descEl.innerHTML = (p.desc ? `<p style="margin-bottom:${amenitiesHtml?'1rem':'0'}">${escapeHtml(p.desc)}</p>` : '') + amenitiesHtml;
+
   document.getElementById('propModal').classList.add('open');
   document.body.style.overflow='hidden';
 }
