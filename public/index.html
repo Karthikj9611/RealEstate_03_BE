@@ -834,6 +834,28 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 /* ── TESTIMONIALS SECTION WRAPPER ── */
 .testi-section{padding:clamp(1.5rem,3vw,2.8rem) clamp(1.2rem,4%,3rem);background:var(--surface2)}
 .testi-section-inner{max-width:1100px;margin:0 auto}
+
+.modal-details-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  align-items:stretch; /* 👈 makes all items same height */
+}
+
+.modal-detail-label{
+  font-size:0.68rem;
+  white-space:nowrap; /* 👈 keeps labels aligned */
+}
+
+.modal-detail-val{
+  font-size:0.9rem;
+  word-break:break-word;
+}
+
+.modal-detail{
+  background:#f1eee9; /* slightly cleaner */
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -1550,13 +1572,13 @@ function toggleFav(e,id){
 }
 
 // Fields to skip in the dynamic details grid (shown elsewhere or internal)
-const MODAL_SKIP = new Set(['id','title','loc','displayPrice','desc','images','color','icon','amenities','status']);
+const MODAL_SKIP = new Set(['_id','id','area','floorLevel','createdAt','updatedAt','title','loc','displayPrice','desc','images','color','icon','amenities','status']);
 
 // Human-readable labels for known keys
 const MODAL_LABELS = {
   bhk:'BHK', area:'Area', furnishing:'Furnishing', floor:'Floor',
   parking:'Parking', carparking:'Car Parking', bikeparking:'Bike Parking',
-  toilet:'Bathrooms', price:'Price (raw)',
+  toilet:'Bathrooms',toilet_type:'Toilet Type', price:'Price',
   city:'City', facing:'Facing', floorLevel:'Floor Level',
   age:'Property Age', status:'Type'
 };
