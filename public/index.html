@@ -1421,17 +1421,19 @@ function renderProps(list){
 // ── DYNAMIC FILTER SYSTEM ──
 // Define which fields are "special" with custom labels / logic
 const FILTER_CONFIG = {
-  city:       { label:'City',      allLabel:'All Cities',  type:'string' },
-  bhk:        { label:'BHK',       allLabel:'Any BHK',     type:'bhk'    },
-  furnishing: { label:'Furnishing',allLabel:'Any',         type:'string' },
-  toilet:     { label:'Toilets',   allLabel:'Any',         type:'number' },
-  facing:     { label:'Facing',    allLabel:'Any',         type:'string' },
-  floorLevel: { label:'Floor',     allLabel:'Any',         type:'string' },
-  age:        { label:'Age',       allLabel:'Any',         type:'string' },
+  city:        { label:'City',         allLabel:'All Cities',  type:'string' },
+  bhk:         { label:'BHK',          allLabel:'Any BHK',     type:'bhk'    },
+  furnishing:  { label:'Furnishing',   allLabel:'Any',         type:'string' },
+  toilet:      { label:'Toilets',      allLabel:'Any',         type:'number' },
+  facing:      { label:'Facing',       allLabel:'Any',         type:'string' },
+  floorLevel:  { label:'Floor',        allLabel:'Any',         type:'string' },
+  age:         { label:'Age',          allLabel:'Any',         type:'string' },
+  carparking:  { label:'Car Parking',  allLabel:'Any',         type:'string' },
+  bikeparking: { label:'Bike Parking', allLabel:'Any',         type:'string' },
 };
 
 // Keys to SKIP (they are handled by filter chips or aren't useful dropdowns)
-const SKIP_KEYS = new Set(['id','title','loc','price','displayPrice','area','floor','desc','color','icon','images','amenities','parking']);
+const SKIP_KEYS = new Set(['id','title','loc','price','displayPrice','area','floor','desc','color','icon','images','amenities']);
 
 // Budget bands (special case, not a property key)
 const BUDGET_BANDS = [
@@ -1553,7 +1555,8 @@ const MODAL_SKIP = new Set(['id','title','loc','displayPrice','desc','images','c
 // Human-readable labels for known keys
 const MODAL_LABELS = {
   bhk:'BHK', area:'Area', furnishing:'Furnishing', floor:'Floor',
-  parking:'Parking', toilet:'Bathrooms', price:'Price (raw)',
+  parking:'Parking', carparking:'Car Parking', bikeparking:'Bike Parking',
+  toilet:'Bathrooms', price:'Price (raw)',
   city:'City', facing:'Facing', floorLevel:'Floor Level',
   age:'Property Age', status:'Type'
 };
@@ -2007,7 +2010,9 @@ async function loadPropertiesFromDB() {
           ? p.images
           : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format"],
         color: p.color || "linear-gradient(135deg,#1a3a5c,#2d6a4f)",
-        icon: p.icon || "🏠"
+        icon: p.icon || "🏠",
+        carparking:  p.carparking  != null ? String(p.carparking)  : (p.parking != null ? String(p.parking) : null),
+        bikeparking: p.bikeparking != null ? String(p.bikeparking) : null,
       }));
       PROPERTIES.length = 0;
       normalized.forEach(p => PROPERTIES.push(p));

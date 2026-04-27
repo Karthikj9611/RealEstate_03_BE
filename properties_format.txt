@@ -15,6 +15,8 @@
     "age": "5 Years",
     "facing": "East",
     "parking": "2 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 3,
     "amenities": ["Gym", "Pool", "Lift", "Security"],
     "images": [
@@ -42,6 +44,8 @@
     "age": "New",
     "facing": "West",
     "parking": "1 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 2,
     "amenities": ["Gym", "Pool", "Lift"],
     "images": [
@@ -69,6 +73,8 @@
     "age": "5 Years",
     "facing": "Sea Facing",
     "parking": "3 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 4,
     "amenities": ["Gym", "Pool", "Lift", "Security"],
     "images": [
@@ -96,6 +102,8 @@
     "age": "10 Years",
     "facing": "North",
     "parking": "2 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 4,
     "amenities": ["Gym", "Pool", "Lift", "Security"],
     "images": [
@@ -123,6 +131,8 @@
     "age": "5 Years",
     "facing": "East",
     "parking": "1 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 2,
     "amenities": ["Gym", "Lift", "Security"],
     "images": [
@@ -150,6 +160,8 @@
     "age": "10 Years",
     "facing": "South",
     "parking": "4 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 5,
     "amenities": ["Gym", "Pool", "Security"],
     "images": [
@@ -177,6 +189,8 @@
     "age": "5 Years",
     "facing": "West",
     "parking": "1 Open",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 1,
     "amenities": ["Lift", "Security"],
     "images": [
@@ -204,6 +218,8 @@
     "age": "5 Years",
     "facing": "East",
     "parking": "2 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 3,
     "amenities": ["Gym", "Pool", "Lift"],
     "images": [
@@ -231,6 +247,8 @@
     "age": "10 Years",
     "facing": "West",
     "parking": "1 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 2,
     "amenities": ["Pool", "Lift"],
     "images": [
@@ -258,6 +276,8 @@
     "age": "New",
     "facing": "North",
     "parking": "2 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 3,
     "amenities": ["Gym", "Pool", "Lift", "Security"],
     "images": [
@@ -285,6 +305,8 @@
     "age": "5 Years",
     "facing": "East",
     "parking": "1 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 2,
     "amenities": ["Gym", "Lift", "Security"],
     "images": [
@@ -312,6 +334,8 @@
     "age": "New",
     "facing": "South",
     "parking": "1 Covered",
+	"carparking": "1 Car",
+"bikeparking": "2 Bike",
     "toilet": 2,
     "amenities": ["Gym", "Pool", "Security"],
     "images": [
