@@ -99,7 +99,9 @@ nav{
   .nav-links a{font-size:1rem;padding:11px 14px}
   .nav-hamburger{display:flex}
   .nav-cta{font-size:0.78rem;padding:8px 14px}
-  #navUserPill span#navUserName{max-width:80px;overflow:hidden;text-overflow:ellipsis}
+  /* Hide desktop pill and CTA on mobile */
+  #navUserPill{display:none!important}
+  #navListBtn{display:none!important}
 }
 
 /* ── HERO ── */
@@ -918,25 +920,51 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#"><span class="k">K</span>R</a>
+
+  <!-- Desktop + Mobile drawer links -->
   <div class="nav-links" id="navLinks">
     <a href="#listings" class="active" onclick="closeNav()">Properties</a>
     <a href="#agents" onclick="closeNav()">Agents</a>
     <a href="#about" id="navLoginLink" onclick="scrollToForm();closeNav()">Login</a>
-  </div>
-  <!-- User pill shown after login (outside nav-links so always visible) -->
-  <div id="navUserPill" style="display:none;align-items:center;gap:8px;background:var(--gold-light);border:1.5px solid var(--gold);border-radius:99px;padding:5px 6px 5px 6px;cursor:pointer;flex-shrink:0;position:relative" onclick="toggleUserMenu(event)">
-    <div id="navUserAvatar" style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
-    <span id="navUserName" style="font-size:0.8rem;font-weight:600;color:var(--ink);white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;padding-right:2px"></span>
-    <span style="font-size:0.65rem;color:var(--gold-dark);padding-right:6px">▾</span>
-    <!-- Dropdown -->
-    <div id="userMenuDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);min-width:170px;z-index:300;overflow:hidden">
-      <div id="userMenuName" style="padding:12px 16px 8px;font-size:0.78rem;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border)"></div>
-      <button onclick="event.stopPropagation();logoutUser()" style="width:100%;padding:12px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
-        <span style="font-size:1rem">→</span> Logout
+
+    <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
+    <div id="mobileUserBlock" style="display:none;margin-top:6px;padding:12px 14px;background:var(--gold-light);border-radius:var(--radius-xs);border:1.5px solid var(--gold);flex-direction:column;gap:4px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div id="mobileUserAvatar" style="width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+        <div>
+          <div id="mobileUserName" style="font-size:0.92rem;font-weight:700;color:var(--ink)"></div>
+          <div id="mobileUserEmail" style="font-size:0.72rem;color:var(--ink3)">Logged in</div>
+        </div>
+      </div>
+      <button onclick="closeNav();openListingModal()" style="width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.84rem;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">
+        <span>＋</span> List Property
+      </button>
+      <button onclick="closeNav();logoutUser()" style="width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:none;color:var(--red);font-size:0.84rem;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.18s;margin-top:2px" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
+        <span>→</span> Logout
       </button>
     </div>
   </div>
-  <button class="nav-cta" onclick="openListingModal()">+ List Property</button>
+
+  <!-- ── Desktop-only: user pill (hidden on mobile via CSS) ── -->
+  <div id="navUserPill" style="display:none;align-items:center;gap:8px;background:var(--gold-light);border:1.5px solid var(--gold);border-radius:99px;padding:5px 6px 5px 6px;cursor:pointer;flex-shrink:0;position:relative" onclick="toggleUserMenu(event)">
+    <div id="navUserAvatar" style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+    <span id="navUserName" style="font-size:0.8rem;font-weight:600;color:var(--ink);white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis;padding-right:2px"></span>
+    <span style="font-size:0.65rem;color:var(--gold-dark);padding-right:6px">▾</span>
+    <!-- Desktop dropdown -->
+    <div id="userMenuDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);min-width:190px;z-index:300;overflow:hidden">
+      <div id="userMenuName" style="padding:13px 16px 10px;font-size:0.78rem;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border)"></div>
+      <button onclick="event.stopPropagation();openListingModal()" style="width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
+        <span>＋</span> List Property
+      </button>
+      <button onclick="event.stopPropagation();logoutUser()" style="width:100%;padding:11px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
+        <span>→</span> Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Desktop CTA (hidden on mobile — login gates it via JS) -->
+  <button class="nav-cta" id="navListBtn" onclick="guardedOpenListing()">+ List Property</button>
+
   <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -1746,25 +1774,37 @@ function applyLoginUI(firstName, lastName) {
     localStorage.setItem('kr_user_loggedin', 'true');
     localStorage.setItem('kr_user_data', JSON.stringify({ firstName, lastName: lastName || '' }));
   } catch(e) {}
-  
-  // Nav: hide Login, show pill
+
+  const fullName = firstName + (lastName ? ' ' + lastName : '');
+  const initials = (firstName.charAt(0) + (lastName ? lastName.charAt(0) : '')).toUpperCase();
+
+  // ── Desktop pill ──
   const loginLink = document.getElementById('navLoginLink');
   if (loginLink) loginLink.style.display = 'none';
   const pill = document.getElementById('navUserPill');
   if (pill) pill.style.display = 'flex';
-  const initials = (firstName.charAt(0) + (lastName ? lastName.charAt(0) : '')).toUpperCase();
   const avatar = document.getElementById('navUserAvatar');
   const nameEl = document.getElementById('navUserName');
   const menuName = document.getElementById('userMenuName');
   if (avatar) avatar.textContent = initials;
-  if (nameEl) nameEl.textContent = firstName + (lastName ? ' ' + lastName : '');
-  if (menuName) menuName.textContent = '👤 ' + firstName + (lastName ? ' ' + lastName : '');
-  
-  // Hide contact/login form
+  if (nameEl) nameEl.textContent = fullName;
+  if (menuName) menuName.textContent = '👤 ' + fullName;
+
+  // ── Mobile user block inside hamburger drawer ──
+  const mobileBlock = document.getElementById('mobileUserBlock');
+  const mobileAvatar = document.getElementById('mobileUserAvatar');
+  const mobileName   = document.getElementById('mobileUserName');
+  if (mobileBlock) mobileBlock.style.display = 'flex';
+  if (mobileAvatar) mobileAvatar.textContent = initials;
+  if (mobileName)   mobileName.textContent   = fullName;
+  // Also hide the Login link in the drawer
+  if (loginLink) loginLink.style.display = 'none';
+
+  // ── Hide contact/login section ──
   const contactForm = document.querySelector('.contact-section');
   if (contactForm) contactForm.style.display = 'none';
   
-  // Check if review was already submitted to decide visibility
+  // ── Review form ──
   const reviewSubmitted = localStorage.getItem('kr_review_submitted');
   const gate = document.getElementById('reviewLoginGate');
   const fields = document.getElementById('reviewFormFields');
@@ -1773,12 +1813,10 @@ function applyLoginUI(firstName, lastName) {
   const addReviewTitle = document.getElementById('addYourReviewID');
   
   if (reviewSubmitted === 'true') {
-    // Review already submitted, hide the form
     if (gate) gate.style.display = 'none';
     if (fields) fields.style.display = 'none';
     if (addReviewTitle) addReviewTitle.style.display = 'none';
   } else {
-    // First time login, show the review form
     if (gate) gate.style.display = 'none';
     if (fields) fields.style.display = 'flex';
     if (addReviewTitle) addReviewTitle.style.display = 'block';
@@ -1845,13 +1883,17 @@ function logoutUser() {
       
       isLoggedIn = false;
       
-      // Nav: show Login, hide pill
+      // Nav: show Login, hide desktop pill
       const loginLink = document.getElementById('navLoginLink');
       if (loginLink) loginLink.style.display = '';
       const pill = document.getElementById('navUserPill');
       if (pill) pill.style.display = 'none';
       const dropdown = document.getElementById('userMenuDropdown');
       if (dropdown) dropdown.style.display = 'none';
+
+      // Mobile: hide user block
+      const mobileBlock = document.getElementById('mobileUserBlock');
+      if (mobileBlock) mobileBlock.style.display = 'none';
       
       // Show contact/login form again
       const contactForm = document.querySelector('.contact-section');
@@ -2365,6 +2407,25 @@ if ("serviceWorker" in navigator) {
 let otpStage = "send";
 
 // ── ADD LISTING MODAL ──
+function guardedOpenListing(){
+  if(!isLoggedIn){
+    Swal.fire({
+      icon:'info',
+      title:'Login Required',
+      html:'Please <b>login first</b> to list your property.',
+      confirmButtonText:'Go to Login',
+      showCancelButton:true,
+      cancelButtonText:'Cancel',
+    }).then(r=>{
+      if(r.isConfirmed){
+        document.getElementById('about').scrollIntoView({behavior:'smooth'});
+        setTimeout(()=>document.getElementById('firstName')?.focus(),500);
+      }
+    });
+    return;
+  }
+  openListingModal();
+}
 function openListingModal(){
   document.getElementById('listingModal').classList.add('open');
   document.body.style.overflow='hidden';
