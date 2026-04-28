@@ -497,7 +497,6 @@ function formatDateTime(createdAt){
 }
 
 window.deleteBooking = async function(mobile){
-  if(!confirm('Delete this lead?')) return;
 
 const res = await fetch(
   // Local development
@@ -514,7 +513,6 @@ const res = await fetch(
   console.log("RESPONSE:", data);
 
   if(res.ok){
-    alert("Deleted successfully");
     dataTable.ajax.reload(null,false);
   } else {
     alert(data.message || "Delete failed");
