@@ -1218,7 +1218,7 @@ input {
       <div class="agent-card" onclick="window.location.href='tel:9611459961'">
         <div class="agent-avatar" style="background:#e0f4f1;color:#0f6e56">AR</div>
         <div class="agent-name">Arjun Rao</div>
-        <div class="agent-role">Luxury Homes Specialist</div>
+        <div class="agent-role">Homes Specialist</div>
 
         <div class="agent-stats">
           <div style="color:#16a34a;font-weight:600;">
@@ -1904,8 +1904,8 @@ function applyLoginUI(firstName, lastName) {
     if (addReviewTitle) addReviewTitle.style.display = 'block';
   }
   
-  if (label) label.textContent = 'Logged in as ' + firstName;
-  if (nameInput) nameInput.value = firstName;
+  if (label) label.textContent = 'Logged in as ' + firstName + " "+lastName;
+  if (nameInput) nameInput.value = firstName+ " "+lastName;
 }
 
 function showLoginAlert(){
@@ -2305,17 +2305,17 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="listing-grid-2">
         <div class="listing-field">
           <label>Property Title</label>
-          <input type="text" id="l_title" placeholder="e.g. Prestige Lakeside 3BHK"/>
+          <input type="text" id="l_title" placeholder="e.g. Prestige Lakeside"/>
         </div>
         <div class="listing-field">
           <label>Location / Area</label>
-          <input type="text" id="l_loc" placeholder="e.g. HSR Layout Sector 2, Bengaluru"/>
+          <input type="text" id="l_loc" placeholder="e.g. HSR Layout"/>
         </div>
       </div>
       <div class="listing-grid-2">
         <div class="listing-field">
           <label>City</label>
-          <input type="text" id="l_city" placeholder="e.g. Bengaluru"/>
+          <input type="text" id="l_city" placeholder="e.g. Bengaluru" value="Bengaluru"/>
         </div>
         <div class="listing-field">
           <label>Status</label>
@@ -2333,12 +2333,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="listing-grid-2">
         <div class="listing-field">
           <label>Price (₹)</label>
-          <input type="number" id="l_price" placeholder="e.g. 8500000"/>
+          <input type="number" id="l_price" placeholder=""/>
         </div>
+<!--
         <div class="listing-field">
           <label>Display Price</label>
           <input type="text" id="l_displayPrice" placeholder="e.g. ₹85L or ₹25,000/mo"/>
         </div>
+-->
       </div>
 
       <!-- Section: Property Details -->
@@ -2352,19 +2354,13 @@ document.addEventListener('DOMContentLoaded', () => {
           </select>
         </div>
         <div class="listing-field">
-          <label>Area (sqft)</label>
-          <input type="text" id="l_area" placeholder="e.g. 1250 sqft"/>
-        </div>
-        <div class="listing-field">
           <label>Bathrooms</label>
           <select id="l_toilet">
             <option value="">Any</option>
             <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
-      </div>
-      <div class="listing-grid-3">
-        <div class="listing-field">
+		 <div class="listing-field">
           <label>Furnishing</label>
           <select id="l_furnishing">
             <option value="">Select…</option>
@@ -2372,6 +2368,28 @@ document.addEventListener('DOMContentLoaded', () => {
             <option>Semi-Furnished</option>
             <option>Unfurnished</option>
           </select>
+        </div>
+      </div>
+	  <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Car Parking</label>
+          <select id="l_carparking">
+            <option value="">None</option>
+            <option>1 Car</option><option>2 Car</option><option>3 Car</option>
+          </select>
+        </div>
+        <div class="listing-field">
+          <label>Bike Parking</label>
+          <select id="l_bikeparking">
+            <option value="">None</option>
+            <option>1 Bike</option><option>2 Bike</option><option>3 Bike</option><option>4 Bike</option>
+          </select>
+        </div>
+      </div>
+      <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Area (sqft)</label>
+          <input type="text" id="l_area" placeholder="e.g. 1250 sqft"/>
         </div>
         <div class="listing-field">
           <label>Facing</label>
@@ -2386,26 +2404,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <input type="text" id="l_floor" placeholder="e.g. 4th Floor"/>
         </div>
       </div>
-      <div class="listing-grid-3">
-        <div class="listing-field">
-          <label>Car Parking</label>
-          <select id="l_carparking">
-            <option value="">None</option>
-            <option>1</option><option>2</option><option>3</option>
-          </select>
-        </div>
-        <div class="listing-field">
-          <label>Bike Parking</label>
-          <select id="l_bikeparking">
-            <option value="">None</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-          </select>
-        </div>
-        <div class="listing-field">
-          <label>Property Age</label>
-          <input type="text" id="l_age" placeholder="e.g. 2 years"/>
-        </div>
-      </div>
+      
 
       <!-- Section: Description & Amenities -->
       <div class="listing-section-label">Description & Extras</div>
