@@ -922,6 +922,22 @@ input {
   width: calc(50% - 5px);
 }
 
+
+/* Default: show (mobile) */
+#mobileUserBlock {
+  display: flex;
+}
+
+/* Desktop/Laptop: hide */
+@media (min-width: 761px) {
+  #mobileUserBlock {
+    display: none !important;
+  }
+   #navListBtn {
+    display: none !important;
+  }
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
