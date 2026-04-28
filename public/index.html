@@ -1543,8 +1543,8 @@ function renderProps(list){
 // Define which fields are "special" with custom labels / logic
 const FILTER_CONFIG = {
   city:        { label:'City',         allLabel:'All Cities',  type:'string' },
-  area: 	   { label: "Area",        allLabel: "All Area",     type: "area" },
-  loc: 	   	   { label: "Location",    allLabel: "All Location", type: "l_loc" },
+  area: 	   { label: "Area",        allLabel: "All Areas",   type: "string" },
+  loc: 	   	   { label: "Location",    allLabel: "All Locations", type: "string" },
   bhk:         { label:'BHK',          allLabel:'Any BHK',     type:'bhk'    },
   furnishing:  { label:'Furnishing',   allLabel:'Any',         type:'string' },
   toilet:      { label:'Toilets',      allLabel:'Any',         type:'number' },
@@ -1556,7 +1556,7 @@ const FILTER_CONFIG = {
 };
 
 // Keys to SKIP (they are handled by filter chips or aren't useful dropdowns)
-const SKIP_KEYS = new Set(['id','title','loc','price','displayPrice','area','floor','desc','color','icon','images','amenities']);
+const SKIP_KEYS = new Set(['id','title','price','displayPrice','floor','desc','color','icon','images','amenities']);
 
 // Budget bands (special case, not a property key)
 const BUDGET_BANDS = [
@@ -1622,18 +1622,23 @@ function filterProps(){
     const val = getFilterVal('sf_'+key);
     if(val==='all') continue;
     if(FILTER_CONFIG[key].type==='bhk'){
-      list = list.filter(p => val==='4' ? p[key]>=4 : p[key]===parseInt(val));
+      list = list.filter(p => {
+        const pBhk = parseInt(p[key]);
+        const vBhk = parseInt(val);
+        return vBhk >= 4 ? pBhk >= 4 : pBhk === vBhk;
+      });
     } else if(FILTER_CONFIG[key].type==='number'){
       list = list.filter(p => String(p[key])===String(val));
     } else {
-      list = list.filter(p => String(p[key])===String(val));
+      list = list.filter(p => String(p[key]||'').toLowerCase()===String(val).toLowerCase());
     }
   }
-  // Budget
+  // Budget (applies to price numeric value, works for sale; for rent compare monthly figure)
   const budget = getFilterVal('sf_budget');
   if(budget!=='all'){
     const bMap={'50':[0,5000000],'100':[5000000,10000000],'200':[10000000,20000000],'999':[20000000,Infinity]};
-    list = list.filter(p=>p.status!=='For Rent'&&p.price>=bMap[budget][0]&&p.price<bMap[budget][1]);
+    const [lo, hi] = bMap[budget];
+    list = list.filter(p => p.price >= lo && p.price < hi);
   }
   // Active chip filter
   if(activeFilter!=='all') list=list.filter(p=>p.status===activeFilter);
@@ -2416,10 +2421,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <label>Amenities <span style="font-weight:400;color:var(--ink3)">(comma-separated)</span></label>
         <input type="text" id="l_amenities" placeholder="e.g. Gym, Swimming Pool, Clubhouse"/>
       </div>
-      <div class="listing-field" style="margin-bottom:18px">
-        <label>Image URL(s) <span style="font-weight:400;color:var(--ink3)">(comma-separated)</span></label>
-        <input type="text" id="l_images" placeholder="https://... , https://..."/>
+      <!-- ── IMAGES SECTION ── -->
+      <div class="listing-section-label">Property Images</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <input type="url" id="l_imgUrlInput" placeholder="Paste image URL (https://…)" style="flex:1;min-width:180px;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:9px 12px;font-size:0.86rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none;transition:border-color 0.18s" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter'){event.preventDefault();addImageFromUrl()}"/>
+        <button type="button" onclick="addImageFromUrl()" style="padding:9px 16px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">+ Add URL</button>
+        <button type="button" onclick="document.getElementById('l_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁 Upload / Camera</button>
+        <input type="file" id="l_imgFileInput" accept="image/*" multiple style="display:none" onchange="addImagesFromFiles(this)"/>
       </div>
+      <div id="imgPreviewGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px"></div>
+      <div id="imgEmptyHint" style="font-size:0.78rem;color:var(--ink3);margin-bottom:18px">No images added yet. Paste a URL or upload/capture photos above.</div>
 
       <!-- Submit -->
       <button id="listingSubmitBtn" onclick="submitListing()" style="width:100%;padding:14px;border:none;background:var(--ink);color:#fff;border-radius:var(--radius-xs);font-size:0.92rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--ink)';this.style.color='#fff'">
@@ -2517,6 +2528,115 @@ function closeListingModal(){
 }
 document.getElementById('listingModal').addEventListener('click',function(e){if(e.target===this)closeListingModal()});
 
+// ── IMAGE MANAGER ──
+// Each entry: { type:'url'|'base64', value: string, thumb: string }
+const _listingImages = [];
+
+function _refreshImgPreview(){
+  const grid = document.getElementById('imgPreviewGrid');
+  const hint = document.getElementById('imgEmptyHint');
+  if(!grid) return;
+  if(!_listingImages.length){
+    grid.innerHTML = '';
+    if(hint) hint.style.display = 'block';
+    return;
+  }
+  if(hint) hint.style.display = 'none';
+  grid.innerHTML = _listingImages.map((img, i) => `
+    <div style="position:relative;width:90px;height:90px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);flex-shrink:0">
+      <img src="${img.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.parentElement.querySelector('.img-err').style.display='flex';this.style.display='none'"/>
+      <div class="img-err" style="display:none;position:absolute;inset:0;background:var(--surface2);align-items:center;justify-content:center;font-size:1.6rem">🖼️</div>
+      <button type="button" onclick="removeListingImage(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;border:none;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);color:#fff;font-size:0.6rem;text-align:center;padding:2px 0">${img.type==='base64'?'📷 Photo':'🔗 URL'}</div>
+    </div>`).join('');
+}
+
+function removeListingImage(i){
+  _listingImages.splice(i, 1);
+  _refreshImgPreview();
+}
+
+function addImageFromUrl(){
+  const inp = document.getElementById('l_imgUrlInput');
+  const raw = (inp?.value || '').trim().replace(/^["'\s]+|["'\s]+$/g,'');
+  if(!raw){ Swal.fire({icon:'warning',title:'No URL',text:'Please paste an image URL first.',timer:1800,showConfirmButton:false}); return; }
+  if(!raw.startsWith('http')){ Swal.fire({icon:'warning',title:'Invalid URL',text:'URL must start with http:// or https://'}); return; }
+  _listingImages.push({ type:'url', value: raw, thumb: raw });
+  inp.value = '';
+  _refreshImgPreview();
+}
+
+// ── ImgBB upload: converts captured/uploaded images to real hosted URLs ──
+// Get a FREE key at https://imgbb.com (Account → API → Add API key)
+const IMGBB_API_KEY = 'fabdcca109b7dc46ca9d6d86eb7ce33a'; // <-- replace with your key
+
+async function uploadToImgBB(file){
+  const b64 = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+  const form = new FormData();
+  form.append('image', b64);
+  form.append('key', IMGBB_API_KEY);
+  const resp = await fetch('https://api.imgbb.com/1/upload', { method:'POST', body:form });
+  if(!resp.ok) throw new Error('ImgBB upload failed: ' + resp.status);
+  const data = await resp.json();
+  if(!data.success) throw new Error(data.error?.message || 'ImgBB error');
+  return { url: data.data.url, thumb: data.data.thumb?.url || data.data.url };
+}
+
+async function addImagesFromFiles(input){
+  const files = Array.from(input.files || []);
+  if(!files.length) return;
+  input.value = '';
+
+  const grid = document.getElementById('imgPreviewGrid');
+  const hint = document.getElementById('imgEmptyHint');
+  if(hint) hint.style.display = 'none';
+
+  // Add uploading placeholders immediately so user gets feedback
+  const phIds = files.map((f, pi) => {
+    const id = 'imgph_' + Date.now() + '_' + pi;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'position:relative;width:90px;height:90px;border-radius:10px;border:1.5px dashed var(--border);flex-shrink:0;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px';
+    div.innerHTML = '<span style="font-size:1.5rem">⏳</span><span style="font-size:0.6rem;color:var(--ink3);text-align:center">Uploading…</span>';
+    grid.appendChild(div);
+    return { id, file: f };
+  });
+
+  await Promise.all(phIds.map(async ({ id, file }) => {
+    const ph = document.getElementById(id);
+    try {
+      const { url, thumb } = await uploadToImgBB(file);
+      _listingImages.push({ type:'url', value: url, thumb });
+      if(ph) ph.remove();
+    } catch(err) {
+      console.error('Upload failed:', err);
+      if(ph){
+        ph.innerHTML = '<span style="font-size:1.2rem">❌</span><span style="font-size:0.58rem;color:var(--red);text-align:center;padding:0 4px">Failed</span>';
+        setTimeout(() => ph.remove(), 2500);
+      }
+    }
+  }));
+
+  _refreshImgPreview();
+}
+
+// ── FORMAT PRICE DISPLAY ──
+function formatDisplayPrice(price, status){
+  if(!price || isNaN(price)) return '';
+  const num = Number(price);
+  let display = '';
+  if(num >= 10000000)       display = '₹' + (num/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
+  else if(num >= 100000)    display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
+  else                      display = '₹' + num.toLocaleString('en-IN');
+  if(status === 'For Rent') display += '/mo';
+  return display;
+}
+
 async function submitListing(){
   const get = id => document.getElementById(id)?.value?.trim() || '';
 
@@ -2525,20 +2645,26 @@ async function submitListing(){
   const city         = get('l_city');
   const status       = get('l_status');
   const price        = get('l_price');
-  const displayPrice = get('l_displayPrice');
   const bhk          = get('l_bhk');
 
   if(!title){
     Swal.fire({icon:'warning',title:'Missing Title',text:'Please enter at least a property title to submit.'});
     return;
   }
+  if(!status){
+    Swal.fire({icon:'warning',title:'Missing Status',text:'Please select For Sale, For Rent, or New Launch.'});
+    return;
+  }
+  if(!price || isNaN(Number(price)) || Number(price) <= 0){
+    Swal.fire({icon:'warning',title:'Missing Price',text:'Please enter a valid price (numeric value in ₹).'});
+    return;
+  }
 
-  const imagesRaw = get('l_images');
-  const images = imagesRaw
-    ? imagesRaw.split(',')
-        .map(s => s.replace(/^["'\s]+|["'\s]+$/g, '').trim())
-        .filter(s => s.startsWith('http'))
-    : [];
+  // All images in _listingImages are real https:// URLs (base64 was already uploaded to ImgBB)
+  const images = _listingImages.map(img => img.value).filter(v => v && v.startsWith('http'));
+
+  // Auto-generate displayPrice from price + status
+  const displayPrice = formatDisplayPrice(price, status);
 
   const amenitiesRaw = get('l_amenities');
   const amenities = amenitiesRaw
@@ -2549,7 +2675,7 @@ async function submitListing(){
     title, loc, city, status,
     price: Number(price),
     displayPrice,
-    bhk: parseInt(bhk),
+    bhk: bhk ? parseInt(bhk) : undefined,
     area:         get('l_area')        || undefined,
     furnishing:   get('l_furnishing')  || undefined,
     facing:       get('l_facing')      || undefined,
@@ -2598,10 +2724,13 @@ async function submitListing(){
     setTimeout(loadPropertiesFromDB, 800);
 
     // Reset form
-    ['l_title','l_loc','l_city','l_price','l_displayPrice','l_area','l_floor','l_age','l_desc','l_amenities','l_images']
+    ['l_title','l_loc','l_city','l_price','l_area','l_floor','l_age','l_desc','l_amenities']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    // Reset image state
+    _listingImages.length = 0;
+    _refreshImgPreview();
 
   } catch(err) {
     Swal.fire({icon:'error',title:'Submission Failed',text: err.message || 'Could not reach server. Please try again.'});
