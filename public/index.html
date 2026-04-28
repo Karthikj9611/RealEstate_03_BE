@@ -860,6 +860,36 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   background:#f1eee9; /* slightly cleaner */
 }
 
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.form-row > * {
+  width: calc(50% - 6px); /* 2 items per row */
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+form input,
+form select,
+form textarea {
+  width: calc(50% - 6px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.full-width {
+  width: 100% !important;
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
