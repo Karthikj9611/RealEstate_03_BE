@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Karthikj9611/RealEstate_03#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",

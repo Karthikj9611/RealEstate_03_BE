@@ -101,7 +101,7 @@ nav{
   .nav-cta{font-size:0.78rem;padding:8px 14px}
   /* Hide desktop pill and CTA on mobile */
   #navUserPill{display:none!important}
-  #navListBtn{display:none!important}
+  #navListBtn{display:none!important} /* always hidden on mobile; admin uses drawer button */
 }
 
 /* ── HERO ── */
@@ -465,9 +465,9 @@ nav{
   display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:1rem;
 }
 .testi-card{
-  background:var(--surface);padding:1.2rem;border-radius:var(--radius);
+  background:var(--surface);padding:1.4rem;border-radius:var(--radius);
   box-shadow:var(--shadow);border:1px solid var(--border);transition:transform 0.2s;
-  display:flex;flex-direction:column;gap:8px;
+  display:flex;flex-direction:column;gap:10px;
 }
 .testi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
 .testi-stars{color:var(--gold);font-size:0.85rem;letter-spacing:2px}
@@ -632,31 +632,113 @@ nav{
 }
 
 
-/* ── CONTACT FORM ── */
-.contact-section{
-  background:var(--gold-light);
-  padding:clamp(1.5rem,3vw,2.5rem) clamp(1.2rem,4%,3rem);
-  width:100%;
+/* ── AUTH SECTION ── */
+.auth-section{
+  background:linear-gradient(160deg,#0c1a12 0%,#1b3a2d 40%,#0f2318 100%);
+  padding:clamp(3rem,6vw,5rem) clamp(1rem,4%,2rem);
+  display:flex;align-items:center;justify-content:center;
+  min-height:auto;
 }
-.contact-inner{max-width:540px;width:100%;margin:0 auto;text-align:center}
-.contact-inner h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--ink);margin-bottom:0.5rem}
-.contact-inner p{font-size:0.88rem;color:var(--ink2);margin-bottom:1.8rem;line-height:1.7}
-.contact-form{display:flex;flex-direction:column;gap:10px;width:100%}
-.contact-form input{
-  width:100%;border:1.5px solid var(--border);border-radius:var(--radius-xs);
-  padding:12px 16px;font-size:0.9rem;font-family:inherit;outline:none;
-  background:var(--surface);transition:border-color 0.18s;color:var(--ink);
-  box-sizing:border-box;
+.auth-card{
+  background:var(--surface);
+  border-radius:24px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04);
+  width:100%;max-width:440px;overflow:hidden;
 }
-.contact-form input:focus{border-color:var(--gold)}
-.contact-form button{
-  background:var(--ink);color:#fff;border:none;
-  padding:13px 22px;border-radius:var(--radius-xs);
-  font-size:0.9rem;font-weight:700;font-family:inherit;
-  cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;
-  width:100%;
+.auth-brand{
+  background:linear-gradient(135deg,var(--accent),var(--gold-dark));
+  padding:1.3rem 1.8rem;
+  display:flex;align-items:center;gap:12px;
 }
-.contact-form button:hover{background:var(--gold-dark)}
+.auth-brand-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,0.14);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0;
+}
+.auth-brand-text{display:flex;flex-direction:column;gap:1px}
+.auth-brand-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:#fff;line-height:1}
+.auth-brand-sub{font-size:0.68rem;color:rgba(255,255,255,0.5)}
+.auth-tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  background:var(--surface2);
+  border-bottom:1.5px solid var(--border);
+}
+.auth-tab{
+  padding:14px 0;font-family:inherit;font-size:0.86rem;font-weight:700;
+  background:none;border:none;border-bottom:2.5px solid transparent;
+  cursor:pointer;color:var(--ink3);letter-spacing:0.3px;transition:all 0.2s;
+}
+.auth-tab:hover{color:var(--ink2);background:rgba(0,0,0,0.02)}
+.auth-tab.active{color:var(--gold-dark);background:var(--surface);border-bottom-color:var(--gold)}
+.auth-panel{padding:1.8rem 2rem 2rem}
+@media(max-width:480px){.auth-panel{padding:1.5rem 1.4rem 1.8rem}}
+@media(max-width:360px){.auth-panel{padding:1.2rem 1.1rem 1.5rem}}
+.auth-heading{font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:-0.3px}
+.auth-sub{font-size:0.81rem;color:var(--ink3);margin-bottom:1.5rem;line-height:1.5}
+.auth-fields{display:flex;flex-direction:column;gap:12px;margin-bottom:1.5rem}
+.auth-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:380px){.auth-row-2{grid-template-columns:1fr}}
+.auth-field{display:flex;flex-direction:column;gap:5px}
+.auth-field label{font-size:0.7rem;font-weight:800;color:var(--ink2);letter-spacing:0.7px;text-transform:uppercase}
+.auth-field input{
+  border:1.5px solid var(--border);border-radius:11px;
+  padding:11px 14px;font-size:0.88rem;font-family:inherit;
+  color:var(--ink);background:var(--bg);outline:none;
+  transition:border-color 0.18s,background 0.18s,box-shadow 0.18s;
+  width:100%;min-width:0;
+}
+.auth-field input:focus{border-color:var(--gold);background:var(--surface);box-shadow:0 0 0 3.5px rgba(46,125,90,0.12)}
+.auth-field input::placeholder{color:var(--border2);font-size:0.85rem}
+.auth-pw-wrap{position:relative;display:flex;align-items:center}
+.auth-pw-wrap input{padding-right:46px;width:100%}
+.auth-pw-toggle{
+  position:absolute;right:13px;background:none;border:none;
+  cursor:pointer;font-size:1rem;padding:0;line-height:1;
+  opacity:0.35;transition:opacity 0.15s;flex-shrink:0;
+}
+.auth-pw-toggle:hover{opacity:0.8}
+.auth-otp-row{display:flex;gap:8px;align-items:stretch}
+.auth-otp-row input{flex:1;min-width:0}
+.auth-otp-btn{
+  white-space:nowrap;padding:10px 14px;border-radius:11px;
+  border:1.5px solid var(--gold);background:var(--gold-light);
+  color:var(--gold-dark);font-size:0.76rem;font-weight:800;
+  font-family:inherit;cursor:pointer;transition:all 0.18s;
+  flex-shrink:0;letter-spacing:0.3px;align-self:stretch;
+}
+.auth-otp-btn:hover{background:var(--gold);color:#fff;border-color:var(--gold)}
+.auth-otp-btn:disabled{opacity:0.45;cursor:not-allowed;pointer-events:none}
+.auth-submit{
+  width:100%;padding:13.5px;border:none;
+  background:var(--accent);color:#fff;border-radius:12px;
+  font-size:0.92rem;font-weight:700;font-family:inherit;cursor:pointer;
+  transition:all 0.22s;letter-spacing:0.3px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  box-shadow:0 4px 18px rgba(27,58,45,0.28);
+}
+.auth-submit:hover{background:var(--gold);transform:translateY(-1.5px);box-shadow:0 8px 28px rgba(46,125,90,0.35)}
+.auth-submit:active{transform:translateY(0)}
+.auth-submit:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none}
+.auth-switch{text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--ink3)}
+.auth-switch a{color:var(--gold-dark);font-weight:700;cursor:pointer;text-decoration:none;transition:color 0.15s}
+.auth-switch a:hover{color:var(--gold)}
+.auth-step-indicator{
+  display:flex;align-items:center;gap:7px;
+  font-size:0.74rem;font-weight:600;color:var(--ink3);
+  margin-bottom:1.3rem;padding:9px 13px;
+  background:var(--surface2);border-radius:10px;border:1px solid var(--border);
+}
+.auth-step-dot{
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.64rem;font-weight:800;flex-shrink:0;
+  background:var(--border);color:var(--ink3);transition:all 0.25s;
+}
+.auth-step-dot.active{background:var(--gold);color:var(--ink);transform:scale(1.1)}
+.auth-step-dot.done{background:var(--accent);color:#fff}
+.auth-step-line{flex:1;height:2px;background:var(--border);border-radius:2px;transition:background 0.3s}
+.auth-step-line.done{background:var(--accent)}
 
 /* ── FOOTER ── */
 footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw,3.5rem) clamp(1.2rem,4%,3rem) 2rem}
@@ -676,15 +758,24 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 }
 .social-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:640px){
-  .footer-grid{grid-template-columns:repeat(3,1fr);gap:1rem}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:1.2rem 1rem}
+  .footer-grid>div:last-child{grid-column:1/-1}
   .footer-heading{font-size:0.7rem}
   .footer-links a{font-size:0.74rem}
+  .footer-bottom{justify-content:center}
+}
+@media(max-width:400px){
+  .footer-grid{grid-template-columns:1fr}
 }
 
 /* ── MODAL ── */
 .modal-wrap{display:none;position:fixed;inset:0;background:rgba(12,13,16,0.65);z-index:500;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)}
 .modal-wrap.open{display:flex}
 .modal{background:var(--surface);border-radius:var(--radius);max-width:560px;width:100%;max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 32px 80px rgba(0,0,0,0.35)}
+@media(max-width:600px){
+  .modal-wrap{padding:0;align-items:flex-end}
+  .modal{border-radius:22px 22px 0 0;max-height:94vh}
+}
 .modal-close{position:sticky;top:0;display:flex;justify-content:flex-end;padding:13px 14px 0;background:var(--surface);z-index:2}
 .modal-close-btn{
   width:30px;height:30px;border-radius:50%;
@@ -836,7 +927,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .fade-up:nth-child(6){animation-delay:0.34s}
 
 /* ── TESTIMONIALS SECTION WRAPPER ── */
-.testi-section{padding:clamp(1.5rem,3vw,2.8rem) clamp(1.2rem,4%,3rem);background:var(--surface2)}
+.testi-section{padding:clamp(2rem,4vw,3.5rem) clamp(1.2rem,4%,3rem);background:var(--surface2)}
 .testi-section-inner{max-width:1100px;margin:0 auto}
 
 .modal-details-grid{
@@ -870,17 +961,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   width: calc(50% - 6px); /* 2 items per row */
 }
 
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-form input,
-form select,
-form textarea {
-  width: calc(50% - 6px);
-}
+/* form layout handled per-section */
 
 * {
   box-sizing: border-box;
@@ -933,11 +1014,26 @@ input {
   #mobileUserBlock {
     display: none !important;
   }
-   #navListBtn {
-    display: none !important;
-  }
 }
 
+
+/* ── GLOBAL RESPONSIVE IMPROVEMENTS ── */
+@media(max-width:768px){
+  .section{padding:1.8rem 1rem}
+  .testi-form{padding:1.2rem 1rem}
+  .modal-details-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:500px){
+  .modal-details-grid{grid-template-columns:1fr 1fr}
+  .section-title{font-size:1.4rem}
+  .auth-card{border-radius:20px}
+}
+@media(max-width:380px){
+  .modal-details-grid{grid-template-columns:1fr}
+  .listing-grid-2,.listing-grid-3{grid-template-columns:1fr}
+  .auth-row-2{grid-template-columns:1fr}
+  .prop-chips{gap:4px}
+}
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -1003,7 +1099,7 @@ input {
   <div class="nav-links" id="navLinks">
     <a href="#listings" class="active" onclick="closeNav()">Properties</a>
     <a href="#agents" onclick="closeNav()">Agents</a>
-    <a href="#about" id="navLoginLink" onclick="scrollToForm();closeNav()">Login</a>
+    <a href="#about" id="navLoginLink" onclick="scrollToForm();closeNav()">Sign In</a>
 
     <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
     <div id="mobileUserBlock" style="display:none;margin-top:6px;padding:12px 14px;background:var(--gold-light);border-radius:var(--radius-xs);border:1.5px solid var(--gold);flex-direction:column;gap:4px">
@@ -1014,7 +1110,7 @@ input {
           <div id="mobileUserEmail" style="font-size:0.72rem;color:var(--ink3)">Logged in</div>
         </div>
       </div>
-      <button onclick="closeNav();openListingModal()" style="width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.84rem;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">
+      <button onclick="closeNav();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.84rem;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;align-items:center;gap:8px;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">
         <span>＋</span> List Property
       </button>
       <button onclick="closeNav();logoutUser()" style="width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:none;color:var(--red);font-size:0.84rem;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.18s;margin-top:2px" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
@@ -1031,7 +1127,7 @@ input {
     <!-- Desktop dropdown -->
     <div id="userMenuDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);min-width:190px;z-index:300;overflow:hidden">
       <div id="userMenuName" style="padding:13px 16px 10px;font-size:0.78rem;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border)"></div>
-      <button onclick="event.stopPropagation();openListingModal()" style="width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
+      <button onclick="event.stopPropagation();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span>＋</span> List Property
       </button>
       <button onclick="event.stopPropagation();logoutUser()" style="width:100%;padding:11px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
@@ -1041,7 +1137,7 @@ input {
   </div>
 
   <!-- Desktop CTA (hidden on mobile — login gates it via JS) -->
-  <button class="nav-cta" id="navListBtn" onclick="guardedOpenListing()">+ List Property</button>
+  <button class="nav-cta" id="navListBtn" onclick="guardedOpenListing()" style="display:none">+ List Property</button>
 
   <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -1255,19 +1351,102 @@ input {
   </div>
 </section>
 
-<!-- CONTACT -->
-<div class="contact-section" id="about">
-  <div class="contact-inner">
-    <h2>Get in Touch</h2>
-    <p>Fill your details and our team will contact you shortly.</p>
-    <div class="contact-form">
-      <input type="text" placeholder="First Name" id="firstName" required/>
-      <input type="text" placeholder="Last Name" id="lastName" required/>
-      <input type="email" id="email" placeholder="Enter Email" />
-      <input type="text" id="otpInput" placeholder="Enter OTP" style="display:none;" />
-      <button id="otpBtn">Send OTP</button>
-      <input type="tel" placeholder="Mobile Number" id="mobile" required/>
-      <button onclick="submitForm()">Submit →</button>
+<!-- AUTH SECTION -->
+<div class="auth-section" id="about">
+  <div class="auth-card">
+
+    <div class="auth-brand">
+      <div class="auth-brand-icon">K</div>
+      <div class="auth-brand-text">
+        <span class="auth-brand-name">KR Real-Estate</span>
+        <span class="auth-brand-sub">HSR Layout's Premier Realty</span>
+      </div>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div id="panelLogin" class="auth-panel">
+      <div class="auth-heading">Welcome back</div>
+      <div class="auth-sub">Sign in to your KR account</div>
+      <div class="auth-fields">
+        <div class="auth-field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="you@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-pw-wrap">
+            <input type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+            <button type="button" class="auth-pw-toggle" onclick="togglePw('loginPassword',this)" tabindex="-1">👁</button>
+          </div>
+        </div>
+      </div>
+      <button class="auth-submit" id="loginBtn" onclick="doLogin()">Sign In →</button>
+      <div class="auth-switch">No account? <a onclick="switchAuthTab('register')">Register here</a></div>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div id="panelRegister" class="auth-panel" style="display:none">
+      <div class="auth-heading">Create account</div>
+      <div class="auth-sub">Join KR Real-Estate</div>
+
+      <!-- Step indicator -->
+      <div class="auth-step-indicator" id="regStepIndicator">
+        <div class="auth-step-dot active" id="regDot1">1</div>
+        <div class="auth-step-line" id="regLine1"></div>
+        <div class="auth-step-dot" id="regDot2">2</div>
+        <span id="regStepLabel" style="margin-left:4px">Fill your details</span>
+      </div>
+
+      <!-- Step 1: details -->
+      <div id="regStep1">
+        <div class="auth-fields">
+          <div class="auth-row-2">
+            <div class="auth-field">
+              <label>First Name</label>
+              <input type="text" id="firstName" placeholder="First name" autocomplete="given-name"/>
+            </div>
+            <div class="auth-field">
+              <label>Last Name</label>
+              <input type="text" id="lastName" placeholder="Last name" autocomplete="family-name"/>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label>Email</label>
+            <div class="auth-otp-row">
+              <input type="email" id="email" placeholder="you@email.com" autocomplete="email"/>
+              <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendRegOtp()">Send OTP</button>
+            </div>
+          </div>
+          <div class="auth-field" id="otpFieldWrap" style="display:none">
+            <label>Email OTP</label>
+            <div class="auth-otp-row">
+              <input type="text" id="otpInput" placeholder="6-digit code" maxlength="6" inputmode="numeric"/>
+              <button type="button" class="auth-otp-btn" id="resendOtpBtn" onclick="sendRegOtp(true)" style="display:none">Resend</button>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label>Mobile</label>
+            <input type="tel" id="mobile" placeholder="+91 XXXXX XXXXX" autocomplete="tel"/>
+          </div>
+          <div class="auth-field">
+            <label>Password</label>
+            <div class="auth-pw-wrap">
+              <input type="password" id="regPassword" placeholder="Create a password" autocomplete="new-password"/>
+              <button type="button" class="auth-pw-toggle" onclick="togglePw('regPassword',this)" tabindex="-1">👁</button>
+            </div>
+          </div>
+        </div>
+        <button class="auth-submit" id="registerBtn" onclick="doRegister()">Create Account →</button>
+      </div>
+    </div>
+
+    <div class="auth-switch" style="padding:0 2rem 1.4rem;margin-top:0;display:none" id="regSwitchRow">
+      Already have an account? <a onclick="switchAuthTab('login')">Sign in</a>
     </div>
   </div>
 </div>
@@ -1527,8 +1706,8 @@ function renderProps(list){
         <div class="prop-loc">📍 ${p.loc}</div>
         <div class="prop-chips">
           <span class="prop-chip">🛏 ${p.bhk} BHK</span>
-          <span class="prop-chip">📐 ${p.area}</span>
-          <span class="prop-chip">🪑 ${p.furnishing}</span>
+          ${p.area?`<span class="prop-chip">📐 ${p.area}</span>`:''}
+          ${p.furnishing?`<span class="prop-chip">🪑 ${p.furnishing}</span>`:''}
         </div>
         <div class="prop-footer">
           <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">📞</button>
@@ -1811,64 +1990,43 @@ function calcEMI(){
 }
 */
 
-// ── LOGIN STATE (persistent via localStorage) ──
+// ── LOGIN STATE ──
 let isLoggedIn = false;
+let isAdmin = false;
 
-// ── On page load: restore session if exists ──
+// ── BASE URL ──
+const BASE_URL = location.hostname === 'localhost'
+  ? 'http://localhost:5000'
+  : 'https://kr-realestate.onrender.com';
+
+// ── On page load: restore session ──
 (function restoreSession(){
   try {
-    const isLoggedInSaved = localStorage.getItem('kr_user_loggedin');
     const saved = localStorage.getItem('kr_user');
-    
-    if (isLoggedInSaved === 'true' && saved) {
+    if (saved) {
       const user = JSON.parse(saved);
       if (user && user.firstName) {
-        applyLoginUI(user.firstName, user.lastName || '');
+        isAdmin = !!user.isAdmin;
+        applyLoginUI(user.firstName, user.lastName || '', isAdmin);
       }
     }
   } catch(e) {}
 })();
 
-function restoreReviewFormState() {
-  try {
-    const isLoggedInSaved = localStorage.getItem('kr_user_loggedin');
-    const reviewFormHidden = localStorage.getItem('kr_review_form_hidden');
-    const reviewSubmitted = localStorage.getItem('kr_review_submitted');
-    
-    // If user is logged in AND review form was hidden/submitted, keep it hidden
-    if (isLoggedInSaved === 'true' && (reviewFormHidden === 'true' || reviewSubmitted === 'true')) {
-      const form = document.querySelector('#reviewFormFields');
-      const addReviewTitle = document.getElementById('addYourReviewID');
-      if (form) form.style.display = 'none';
-      if (addReviewTitle) addReviewTitle.style.display = 'none';
-    }
-    // If user is logged in but review form hasn't been submitted yet, keep it visible
-    else if (isLoggedInSaved === 'true') {
-      const form = document.querySelector('#reviewFormFields');
-      const addReviewTitle = document.getElementById('addYourReviewID');
-      const gate = document.getElementById('reviewLoginGate');
-      if (form) form.style.display = 'flex';
-      if (addReviewTitle) addReviewTitle.style.display = 'block';
-      if (gate) gate.style.display = 'none';
-    }
-  } catch(e) {}
-}
 
-function applyLoginUI(firstName, lastName) {
+
+function applyLoginUI(firstName, lastName, admin) {
   isLoggedIn = true;
-  
-  // Save login state to localStorage
-  try {
-    localStorage.setItem('kr_user_loggedin', 'true');
-    localStorage.setItem('kr_user_data', JSON.stringify({ firstName, lastName: lastName || '' }));
-  } catch(e) {}
+  isAdmin = !!admin;
 
   const fullName = firstName + (lastName ? ' ' + lastName : '');
   const initials = (firstName.charAt(0) + (lastName ? lastName.charAt(0) : '')).toUpperCase();
 
-  // ── Desktop pill ──
+  // ── Nav: hide Login link ──
   const loginLink = document.getElementById('navLoginLink');
   if (loginLink) loginLink.style.display = 'none';
+
+  // ── Desktop pill ──
   const pill = document.getElementById('navUserPill');
   if (pill) pill.style.display = 'flex';
   const avatar = document.getElementById('navUserAvatar');
@@ -1878,20 +2036,25 @@ function applyLoginUI(firstName, lastName) {
   if (nameEl) nameEl.textContent = fullName;
   if (menuName) menuName.textContent = '👤 ' + fullName;
 
-  // ── Mobile user block inside hamburger drawer ──
+  // ── Admin-only: List Property buttons ──
+  document.querySelectorAll('.admin-only-btn').forEach(el => {
+    el.style.display = isAdmin ? 'flex' : 'none';
+  });
+  const navListBtn = document.getElementById('navListBtn');
+  if (navListBtn) navListBtn.style.display = isAdmin ? '' : 'none';
+
+  // ── Mobile user block ──
   const mobileBlock = document.getElementById('mobileUserBlock');
   const mobileAvatar = document.getElementById('mobileUserAvatar');
   const mobileName   = document.getElementById('mobileUserName');
   if (mobileBlock) mobileBlock.style.display = 'flex';
   if (mobileAvatar) mobileAvatar.textContent = initials;
   if (mobileName)   mobileName.textContent   = fullName;
-  // Also hide the Login link in the drawer
-  if (loginLink) loginLink.style.display = 'none';
 
-  // ── Hide contact/login section ──
-  const contactForm = document.querySelector('.contact-section');
-  if (contactForm) contactForm.style.display = 'none';
-  
+  // ── Hide auth section ──
+  const authSection = document.querySelector('.auth-section');
+  if (authSection) authSection.style.display = 'none';
+
   // ── Review form ──
   const reviewSubmitted = localStorage.getItem('kr_review_submitted');
   const gate = document.getElementById('reviewLoginGate');
@@ -1899,7 +2062,6 @@ function applyLoginUI(firstName, lastName) {
   const label = document.getElementById('loggedInLabel');
   const nameInput = document.getElementById('name');
   const addReviewTitle = document.getElementById('addYourReviewID');
-  
   if (reviewSubmitted === 'true') {
     if (gate) gate.style.display = 'none';
     if (fields) fields.style.display = 'none';
@@ -1909,9 +2071,8 @@ function applyLoginUI(firstName, lastName) {
     if (fields) fields.style.display = 'flex';
     if (addReviewTitle) addReviewTitle.style.display = 'block';
   }
-  
-  if (label) label.textContent = 'Logged in as ' + firstName + " "+lastName;
-  if (nameInput) nameInput.value = firstName+ " "+lastName;
+  if (label) label.textContent = 'Logged in as ' + fullName;
+  if (nameInput) nameInput.value = fullName;
 }
 
 function showLoginAlert(){
@@ -1925,16 +2086,13 @@ function closeLoginAlert(){
 function goToLogin(){
   closeLoginAlert();
   document.getElementById('about').scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>document.getElementById('firstName')?.focus(),500);
+  setTimeout(()=>switchAuthTab('login'),400);
 }
-// Update unlockReviewForm function
-function unlockReviewForm(firstName, lastName){
-  // Save to localStorage for persistence
+function unlockReviewForm(firstName, lastName, admin){
   try {
-    localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '' }));
-    localStorage.setItem('kr_user_loggedin', 'true');
+    localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '', isAdmin: !!admin }));
   } catch(e) {}
-  applyLoginUI(firstName, lastName);
+  applyLoginUI(firstName, lastName, admin);
 }
 
 // ── User menu dropdown toggle ──
@@ -1955,47 +2113,44 @@ function logoutUser() {
   Swal.fire({
     icon: 'question',
     title: 'Log Out?',
-    text: 'You will need to submit your details again to write a review.',
     showCancelButton: true,
     confirmButtonText: 'Yes, log out',
     cancelButtonText: 'Cancel',
   }).then(result => {
     if (result.isConfirmed) {
-      try { 
+      try {
         localStorage.removeItem('kr_user');
-        localStorage.removeItem('kr_user_loggedin');
-        localStorage.removeItem('kr_user_data');
         localStorage.removeItem('kr_review_form_hidden');
         localStorage.removeItem('kr_review_submitted');
       } catch(e) {}
-      
       isLoggedIn = false;
-      
-      // Nav: show Login, hide desktop pill
+      isAdmin = false;
+
       const loginLink = document.getElementById('navLoginLink');
       if (loginLink) loginLink.style.display = '';
       const pill = document.getElementById('navUserPill');
       if (pill) pill.style.display = 'none';
       const dropdown = document.getElementById('userMenuDropdown');
       if (dropdown) dropdown.style.display = 'none';
-
-      // Mobile: hide user block
       const mobileBlock = document.getElementById('mobileUserBlock');
       if (mobileBlock) mobileBlock.style.display = 'none';
-      
-      // Show contact/login form again
-      const contactForm = document.querySelector('.contact-section');
-      if (contactForm) contactForm.style.display = 'block';
-      
-      // Review form: show gate, hide form, show title
+
+      // Hide all admin-only buttons
+      document.querySelectorAll('.admin-only-btn').forEach(el => el.style.display = 'none');
+      const navListBtn = document.getElementById('navListBtn');
+      if (navListBtn) navListBtn.style.display = 'none';
+
+      // Show auth section again
+      const authSection = document.querySelector('.auth-section');
+      if (authSection) { authSection.style.display = ''; switchAuthTab('login'); }
+
       const gate = document.getElementById('reviewLoginGate');
       const fields = document.getElementById('reviewFormFields');
       const addReviewTitle = document.getElementById('addYourReviewID');
-      
       if (gate) gate.style.display = 'flex';
       if (fields) fields.style.display = 'none';
       if (addReviewTitle) addReviewTitle.style.display = 'block';
-      
+
       Swal.fire({icon:'success', title:'Logged Out', text:'See you next time!', timer:1800, showConfirmButton:false});
     }
   });
@@ -2007,44 +2162,225 @@ window.addEventListener('scroll',()=>{
 
 function scrollToForm(){
   document.getElementById('about').scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>document.getElementById('firstName')?.focus(),500);
+  setTimeout(()=>switchAuthTab('login'), 400);
 }
 
-async function submitForm(){
-  const firstName=document.getElementById('firstName').value;
-  const lastName=document.getElementById('lastName').value;
-  const email=document.getElementById('email').value;
-  const mobile=document.getElementById('mobile').value;
-  if(!firstName||!lastName||!email||!mobile){
-    Swal.fire({icon:'warning',title:'Missing Details',text:'Please fill in all fields — First Name, Last Name, Email and Mobile Number.',confirmButtonText:'Got it'});
-    return;
+// ── AUTH TAB SWITCHER ──
+function switchAuthTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('panelLogin').style.display = isLogin ? '' : 'none';
+  document.getElementById('panelRegister').style.display = isLogin ? 'none' : '';
+  document.getElementById('regSwitchRow').style.display = isLogin ? 'none' : '';
+  if (!isLogin) resetRegForm();
+}
+
+// ── PASSWORD VISIBILITY TOGGLE ──
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  if (!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.style.opacity = show ? '0.9' : '0.4';
+}
+
+// ── REGISTER STATE ──
+let _regOtpSent = false;
+let _regOtpVerified = false;
+let _regOtpTimer = null;
+
+function resetRegForm() {
+  _regOtpSent = false;
+  _regOtpVerified = false;
+  clearInterval(_regOtpTimer);
+  ['firstName','lastName','email','otpInput','mobile','regPassword'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) { el.value=''; el.disabled=false; }
+  });
+  const otpWrap = document.getElementById('otpFieldWrap');
+  if (otpWrap) otpWrap.style.display = 'none';
+  const sendBtn = document.getElementById('sendOtpBtn');
+  if (sendBtn) { sendBtn.textContent = 'Send OTP'; sendBtn.disabled = false; }
+  const resendBtn = document.getElementById('resendOtpBtn');
+  if (resendBtn) resendBtn.style.display = 'none';
+  setRegStep(1);
+}
+
+function setRegStep(step) {
+  const dot1 = document.getElementById('regDot1');
+  const dot2 = document.getElementById('regDot2');
+  const line1 = document.getElementById('regLine1');
+  const label = document.getElementById('regStepLabel');
+  if (step === 1) {
+    if (dot1) { dot1.className='auth-step-dot active'; }
+    if (dot2) { dot2.className='auth-step-dot'; }
+    if (line1) line1.className='auth-step-line';
+    if (label) label.textContent = 'Fill your details';
+  } else {
+    if (dot1) { dot1.className='auth-step-dot done'; dot1.textContent='✓'; }
+    if (dot2) { dot2.className='auth-step-dot active'; }
+    if (line1) line1.className='auth-step-line done';
+    if (label) label.textContent = 'Verify your email';
   }
-  try{
-    const res=await fetch("https://kr-realestate.onrender.com/submit",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({firstName,lastName,email,mobile})
+}
+
+function startOtpCountdown(btnId, seconds) {
+  clearInterval(_regOtpTimer);
+  let s = seconds;
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = true;
+  _regOtpTimer = setInterval(() => {
+    s--;
+    btn.textContent = 'Resend (' + s + 's)';
+    if (s <= 0) {
+      clearInterval(_regOtpTimer);
+      btn.textContent = 'Resend';
+      btn.disabled = false;
+    }
+  }, 1000);
+}
+
+async function sendRegOtp(isResend) {
+  const email = (document.getElementById('email')?.value || '').trim();
+  if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+    Swal.fire({icon:'warning',title:'Valid Email Required',text:'Please enter a valid email address before sending the OTP.'}); return;
+  }
+  const btn = document.getElementById(isResend ? 'resendOtpBtn' : 'sendOtpBtn');
+  if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
+  try {
+    const res = await fetch(BASE_URL + '/send-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
     });
-    const data=await res.json();
-    if(!res.ok){showToast(data.message);return;}
-    showToast(data.message);
-    unlockReviewForm(firstName, lastName);
-    document.getElementById('firstName').value='';
-    document.getElementById('lastName').value='';
-    document.getElementById('email').value='';
-    document.getElementById('mobile').value='';
-    
-    // Mark as logged in
-    try {
-      localStorage.setItem('kr_user_loggedin', 'true');
-      localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '' }));
-    } catch(e) {}
-  }catch(err){Swal.fire({icon:'error',title:'Connection Error',text:'Unable to reach the server. Please check your connection and try again.'});}
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Failed');
+    _regOtpSent = true;
+    const otpWrap = document.getElementById('otpFieldWrap');
+    if (otpWrap) otpWrap.style.display = '';
+    const emailEl = document.getElementById('email');
+    if (emailEl) emailEl.disabled = true;
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    if (sendOtpBtn) sendOtpBtn.style.display = 'none';
+    const resendBtn = document.getElementById('resendOtpBtn');
+    if (resendBtn) resendBtn.style.display = '';
+    setRegStep(2);
+    startOtpCountdown('resendOtpBtn', 60);
+    Swal.fire({icon:'success',title:'OTP Sent 📩',text:'Check your email for the 6-digit code.',timer:2200,showConfirmButton:false});
+  } catch(err) {
+    if (btn) { btn.textContent = isResend ? 'Resend' : 'Send OTP'; btn.disabled = false; }
+    Swal.fire({icon:'error',title:'Could not send OTP',text: err.message || 'Please try again.'});
+  }
+}
+
+async function doRegister() {
+  const firstName = (document.getElementById('firstName')?.value || '').trim();
+  const lastName  = (document.getElementById('lastName')?.value  || '').trim();
+  const email     = (document.getElementById('email')?.value     || '').trim();
+  const otp       = (document.getElementById('otpInput')?.value  || '').trim();
+  const mobile    = (document.getElementById('mobile')?.value    || '').trim();
+  const password  = (document.getElementById('regPassword')?.value || '').trim();
+
+  if (!firstName || !lastName) {
+    Swal.fire({icon:'warning',title:'Missing Name',text:'Please enter your first and last name.'}); return;
+  }
+  if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+    Swal.fire({icon:'warning',title:'Invalid Email',text:'Please enter a valid email address.'}); return;
+  }
+  if (!_regOtpSent) {
+    Swal.fire({icon:'warning',title:'OTP Required',text:'Please send and verify the OTP sent to your email.'}); return;
+  }
+  if (!otp) {
+    Swal.fire({icon:'warning',title:'Enter OTP',text:'Please enter the 6-digit OTP sent to your email.'}); return;
+  }
+  if (!mobile) {
+    Swal.fire({icon:'warning',title:'Mobile Required',text:'Please enter your mobile number.'}); return;
+  }
+  if (!password || password.length < 6) {
+    Swal.fire({icon:'warning',title:'Weak Password',text:'Password must be at least 6 characters long.'}); return;
+  }
+
+  const btn = document.getElementById('registerBtn');
+  if (btn) { btn.textContent = 'Verifying OTP…'; btn.disabled = true; }
+
+  try {
+    // Step 1: Verify OTP
+    const verifyRes = await fetch(BASE_URL + '/verify-otp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, otp })
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      Swal.fire({icon:'error',title:'Invalid OTP',text:'The OTP you entered is incorrect. Please try again.'});
+      if (btn) { btn.textContent = 'Create Account →'; btn.disabled = false; }
+      return;
+    }
+
+    if (btn) btn.textContent = 'Creating account…';
+
+    // Step 2: Register
+    const regRes = await fetch(BASE_URL + '/submit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ firstName, lastName, email, mobile, password })
+    });
+    const regData = await regRes.json();
+    if (!regRes.ok) {
+      Swal.fire({icon:'error',title:'Registration Failed',text: regData.message || 'Could not create account.'});
+      if (btn) { btn.textContent = 'Create Account →'; btn.disabled = false; }
+      return;
+    }
+
+    _regOtpVerified = true;
+    Swal.fire({icon:'success',title:'Account Created! 🎉',text:'Welcome to KR Real-Estate!',timer:2000,showConfirmButton:false});
+    unlockReviewForm(firstName, lastName, false);
+    resetRegForm();
+
+  } catch(err) {
+    Swal.fire({icon:'error',title:'Connection Error',text:'Unable to reach server. Please try again.'});
+    if (btn) { btn.textContent = 'Create Account →'; btn.disabled = false; }
+  }
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const email    = (document.getElementById('loginEmail')?.value    || '').trim();
+  const password = (document.getElementById('loginPassword')?.value || '').trim();
+
+  if (!email) { Swal.fire({icon:'warning',title:'Enter Email',text:'Please enter your email or username.'}); return; }
+  if (!password) { Swal.fire({icon:'warning',title:'Enter Password',text:'Please enter your password.'}); return; }
+
+  const btn = document.getElementById('loginBtn');
+  if (btn) { btn.textContent = 'Signing in…'; btn.disabled = true; }
+
+  try {
+    const res = await fetch(BASE_URL + '/api/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      Swal.fire({icon:'error',title:'Login Failed',text: data.message || 'Invalid email or password.'});
+      if (btn) { btn.textContent = 'Sign In →'; btn.disabled = false; }
+      return;
+    }
+    const admin = !!(data.isAdmin || data.role === 'admin');
+    Swal.fire({icon:'success',title: admin ? 'Welcome, Admin! 👑' : 'Welcome back! 👋',text: data.firstName + ' ' + (data.lastName||'') + ' logged in.',timer:2000,showConfirmButton:false});
+    unlockReviewForm(data.firstName, data.lastName || '', admin);
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+  } catch(err) {
+    Swal.fire({icon:'error',title:'Connection Error',text:'Unable to reach server. Please try again.'});
+    if (btn) { btn.textContent = 'Sign In →'; btn.disabled = false; }
+  } finally {
+    const b = document.getElementById('loginBtn');
+    if (b && b.disabled) { b.textContent = 'Sign In →'; b.disabled = false; }
+  }
 }
 
 function hideLoginForm() {
-  const form = document.querySelector('.contact-section');
-  form.style.display = 'none';
-  
+  const s = document.querySelector('.auth-section');
+  if (s) s.style.display = 'none';
 }
 
 // STAR RATING HANDLER
@@ -2110,7 +2446,7 @@ async function submitReview() {
   }
   
   try {
-    const response = await fetch("https://kr-realestate.onrender.com/api/reviews", {
+    const response = await fetch(BASE_URL + "/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, role, comment, rating })
@@ -2167,8 +2503,7 @@ function hideReviewForm() {
 // Modified loadReviews function to display star ratings
 async function loadReviews() {
   try {
-//  const res = await fetch("http://localhost:5000/api/reviews");
-	const res = await fetch("https://kr-realestate.onrender.com/api/reviews");
+const res = await fetch(BASE_URL + "/api/reviews");
     const data = await res.json();
     const grid = document.getElementById('testimonialsGrid');
     if (!grid) return;
@@ -2245,10 +2580,7 @@ function showSkeletons() {
 async function loadPropertiesFromDB() {
   showSkeletons();
   try {
-    const BASE = location.hostname === "localhost"
-      ? "http://localhost:5000"
-      : "https://kr-realestate.onrender.com";
-    const res = await fetch(BASE + "/api/properties");
+    const res = await fetch(BASE_URL + "/api/properties");
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
@@ -2290,7 +2622,7 @@ loadPropertiesFromDB();
 loadReviews();
 document.addEventListener('DOMContentLoaded', () => {
   initStarRating();
-  restoreReviewFormState(); // Add this line
+  switchAuthTab('login');
 });
 </script>
 
@@ -2465,9 +2797,9 @@ document.addEventListener('DOMContentLoaded', () => {
 .listing-field textarea{resize:vertical;min-height:75px}
 .req{color:var(--red);font-size:0.8rem}
 @media(max-width:520px){
-  .listing-grid-2,.listing-grid-3{grid-template-columns:1fr 1fr}
+  .listing-grid-3{grid-template-columns:1fr 1fr}
 }
-@media(max-width:380px){
+@media(max-width:400px){
   .listing-grid-2,.listing-grid-3{grid-template-columns:1fr}
 }
 
@@ -2499,24 +2831,10 @@ if ("serviceWorker" in navigator) {
 </script>
 
 <script>
-let otpStage = "send";
-
 // ── ADD LISTING MODAL ──
 function guardedOpenListing(){
-  if(!isLoggedIn){
-    Swal.fire({
-      icon:'info',
-      title:'Login Required',
-      html:'Please <b>login first</b> to list your property.',
-      confirmButtonText:'Go to Login',
-      showCancelButton:true,
-      cancelButtonText:'Cancel',
-    }).then(r=>{
-      if(r.isConfirmed){
-        document.getElementById('about').scrollIntoView({behavior:'smooth'});
-        setTimeout(()=>document.getElementById('firstName')?.focus(),500);
-      }
-    });
+  if(!isLoggedIn || !isAdmin){
+    Swal.fire({icon:'warning',title:'Admin Only',text:'Only admins can list properties.',timer:2000,showConfirmButton:false});
     return;
   }
   openListingModal();
@@ -2712,11 +3030,7 @@ async function submitListing(){
   btn.disabled = true;
 
   try {
-    const BASE = location.hostname==='localhost'
-      ? 'http://localhost:5000'
-      : 'https://kr-realestate.onrender.com';
-
-    const res = await fetch(BASE+'/api/properties', {
+    const res = await fetch(BASE_URL+'/api/properties', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(payload)
@@ -2756,141 +3070,7 @@ async function submitListing(){
 }
 
 
-// ✅ AUTO SWITCH URL (local vs production)
-const BASE_URL =
-  location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://kr-realestate.onrender.com"; // 🔁 change if needed
-
-document.getElementById("otpBtn").addEventListener("click", async function () {
-
-  const email = document.getElementById("email").value;
-  const otpInput = document.getElementById("otpInput");
-  const btn = document.getElementById("otpBtn");
-
-  // STEP 1: SEND OTP
-  if (otpStage === "send") {
-
-    if (!email) {
-      Swal.fire({
-        icon: "warning",
-        title: "Enter Email",
-        text: "Please enter your email first"
-      });
-      return;
-    }
-
-    try {
-      btn.innerText = "Sending...";
-      btn.disabled = true;
-
-      const res = await fetch(BASE_URL + "/send-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-
-        Swal.fire({
-          icon: "success",
-          title: "OTP Sent 📩",
-          text: "Check your email for the OTP",
-          timer: 2000,
-          showConfirmButton: false
-        });
-
-        otpInput.style.display = "block";
-        btn.innerText = "Verify OTP";
-        btn.disabled = false;
-
-        // 🔒 lock email
-        document.getElementById("email").disabled = true;
-
-        otpStage = "verify";
-
-      } else {
-        throw new Error();
-      }
-
-    } catch (err) {
-      console.error(err);
-
-      Swal.fire({
-        icon: "error",
-        title: "Failed ❌",
-        text: "Unable to send OTP"
-      });
-
-      btn.innerText = "Send OTP";
-      btn.disabled = false;
-    }
-  }
-
-  // STEP 2: VERIFY OTP
-  else if (otpStage === "verify") {
-
-    const otp = otpInput.value;
-
-    if (!otp) {
-      Swal.fire({
-        icon: "warning",
-        title: "Enter OTP",
-        text: "Please enter the OTP"
-      });
-      return;
-    }
-
-    try {
-      btn.innerText = "Verifying...";
-      btn.disabled = true;
-
-      const res = await fetch(BASE_URL + "/verify-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, otp })
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-
-        Swal.fire({
-          icon: "success",
-          title: "Verified 🎉",
-          text: "Email verified successfully"
-        });
-
-        btn.style.display = "none";
-        otpInput.style.display = "none";
-
-        otpStage = "done";
-
-      } else {
-        throw new Error();
-      }
-
-    } catch (err) {
-      console.error(err);
-
-      Swal.fire({
-        icon: "error",
-        title: "Invalid OTP ❌",
-        text: "Please try again"
-      });
-
-      btn.innerText = "Verify OTP";
-      btn.disabled = false;
-    }
-  }
-
-});
+// ── END OF SCRIPT ──
 </script>
 
 </body>
