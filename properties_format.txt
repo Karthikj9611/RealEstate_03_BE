@@ -266,3 +266,67 @@
 		"icon": "💻"
 	}
 ]
+
+
+
+
+
+
+
+
+
+
+
+users ::
+
+{
+  "_id": {
+    "$oid": "69f1e0f2f9b2adbd7e9610c5"
+  },
+  "firstName": "Admin",
+  "lastName": "",
+  "email": "admin",
+  "mobile": "0000000000",
+  "password": "$2b$10$xxFSk9hZXvj86IOgOJI4MO9HjI8bTtfzb9iGn75AY7G4F981zAV7S",
+  "role": "admin",
+  "createdAt": {
+    "$date": "2026-04-29T10:44:02.133Z"
+  },
+  "__v": 0
+}
+
+
+properties ::
+{
+  "_id": {
+    "$oid": "69f1e1e3af387c71ab76352b"
+  },
+  "title": "Samruddhi Sanzio",
+  "loc": "AECS Layout",
+  "city": "Bengaluru",
+  "price": 30000,
+  "displayPrice": "₹30,000/mo",
+  "bhk": 2,
+  "area": "800",
+  "status": "For Rent",
+  "furnishing": "Fully Furnished",
+  "floor": "2nd Floor",
+  "floorLevel": "2nd Floor",
+  "facing": "East",
+  "carparking": "1 Car",
+  "bikeparking": "2 Bike",
+  "toilet": "2",
+  "amenities": [
+    "No amenities"
+  ],
+  "images": [
+    "https://i.ibb.co/LDVtCKLT/03ffeb7e41b7.jpg",
+    "https://i.ibb.co/XkVL6pbR/b5ca7213abd5.jpg",
+    "https://i.ibb.co/6cKDxhws/b530e77ba159.jpg"
+  ],
+  "desc": "#Ready to move",
+  "createdAt": {
+    "$date": "2026-04-29T10:48:03.714Z"
+  },
+  "__v": 0
+}
