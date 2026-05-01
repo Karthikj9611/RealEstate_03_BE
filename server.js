@@ -57,7 +57,8 @@ const otpStore = {};
 // ── EMAIL ──
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: { user: "karthikram1391@gmail.com", pass: "gsbisdrdqoyzqoln" }
+//  auth: { user: "karthik.j@enhancesys.com", pass: "oomqczitgzkxjcto"}
+	  auth: { user: "karthikram1391@gmail.com", pass: "gsbisdrdqoyzqoln" }
 });
 
 // ── SEED ADMIN ──
@@ -79,21 +80,9 @@ async function seedAdmin() {
 // SEND OTP
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: "Email required"
-    });
-  }
-
+  if (!email) return res.status(400).json({ success:false, message:"Email required" });
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  otpStore[email] = {
-    otp,
-    expiresAt: Date.now() + 5 * 60 * 1000
-  };
-
+  otpStore[email] = { otp, expiresAt: Date.now() + 5*60*1000 };
   try {
     await transporter.sendMail({
       from: '"KR Real Estate" <karthikram1391@gmail.com>',
@@ -114,15 +103,10 @@ app.post("/send-otp", async (req, res) => {
         </div>
       </div>`
     });
-
     res.json({ success: true });
-
-  } catch (err) {
-    console.error("Mail error FULL:", err);
-    res.json({
-      success: false,
-      message: err.message || "Failed to send email."
-    });
+  } catch(err) {
+    console.error("Mail error:", err.message);
+    res.json({ success: false, message: "Failed to send email." });
   }
 });
 
@@ -204,6 +188,41 @@ app.post("/api/properties", async (req, res) => {
     res.status(500).json({ message:"Error saving property: " + err.message });
   }
 });
+app.put("/api/properties/:id", async (req, res) => {
+  try {
+    const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ message: "Property not found" });
+    // Recalculate displayPrice if price or status changed
+    if (req.body.price || req.body.status) {
+      const num = updated.price;
+      let display = '';
+      if (num >= 10000000)    display = '₹' + (num/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
+      else if (num >= 100000) display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
+      else                    display = '₹' + num.toLocaleString('en-IN');
+      if (updated.status === 'For Rent') display += '/mo';
+      updated.displayPrice = display;
+      await updated.save();
+    }
+    res.json({ message: "Property updated successfully!", property: updated });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating property: " + err.message });
+  }
+});
+
+
+app.delete("/api/properties/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) 
+      return res.status(400).json({ message: "Invalid property ID" });
+    const deleted = await Property.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Property not found" });
+    res.json({ message: "Property deleted successfully" });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting property: " + err.message });
+  }
+});
 
 // REVIEWS
 app.get("/api/reviews", async (req, res) => {
@@ -223,16 +242,22 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
+
+app.delete("/api/reviews/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid review ID" });
+    const deleted = await Review.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Review not found" });
+    res.json({ message: "Review deleted successfully" });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting review: " + err.message });
+  }
+});
+
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
-
-
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API route not found"
-  });
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
