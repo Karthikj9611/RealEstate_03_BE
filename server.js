@@ -187,6 +187,41 @@ app.post("/api/properties", async (req, res) => {
     res.status(500).json({ message:"Error saving property: " + err.message });
   }
 });
+app.put("/api/properties/:id", async (req, res) => {
+  try {
+    const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updated) return res.status(404).json({ message: "Property not found" });
+    // Recalculate displayPrice if price or status changed
+    if (req.body.price || req.body.status) {
+      const num = updated.price;
+      let display = '';
+      if (num >= 10000000)    display = '₹' + (num/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
+      else if (num >= 100000) display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
+      else                    display = '₹' + num.toLocaleString('en-IN');
+      if (updated.status === 'For Rent') display += '/mo';
+      updated.displayPrice = display;
+      await updated.save();
+    }
+    res.json({ message: "Property updated successfully!", property: updated });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating property: " + err.message });
+  }
+});
+
+
+app.delete("/api/properties/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) 
+      return res.status(400).json({ message: "Invalid property ID" });
+    const deleted = await Property.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Property not found" });
+    res.json({ message: "Property deleted successfully" });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting property: " + err.message });
+  }
+});
 
 // REVIEWS
 app.get("/api/reviews", async (req, res) => {
@@ -203,6 +238,20 @@ app.post("/api/reviews", async (req, res) => {
   } catch(err) {
     console.error(err);
     res.status(500).json({ message:"Error saving review" });
+  }
+});
+
+
+app.delete("/api/reviews/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid review ID" });
+    const deleted = await Review.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Review not found" });
+    res.json({ message: "Review deleted successfully" });
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting review: " + err.message });
   }
 });
 

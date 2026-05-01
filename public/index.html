@@ -1713,6 +1713,10 @@ function renderProps(list){
           <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">📞</button>
           <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">☰</button>
         </div>
+        ${isAdmin ? `<div style="display:flex;gap:6px;margin-top:8px">
+          <button onclick="event.stopPropagation();openEditPropertyModal(${p.id})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--gold);background:var(--gold-light);color:var(--gold-dark);font-size:0.76rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--gold-light)';this.style.color='var(--gold-dark)'">✏️ Edit</button>
+          <button onclick="event.stopPropagation();deleteProperty('${String(p._id)}',${p.id})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);font-size:0.76rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.18s" onmouseover="this.style.background='var(--red)';this.style.color='#fff'" onmouseout="this.style.background='var(--red-light)';this.style.color='var(--red)'">🗑 Delete</button>
+        </div>` : ''}
       </div>
     </div>
   `).join('');
@@ -2062,7 +2066,12 @@ function applyLoginUI(firstName, lastName, admin) {
   const label = document.getElementById('loggedInLabel');
   const nameInput = document.getElementById('name');
   const addReviewTitle = document.getElementById('addYourReviewID');
-  if (reviewSubmitted === 'true') {
+  // Admin sees only reviews — no form, no gate, no title
+  if (isAdmin) {
+    if (gate) gate.style.display = 'none';
+    if (fields) fields.style.display = 'none';
+    if (addReviewTitle) addReviewTitle.style.display = 'none';
+  } else if (reviewSubmitted === 'true') {
     if (gate) gate.style.display = 'none';
     if (fields) fields.style.display = 'none';
     if (addReviewTitle) addReviewTitle.style.display = 'none';
@@ -2073,6 +2082,8 @@ function applyLoginUI(firstName, lastName, admin) {
   }
   if (label) label.textContent = 'Logged in as ' + fullName;
   if (nameInput) nameInput.value = fullName;
+  // Re-render properties so admin edit/delete buttons appear immediately
+  if (PROPERTIES.length) renderProps(PROPERTIES);
 }
 
 function showLoginAlert(){
@@ -2533,7 +2544,7 @@ const res = await fetch(BASE_URL + "/api/reviews");
           </div>
 		<div class="testi-text">"${escapeHtml(r.comment)}"</div>
           <div class="testi-stars" style="color:#FFD700; font-size:1rem; letter-spacing:2px;">${stars}</div>
-          
+          ${isAdmin ? `<button onclick="deleteReview('${r._id}')" style="margin-top:8px;width:100%;padding:7px;border-radius:8px;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);font-size:0.75rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.18s" onmouseover="this.style.background='var(--red)';this.style.color='#fff'" onmouseout="this.style.background='var(--red-light)';this.style.color='var(--red)'">🗑 Delete Review</button>` : ''}
          
         </div>
       `;
@@ -2593,6 +2604,7 @@ async function loadPropertiesFromDB() {
         return {
           ...p,
           id: i,
+          _id: p._id,   // preserve MongoDB _id for admin API calls
           images: cleanImgs.length
             ? cleanImgs
             : ["https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format"],
@@ -2624,6 +2636,229 @@ document.addEventListener('DOMContentLoaded', () => {
   initStarRating();
   switchAuthTab('login');
 });
+
+// ── ADMIN: DELETE PROPERTY ──
+async function deleteProperty(mongoId, localId) {
+  if(!isAdmin){ Swal.fire({icon:'warning',title:'Admin Only',text:'Only admins can delete properties.',timer:2000,showConfirmButton:false}); return; }
+  const p = PROPERTIES.find(x => x.id === localId);
+  const title = p ? p.title : 'this property';
+  const result = await Swal.fire({
+    icon: 'warning',
+    title: 'Delete Property?',
+    html: `Are you sure you want to delete <strong>${escapeHtml(title)}</strong>? This cannot be undone.`,
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#c03040',
+  });
+  if (!result.isConfirmed) return;
+  try {
+    const res = await fetch(BASE_URL + '/api/properties/' + mongoId, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Delete failed');
+    Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Property removed.', timer: 1800, showConfirmButton: false });
+    await loadPropertiesFromDB();
+  } catch(err) {
+    Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not delete property.' });
+  }
+}
+
+// ── ADMIN: DELETE REVIEW ──
+async function deleteReview(reviewId) {
+  if(!isAdmin){ Swal.fire({icon:'warning',title:'Admin Only',text:'Only admins can delete reviews.',timer:2000,showConfirmButton:false}); return; }
+  const result = await Swal.fire({
+    icon: 'warning',
+    title: 'Delete Review?',
+    text: 'This review will be permanently removed.',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#c03040',
+  });
+  if (!result.isConfirmed) return;
+  try {
+    const res = await fetch(BASE_URL + '/api/reviews/' + reviewId, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Delete failed');
+    Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Review removed.', timer: 1800, showConfirmButton: false });
+    loadReviews();
+  } catch(err) {
+    Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not delete review.' });
+  }
+}
+
+// ── ADMIN: EDIT PROPERTY MODAL ──
+let _editPropertyId = null;
+const _editImages = []; // image manager for edit modal
+
+function _refreshEpImgPreview(){
+  const grid = document.getElementById('epImgPreviewGrid');
+  const hint = document.getElementById('epImgEmptyHint');
+  if(!grid) return;
+  if(!_editImages.length){
+    grid.innerHTML = '';
+    if(hint) hint.style.display = 'block';
+    return;
+  }
+  if(hint) hint.style.display = 'none';
+  grid.innerHTML = _editImages.map((img, i) => `
+    <div style="position:relative;width:90px;height:90px;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);flex-shrink:0">
+      <img src="${img.thumb}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div style="display:none;position:absolute;inset:0;background:var(--surface2);align-items:center;justify-content:center;font-size:1.6rem">🖼️</div>
+      <button type="button" onclick="epRemoveImage(${i})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;border:none;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);color:#fff;font-size:0.6rem;text-align:center;padding:2px 0">${img.uploaded?'📷 Photo':'🔗 URL'}</div>
+    </div>`).join('');
+}
+
+function epRemoveImage(i){
+  _editImages.splice(i,1);
+  _refreshEpImgPreview();
+}
+
+function epAddImageFromUrl(){
+  const inp = document.getElementById('ep_imgUrlInput');
+  const raw = (inp?.value||'').trim();
+  if(!raw){ Swal.fire({icon:'warning',title:'No URL',text:'Paste one or more image URLs first.',timer:1800,showConfirmButton:false}); return; }
+  const urls = raw.split(/[\n,]+/).map(u=>u.trim().replace(/^["'\s]+|["'\s]+$/g,'')).filter(u=>u.length>0);
+  const valid = urls.filter(u=>u.startsWith('http'));
+  const bad   = urls.filter(u=>!u.startsWith('http'));
+  valid.forEach(u=>_editImages.push({value:u,thumb:u,uploaded:false}));
+  inp.value='';
+  _refreshEpImgPreview();
+  if(valid.length) showToast(valid.length+' image'+(valid.length>1?'s':'')+' added');
+  if(bad.length) Swal.fire({icon:'warning',title:'Some URLs Skipped',text:bad.length+' entr'+(bad.length>1?'ies':'y')+' skipped — URLs must start with http:// or https://'});
+}
+
+async function epAddImagesFromFiles(input){
+  const files = Array.from(input.files||[]);
+  if(!files.length) return;
+  input.value='';
+  const grid = document.getElementById('epImgPreviewGrid');
+  const hint = document.getElementById('epImgEmptyHint');
+  if(hint) hint.style.display='none';
+  // Create placeholders for all files at once
+  const phIds = files.map((f,pi)=>{
+    const id='epph_'+Date.now()+'_'+pi;
+    const div=document.createElement('div');
+    div.id=id;
+    div.style.cssText='position:relative;width:90px;height:90px;border-radius:10px;border:1.5px dashed var(--border);flex-shrink:0;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px';
+    div.innerHTML='<span style="font-size:1.5rem">⏳</span><span style="font-size:0.6rem;color:var(--ink3);text-align:center">Uploading…</span>';
+    grid.appendChild(div);
+    return {id,file:f};
+  });
+  await Promise.all(phIds.map(async({id,file})=>{
+    const ph=document.getElementById(id);
+    try{
+      const {url,thumb}=await uploadToImgBB(file);
+      _editImages.push({value:url,thumb,uploaded:true});
+      if(ph) ph.remove();
+    }catch(err){
+      if(ph){
+        ph.innerHTML='<span style="font-size:1.2rem">❌</span><span style="font-size:0.58rem;color:var(--red);text-align:center;padding:0 4px">Failed</span>';
+        setTimeout(()=>ph.remove(),2500);
+      }
+    }
+  }));
+  _refreshEpImgPreview();
+}
+
+function openEditPropertyModal(localId) {
+  if(!isAdmin){ Swal.fire({icon:'warning',title:'Admin Only',text:'Only admins can edit properties.',timer:2000,showConfirmButton:false}); return; }
+  const p = PROPERTIES.find(x=>x.id===localId);
+  if(!p) return;
+  _editPropertyId = String(p._id);
+
+  // Populate text fields
+  const textFields = {
+    ep_title:p.title||'', ep_loc:p.loc||'', ep_city:p.city||'',
+    ep_price:p.price||'', ep_area:p.area||'',
+    ep_floor:p.floor||'', ep_age:p.age||'', ep_desc:p.desc||'',
+    ep_amenities:Array.isArray(p.amenities)?p.amenities.join(', '):(p.amenities||''),
+  };
+  Object.entries(textFields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+
+  // Populate selects
+  const selects = {
+    ep_status:p.status||'', ep_bhk:p.bhk||'', ep_toilet:p.toilet||'',
+    ep_furnishing:p.furnishing||'', ep_facing:p.facing||'',
+    ep_carparking:p.carparking||'', ep_bikeparking:p.bikeparking||'',
+  };
+  Object.entries(selects).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+
+  // Load existing images into image manager
+  _editImages.length=0;
+  (p.images||[]).forEach(url=>_editImages.push({value:url,thumb:url,uploaded:false}));
+  _refreshEpImgPreview();
+
+  document.getElementById('editPropertyModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeEditPropertyModal() {
+  document.getElementById('editPropertyModal').classList.remove('open');
+  document.body.style.overflow='';
+  _editPropertyId=null;
+  _editImages.length=0;
+  _refreshEpImgPreview();
+}
+
+function formatDisplayPrice(price, status){
+  if(!price||isNaN(price)) return '';
+  const num=Number(price);
+  let d='';
+  if(num>=10000000)       d='₹'+(num/10000000).toFixed(2).replace(/\.?0+$/,'')+'  Cr';
+  else if(num>=100000)    d='₹'+(num/100000).toFixed(1).replace(/\.?0+$/,'')+' L';
+  else                    d='₹'+num.toLocaleString('en-IN');
+  if(status==='For Rent') d+='/mo';
+  return d;
+}
+
+async function submitEditProperty() {
+  if(!isAdmin){ Swal.fire({icon:'warning',title:'Admin Only',text:'Only admins can edit properties.'}); return; }
+  if(!_editPropertyId) return;
+  const get=id=>(document.getElementById(id)?.value||'').trim();
+  const price=get('ep_price');
+  const status=get('ep_status');
+  if(!get('ep_title')){ Swal.fire({icon:'warning',title:'Missing Title',text:'Property title is required.'}); return; }
+  if(!status){ Swal.fire({icon:'warning',title:'Missing Status',text:'Please select a listing type.'}); return; }
+  if(!price||isNaN(Number(price))||Number(price)<=0){ Swal.fire({icon:'warning',title:'Invalid Price',text:'Please enter a valid price.'}); return; }
+
+  const amenities=get('ep_amenities')?get('ep_amenities').split(',').map(s=>s.trim()).filter(Boolean):[];
+  const images=_editImages.map(img=>img.value).filter(v=>v&&v.startsWith('http'));
+  const displayPrice=formatDisplayPrice(price,status);
+
+  const payload={
+    title:get('ep_title'), loc:get('ep_loc'), city:get('ep_city')||'Bengaluru',
+    status, price:Number(price), displayPrice,
+    bhk:get('ep_bhk')?parseInt(get('ep_bhk')):undefined,
+    area:get('ep_area')||undefined, furnishing:get('ep_furnishing')||undefined,
+    facing:get('ep_facing')||undefined, floor:get('ep_floor')||undefined,
+    floorLevel:get('ep_floor')||undefined,
+    toilet:get('ep_toilet')?parseInt(get('ep_toilet')):undefined,
+    carparking:get('ep_carparking')||undefined, bikeparking:get('ep_bikeparking')||undefined,
+    age:get('ep_age')||undefined, desc:get('ep_desc')||undefined,
+    amenities:amenities.length?amenities:undefined,
+    images:images.length?images:undefined,
+  };
+  Object.keys(payload).forEach(k=>payload[k]===undefined&&delete payload[k]);
+
+  const btn=document.getElementById('editPropertySubmitBtn');
+  if(btn){btn.textContent='Saving…';btn.disabled=true;}
+  try{
+    const res=await fetch(BASE_URL+'/api/properties/'+_editPropertyId,{
+      method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.message||'Update failed');
+    Swal.fire({icon:'success',title:'Property Updated! ✅',text:'Changes saved successfully.',timer:2000,showConfirmButton:false});
+    closeEditPropertyModal();
+    setTimeout(loadPropertiesFromDB,600);
+  }catch(err){
+    Swal.fire({icon:'error',title:'Update Failed',text:err.message||'Could not update property.'});
+  }finally{
+    if(btn){btn.textContent='Save Changes →';btn.disabled=false;}
+  }
+}
 </script>
 
 <!-- ADD LISTING MODAL -->
@@ -2959,7 +3194,7 @@ async function addImagesFromFiles(input){
 }
 
 // ── FORMAT PRICE DISPLAY ──
-function formatDisplayPrice(price, status){
+function _fmtPrice(price, status){
   if(!price || isNaN(price)) return '';
   const num = Number(price);
   let display = '';
@@ -2997,7 +3232,7 @@ async function submitListing(){
   const images = _listingImages.map(img => img.value).filter(v => v && v.startsWith('http'));
 
   // Auto-generate displayPrice from price + status
-  const displayPrice = formatDisplayPrice(price, status);
+  const displayPrice = _fmtPrice(price, status);
 
   const amenitiesRaw = get('l_amenities');
   const amenities = amenitiesRaw
@@ -3071,6 +3306,109 @@ async function submitListing(){
 
 
 // ── END OF SCRIPT ──
+</script>
+
+<!-- EDIT PROPERTY MODAL (Admin only) -->
+<div class="modal-wrap" id="editPropertyModal">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-close">
+      <button class="modal-close-btn" onclick="closeEditPropertyModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0 1.8rem 2rem">
+      <div style="margin-bottom:1.5rem">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--ink);margin-bottom:4px">Edit Property</div>
+        <div style="font-size:0.85rem;color:var(--ink3)">Update the property details below.</div>
+      </div>
+
+      <div class="listing-section-label">Basic Information</div>
+      <div class="listing-grid-2">
+        <div class="listing-field"><label>Property Title</label><input type="text" id="ep_title" placeholder="e.g. Prestige Lakeside"/></div>
+        <div class="listing-field"><label>Location / Area</label><input type="text" id="ep_loc" placeholder="e.g. HSR Layout"/></div>
+      </div>
+      <div class="listing-grid-2">
+        <div class="listing-field"><label>City</label><input type="text" id="ep_city" placeholder="e.g. Bengaluru"/></div>
+        <div class="listing-field">
+          <label>Status</label>
+          <select id="ep_status">
+            <option value="">Select…</option>
+            <option value="For Sale">For Sale</option>
+            <option value="For Rent">For Rent</option>
+            <option value="New Launch">New Launch</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="listing-section-label">Pricing</div>
+      <div class="listing-grid-2">
+        <div class="listing-field"><label>Price (₹)</label><input type="number" id="ep_price" placeholder="e.g. 8500000"/></div>
+      </div>
+
+      <div class="listing-section-label">Property Details</div>
+      <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>BHK</label>
+          <select id="ep_bhk"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        </div>
+        <div class="listing-field">
+          <label>Bathrooms</label>
+          <select id="ep_toilet"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+        </div>
+        <div class="listing-field">
+          <label>Furnishing</label>
+          <select id="ep_furnishing"><option value="">Select…</option><option>Fully Furnished</option><option>Semi-Furnished</option><option>Unfurnished</option></select>
+        </div>
+      </div>
+      <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Car Parking</label>
+          <select id="ep_carparking"><option value="">None</option><option>1 Car</option><option>2 Car</option><option>3 Car</option></select>
+        </div>
+        <div class="listing-field">
+          <label>Bike Parking</label>
+          <select id="ep_bikeparking"><option value="">None</option><option>1 Bike</option><option>2 Bike</option><option>3 Bike</option><option>4 Bike</option></select>
+        </div>
+        <div class="listing-field"><label>Area (sqft)</label><input type="text" id="ep_area" placeholder="e.g. 1250 sqft"/></div>
+      </div>
+      <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Facing</label>
+          <select id="ep_facing"><option value="">Any</option><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option></select>
+        </div>
+        <div class="listing-field"><label>Floor / Level</label><input type="text" id="ep_floor" placeholder="e.g. 4th Floor"/></div>
+        <div class="listing-field"><label>Property Age</label><input type="text" id="ep_age" placeholder="e.g. 2 years"/></div>
+      </div>
+
+      <div class="listing-section-label">Description & Extras</div>
+      <div class="listing-field" style="margin-bottom:10px">
+        <label>Description</label>
+        <textarea id="ep_desc" rows="3" placeholder="Brief description…"></textarea>
+      </div>
+      <div class="listing-field" style="margin-bottom:10px">
+        <label>Amenities <span style="font-weight:400;color:var(--ink3)">(comma-separated)</span></label>
+        <input type="text" id="ep_amenities" placeholder="e.g. Gym, Swimming Pool"/>
+      </div>
+
+      <div class="listing-section-label">Property Images</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-start">
+        <textarea id="ep_imgUrlInput" rows="2" placeholder="Paste image URLs — one per line or comma-separated (https://…)" style="flex:1;min-width:180px;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:9px 12px;font-size:0.86rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none;transition:border-color 0.18s;resize:vertical;line-height:1.5" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <button type="button" onclick="epAddImageFromUrl()" style="padding:9px 16px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">+ Add URL(s)</button>
+          <button type="button" onclick="document.getElementById('ep_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁 Upload / Camera</button>
+        </div>
+        <input type="file" id="ep_imgFileInput" accept="image/*" multiple style="display:none" onchange="epAddImagesFromFiles(this)"/>
+      </div>
+      <div id="epImgPreviewGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px"></div>
+      <div id="epImgEmptyHint" style="font-size:0.78rem;color:var(--ink3);margin-bottom:18px">No images added yet. Paste URLs or upload photos above.</div>
+
+      <button id="editPropertySubmitBtn" onclick="submitEditProperty()" style="width:100%;padding:14px;border:none;background:var(--ink);color:#fff;border-radius:var(--radius-xs);font-size:0.92rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--ink)';this.style.color='#fff'">
+        Save Changes →
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('editPropertyModal').addEventListener('click',function(e){if(e.target===this)closeEditPropertyModal()});
 </script>
 
 </body>
