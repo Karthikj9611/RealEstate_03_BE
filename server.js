@@ -57,7 +57,7 @@ const otpStore = {};
 // ── EMAIL ──
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: { user: "karthikram1391@gmail.com", pass: "oomqczitgzkxjcto"}
+  auth: { user: "karthik.j@enhancesys.com", pass: "oomqczitgzkxjcto"}
 });
 
 // ── SEED ADMIN ──
