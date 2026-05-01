@@ -79,9 +79,21 @@ async function seedAdmin() {
 // SEND OTP
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json({ success:false, message:"Email required" });
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email required"
+    });
+  }
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[email] = { otp, expiresAt: Date.now() + 5*60*1000 };
+
+  otpStore[email] = {
+    otp,
+    expiresAt: Date.now() + 5 * 60 * 1000
+  };
+
   try {
     await transporter.sendMail({
       from: '"KR Real Estate" <karthikram1391@gmail.com>',
@@ -102,10 +114,15 @@ app.post("/send-otp", async (req, res) => {
         </div>
       </div>`
     });
+
     res.json({ success: true });
-  } catch(err) {
-    console.error("Mail error:", err.message);
-    res.json({ success: false, message: "Failed to send email." });
+
+  } catch (err) {
+    console.error("Mail error FULL:", err);
+    res.json({
+      success: false,
+      message: err.message || "Failed to send email."
+    });
   }
 });
 
@@ -208,6 +225,14 @@ app.post("/api/reviews", async (req, res) => {
 
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found"
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));

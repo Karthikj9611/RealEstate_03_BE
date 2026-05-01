@@ -2254,7 +2254,16 @@ async function sendRegOtp(isResend) {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ email })
     });
-    const data = await res.json();
+    const text = await res.text();
+
+	let data;
+	try {
+	  data = JSON.parse(text);
+	} catch (e) {
+	  console.error("Non-JSON response:", text);
+	  throw new Error("Server error. Please try again later.");
+	}
+
     if (!data.success) throw new Error(data.message || 'Failed');
     _regOtpSent = true;
     const otpWrap = document.getElementById('otpFieldWrap');
