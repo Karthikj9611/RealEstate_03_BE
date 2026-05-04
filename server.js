@@ -48,6 +48,7 @@ const Property = mongoose.model("Property", PropertySchema);
 
 const ReviewSchema = new mongoose.Schema({
   name: String, role: String, comment: String,
+  email: { type: String, default: "" },
   rating: { type: Number, min:1, max:5, required:true },
   createdAt: { type: Date, default: Date.now }
 });
@@ -258,10 +259,15 @@ app.get("/api/reviews", async (req, res) => {
 });
 app.post("/api/reviews", async (req, res) => {
   try {
-    const { name, role, comment, rating } = req.body;
+    const { name, role, comment, rating, email } = req.body;
     if (!rating || rating < 1 || rating > 5) return res.status(400).json({ message:"Rating must be 1–5" });
     if (!comment || !comment.trim()) return res.status(400).json({ message:"Review comment required" });
-    await new Review({ name, role, comment, rating }).save();
+    // Check if this email has already submitted a review
+    if (email && email.trim()) {
+      const existing = await Review.findOne({ email: email.trim().toLowerCase() });
+      if (existing) return res.status(400).json({ message:"You have already submitted a review." });
+    }
+    await new Review({ name, role, comment, rating, email: email ? email.trim().toLowerCase() : "" }).save();
     res.json({ message:"Review submitted successfully!" });
   } catch(err) {
     console.error(err);
@@ -269,6 +275,16 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
+
+// CHECK IF USER ALREADY REVIEWED
+app.get("/api/reviews/check/:email", async (req, res) => {
+  try {
+    const existing = await Review.findOne({ email: decodeURIComponent(req.params.email).toLowerCase() });
+    res.json({ hasReviewed: !!existing });
+  } catch(err) {
+    res.status(500).json({ hasReviewed: false });
+  }
+});
 
 app.delete("/api/reviews/:id", async (req, res) => {
   try {

@@ -2011,7 +2011,20 @@ const BASE_URL = location.hostname === 'localhost'
       const user = JSON.parse(saved);
       if (user && user.firstName) {
         isAdmin = !!user.isAdmin;
-        applyLoginUI(user.firstName, user.lastName || '', isAdmin);
+        // On restore, check server-side if user already reviewed (using stored email)
+        if (!isAdmin && user.email) {
+          fetch(BASE_URL + '/api/reviews/check/' + encodeURIComponent(user.email))
+            .then(r => r.json())
+            .then(d => {
+              if (d.hasReviewed) {
+                try { localStorage.setItem('kr_review_submitted', 'true'); } catch(e) {}
+              }
+              applyLoginUI(user.firstName, user.lastName || '', isAdmin);
+            })
+            .catch(() => applyLoginUI(user.firstName, user.lastName || '', isAdmin));
+        } else {
+          applyLoginUI(user.firstName, user.lastName || '', isAdmin);
+        }
       }
     }
   } catch(e) {}
@@ -2099,9 +2112,9 @@ function goToLogin(){
   document.getElementById('about').scrollIntoView({behavior:'smooth'});
   setTimeout(()=>switchAuthTab('login'),400);
 }
-function unlockReviewForm(firstName, lastName, admin){
+function unlockReviewForm(firstName, lastName, admin, email){
   try {
-    localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '', isAdmin: !!admin }));
+    localStorage.setItem('kr_user', JSON.stringify({ firstName, lastName: lastName || '', isAdmin: !!admin, email: email || '' }));
   } catch(e) {}
   applyLoginUI(firstName, lastName, admin);
 }
@@ -2330,6 +2343,9 @@ async function doRegister() {
       return;
     }
 
+    // Show email verified success alert before proceeding to register
+    await Swal.fire({icon:'success',title:'Email Verified! ✅',text:'Your email has been verified successfully.',timer:1500,showConfirmButton:false});
+
     if (btn) btn.textContent = 'Creating account…';
 
     // Step 2: Register
@@ -2346,7 +2362,7 @@ async function doRegister() {
 
     _regOtpVerified = true;
     Swal.fire({icon:'success',title:'Account Created! 🎉',text:'Welcome to KR Real-Estate!',timer:2000,showConfirmButton:false});
-    unlockReviewForm(firstName, lastName, false);
+    unlockReviewForm(firstName, lastName, false, email);
     resetRegForm();
 
   } catch(err) {
@@ -2379,7 +2395,23 @@ async function doLogin() {
     }
     const admin = !!(data.isAdmin || data.role === 'admin');
     Swal.fire({icon:'success',title: admin ? 'Welcome, Admin! 👑' : 'Welcome back! 👋',text: data.firstName + ' ' + (data.lastName||'') + ' logged in.',timer:2000,showConfirmButton:false});
-    unlockReviewForm(data.firstName, data.lastName || '', admin);
+    // Store email so we can check duplicate review on login
+    const loginEmail = (document.getElementById('loginEmail')?.value || '').trim().toLowerCase();
+    // Check if this user has already submitted a review (server-side check)
+    try {
+      if (!admin && loginEmail) {
+        const checkRes = await fetch(BASE_URL + '/api/reviews/check/' + encodeURIComponent(loginEmail));
+        const checkData = await checkRes.json();
+        if (checkData.hasReviewed) {
+          // Mark locally so applyLoginUI hides the form
+          localStorage.setItem('kr_review_submitted', 'true');
+        } else {
+          // Clear stale flag so form shows for this new user
+          localStorage.removeItem('kr_review_submitted');
+        }
+      }
+    } catch(e) {}
+    unlockReviewForm(data.firstName, data.lastName || '', admin, loginEmail);
     document.getElementById('loginEmail').value = '';
     document.getElementById('loginPassword').value = '';
   } catch(err) {
@@ -2459,10 +2491,14 @@ async function submitReview() {
   }
   
   try {
+    // Get user email from localStorage for duplicate check
+    let userEmail = '';
+    try { const u = JSON.parse(localStorage.getItem('kr_user') || '{}'); userEmail = u.email || ''; } catch(e) {}
+    
     const response = await fetch(BASE_URL + "/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, role, comment, rating })
+      body: JSON.stringify({ name, role, comment, rating, email: userEmail })
     });
     
     const data = await response.json();
