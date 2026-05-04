@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+const axios = require("axios");
 const path = require("path");
 
 const app = express();
@@ -55,11 +57,37 @@ const Review = mongoose.model("Review", ReviewSchema);
 const otpStore = {};
 
 // ── EMAIL ──
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-//  auth: { user: "karthik.j@enhancesys.com", pass: "oomqczitgzkxjcto"}
-	  auth: { user: "karthikram1391@gmail.com", pass: "gsbisdrdqoyzqoln" }
-});
+//const BREVO_API_KEY = "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";
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_SENDER_EMAIL = "karthik.j@enhancesys.com"; // Your verified sender email
+const BREVO_SENDER_NAME = "KR Real Estate";
+// ── BREVO EMAIL FUNCTION ──
+async function sendEmailWithBrevo(to, subject, htmlContent) {
+  try {
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          email: BREVO_SENDER_EMAIL,
+          name: BREVO_SENDER_NAME
+        },
+        to: [{ email: to, name: to.split('@')[0] }],
+        subject: subject,
+        htmlContent: htmlContent
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": BREVO_API_KEY
+        }
+      }
+    );
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Brevo email error:", error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
+  }
+}
 
 // ── SEED ADMIN ──
 async function seedAdmin() {
@@ -81,32 +109,32 @@ async function seedAdmin() {
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success:false, message:"Email required" });
+  
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, expiresAt: Date.now() + 5*60*1000 };
-  try {
-    await transporter.sendMail({
-      from: '"KR Real Estate" <karthikram1391@gmail.com>',
-      to: email,
-      subject: "Your OTP — KR Real Estate",
-      html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0">
-        <div style="background:linear-gradient(135deg,#1b3a2d,#2e7d5a);padding:22px 24px;text-align:center">
-          <h2 style="margin:0;color:#fff;font-size:1.4rem">KR Real Estate</h2>
-          <p style="margin:4px 0 0;color:rgba(255,255,255,0.6);font-size:0.8rem">Email Verification</p>
-        </div>
-        <div style="padding:28px 24px;text-align:center">
-          <p style="color:#555;margin-bottom:18px">Your One-Time Password:</p>
-          <div style="font-size:2.4rem;font-weight:800;letter-spacing:10px;background:#f0f9f4;padding:16px 20px;border-radius:10px;display:inline-block;color:#1b3a2d;border:2px dashed #2e7d5a">${otp}</div>
-          <p style="color:#999;font-size:0.8rem;margin-top:16px">Valid for <strong>5 minutes</strong>. Do not share this OTP.</p>
-        </div>
-        <div style="background:#f9f9f9;padding:12px;text-align:center;font-size:0.72rem;color:#bbb">
-          © ${new Date().getFullYear()} KR Real Estate
-        </div>
-      </div>`
-    });
+  
+  const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0">
+    <div style="background:linear-gradient(135deg,#1b3a2d,#2e7d5a);padding:22px 24px;text-align:center">
+      <h2 style="margin:0;color:#fff;font-size:1.4rem">KR Real Estate</h2>
+      <p style="margin:4px 0 0;color:rgba(255,255,255,0.6);font-size:0.8rem">Email Verification</p>
+    </div>
+    <div style="padding:28px 24px;text-align:center">
+      <p style="color:#555;margin-bottom:18px">Your One-Time Password:</p>
+      <div style="font-size:2.4rem;font-weight:800;letter-spacing:10px;background:#f0f9f4;padding:16px 20px;border-radius:10px;display:inline-block;color:#1b3a2d;border:2px dashed #2e7d5a">${otp}</div>
+      <p style="color:#999;font-size:0.8rem;margin-top:16px">Valid for <strong>5 minutes</strong>. Do not share this OTP.</p>
+    </div>
+    <div style="background:#f9f9f9;padding:12px;text-align:center;font-size:0.72rem;color:#bbb">
+      © ${new Date().getFullYear()} KR Real Estate
+    </div>
+  </div>`;
+  
+  const result = await sendEmailWithBrevo(email, "Your OTP — KR Real Estate", emailHtml);
+  
+  if (result.success) {
     res.json({ success: true });
-  } catch(err) {
-    console.error("Mail error:", err.message);
-    res.json({ success: false, message: "Failed to send email." });
+  } else {
+    console.error("Brevo send error:", result.error);
+    res.json({ success: false, message: "Failed to send email. Please try again later." });
   }
 });
 
