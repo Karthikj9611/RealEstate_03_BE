@@ -57,7 +57,6 @@ const Review = mongoose.model("Review", ReviewSchema);
 const otpStore = {};
 
 // ── EMAIL ──
-//const BREVO_API_KEY = "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";
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const BREVO_SENDER_EMAIL = "karthik.j@enhancesys.com"; // Your verified sender email
 const BREVO_SENDER_NAME = "KR Real Estate";
