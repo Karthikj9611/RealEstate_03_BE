@@ -3,45 +3,46 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>KR Real-Estate</title>
+<title>KR Real-Estate — HSR Layout's Premier Realty</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d1b2a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#111816;
-  --ink2:#2d3830;
-  --ink3:#7a8c82;
-  --bg:#f2f5f1;
+  --ink:#0d1a13;
+  --ink2:#1e3325;
+  --ink3:#5a7a63;
+  --bg:#f4f6f2;
   --surface:#ffffff;
-  --surface2:#e9ede8;
-  --surface3:#dde4db;
+  --surface2:#edf0eb;
+  --surface3:#e0e6dd;
   --gold:#2e7d5a;
-  --gold2:#3a9e72;
-  --gold-light:#e4f5ed;
+  --gold2:#3aab72;
+  --gold-light:#e0f4ea;
   --gold-dark:#1a5c3f;
   --teal:#1a6e8a;
   --teal-light:#daf0f7;
   --red:#c03040;
   --red-light:#fde8ea;
-  --accent:#1b3a2d;
-  --accent2:#224d3b;
-  --border:#d6ddd4;
-  --border2:#bfc9bb;
-  --radius:20px;
-  --radius-sm:14px;
-  --radius-xs:9px;
-  --shadow:0 1px 14px rgba(17,24,22,0.07);
-  --shadow-md:0 8px 44px rgba(17,24,22,0.13);
-  --shadow-lg:0 24px 64px rgba(17,24,22,0.18);
+  --accent:#0d2318;
+  --accent2:#163320;
+  --border:#cdd6c8;
+  --border2:#b0bdab;
+  --radius:22px;
+  --radius-sm:15px;
+  --radius-xs:10px;
+  --shadow:0 2px 18px rgba(13,26,19,0.07);
+  --shadow-md:0 10px 50px rgba(13,26,19,0.14);
+  --shadow-lg:0 28px 70px rgba(13,26,19,0.20);
 }
 html{scroll-behavior:smooth}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
 
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px}
@@ -51,11 +52,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* ── NAV ── */
 nav{
   position:sticky;top:0;z-index:200;
-  background:rgba(245,243,239,0.88);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
+  background:rgba(244,246,242,0.92);
+  backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);
+  border-bottom:1px solid rgba(205,214,200,0.6);
   padding:0 clamp(1.2rem,4%,3rem);
-  display:flex;align-items:center;height:64px;gap:1.5rem;
+  display:flex;align-items:center;height:68px;gap:1.5rem;
+  box-shadow:0 1px 0 rgba(255,255,255,0.8), 0 4px 24px rgba(13,26,19,0.06);
 }
 .nav-logo{
   font-family:'Cormorant Garamond',serif;
@@ -75,13 +77,14 @@ nav{
 .nav-links a:hover{background:var(--gold-light);color:var(--gold-dark)}
 .nav-links a.active{color:var(--gold-dark);font-weight:600}
 .nav-cta{
-  background:var(--accent);color:#fff;
-  font-size:0.82rem;font-weight:600;
-  padding:9px 20px;border-radius:99px;
+  background:linear-gradient(135deg,var(--accent),var(--gold));color:#fff;
+  font-size:0.82rem;font-weight:700;
+  padding:10px 22px;border-radius:99px;
   border:none;cursor:pointer;font-family:inherit;
-  transition:all 0.18s;white-space:nowrap;letter-spacing:0.2px;
+  transition:all 0.2s;white-space:nowrap;letter-spacing:0.3px;
+  box-shadow:0 4px 16px rgba(13,26,19,0.25);
 }
-.nav-cta:hover{background:var(--gold);color:var(--ink)}
+.nav-cta:hover{background:linear-gradient(135deg,var(--gold),var(--gold2));transform:translateY(-1px);box-shadow:0 6px 22px rgba(46,125,90,0.4);}
 .nav-hamburger{
   display:none;background:none;border:none;cursor:pointer;
   flex-direction:column;gap:5px;padding:4px;
@@ -145,13 +148,13 @@ nav{
 }
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
 .btn-primary{
-  background:var(--gold);color:var(--ink);
-  font-weight:700;padding:13px 28px;border-radius:99px;
-  border:none;font-size:0.88rem;cursor:pointer;font-family:inherit;
-  transition:all 0.2s;text-decoration:none;display:inline-block;
-  letter-spacing:0.2px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;
+  font-weight:700;padding:14px 32px;border-radius:99px;
+  border:none;font-size:0.9rem;cursor:pointer;font-family:inherit;
+  transition:all 0.22s;text-decoration:none;display:inline-block;
+  letter-spacing:0.3px;box-shadow:0 6px 28px rgba(46,125,90,0.4);
 }
-.btn-primary:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(184,144,60,0.35)}
+.btn-primary:hover{background:linear-gradient(135deg,var(--gold2),var(--gold));transform:translateY(-3px);box-shadow:0 12px 36px rgba(46,125,90,0.5)}
 .btn-ghost{
   background:transparent;color:#fff;font-weight:500;
   padding:13px 28px;border-radius:99px;
@@ -634,15 +637,15 @@ nav{
 
 /* ── AUTH SECTION ── */
 .auth-section{
-  background:linear-gradient(160deg,#0c1a12 0%,#1b3a2d 40%,#0f2318 100%);
+  background:linear-gradient(160deg,#060f09 0%,#0d2318 35%,#122e1d 65%,#091508 100%);
   padding:clamp(3rem,6vw,5rem) clamp(1rem,4%,2rem);
   display:flex;align-items:center;justify-content:center;
   min-height:auto;
 }
 .auth-card{
   background:var(--surface);
-  border-radius:24px;
-  box-shadow:0 40px 100px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04);
+  border-radius:28px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.35),0 0 0 1px rgba(205,214,200,0.4);
   width:100%;max-width:440px;overflow:hidden;
 }
 .auth-brand{
@@ -748,7 +751,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .footer-links{display:flex;flex-direction:column;gap:7px}
 .footer-links a{color:rgba(255,255,255,0.5);font-size:0.8rem;text-decoration:none;transition:color 0.15s}
 .footer-links a:hover{color:var(--gold2)}
-.footer-bottom{display:flex;justify-content:flex-end;align-items:center;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08);gap:1rem;flex-wrap:wrap}
+.footer-bottom{display:flex;justify-content:flex-end;align-items:center;padding-top:1.5rem;border-top:1px solid rgba(46,125,90,0.2);gap:1rem;flex-wrap:wrap}
 .footer-social{display:flex;gap:8px}
 .social-btn{
   width:34px;height:34px;border-radius:8px;
@@ -927,7 +930,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .fade-up:nth-child(6){animation-delay:0.34s}
 
 /* ── TESTIMONIALS SECTION WRAPPER ── */
-.testi-section{padding:clamp(2rem,4vw,3.5rem) clamp(1.2rem,4%,3rem);background:var(--surface2)}
+.testi-section{padding:clamp(2rem,4vw,3.5rem) clamp(1.2rem,4%,3rem);background:linear-gradient(160deg,var(--surface2) 0%,var(--bg) 60%,var(--surface2) 100%)}
 .testi-section-inner{max-width:1100px;margin:0 auto}
 
 .modal-details-grid{
@@ -1034,6 +1037,145 @@ input {
   .auth-row-2{grid-template-columns:1fr}
   .prop-chips{gap:4px}
 }
+
+/* ── HERO ANIMATION ── */
+@keyframes heroFadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.hero{min-height:92vh}
+@media(max-width:860px){
+  .hero-inner{grid-template-columns:1fr!important;gap:2.5rem!important;padding-top:5rem!important;padding-bottom:3rem!important;}
+  .hero-cards-float{display:none!important;}
+  .hero-text-col .hero-stats{gap:1.5rem}
+}
+@media(max-width:520px){
+  .hero-text-col .hero-stats{gap:1.2rem}
+  .hero-eyebrow{font-size:0.65rem}
+}
+
+/* ── ENHANCED NAV LOGO ── */
+.nav-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.7rem;font-weight:700;
+  color:var(--ink);text-decoration:none;
+  letter-spacing:-0.5px;margin-right:auto;
+  display:flex;align-items:center;gap:2px;
+}
+
+/* ── ENHANCED PROPERTY CARDS ── */
+.prop-card{
+  border-radius:var(--radius);
+  box-shadow:0 2px 20px rgba(13,26,19,0.07);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  border:1px solid var(--border);
+}
+.prop-card:hover{
+  transform:translateY(-6px) scale(1.005);
+  box-shadow:0 20px 60px rgba(13,26,19,0.16);
+}
+.prop-img{aspect-ratio:16/10}
+.prop-price{
+  font-size:1.35rem;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+/* ── ENHANCED SECTION TITLES ── */
+.section-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.8rem,3.8vw,2.5rem);
+  font-weight:700;color:var(--ink);letter-spacing:-0.5px;
+}
+.section-title::after{
+  content:'';display:block;width:42px;height:3.5px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:4px;margin-top:10px;
+}
+
+/* ── AGENT CARDS ── */
+.agent-card{
+  background:var(--surface);border-radius:var(--radius);
+  padding:1.6rem;text-align:center;
+  box-shadow:0 2px 20px rgba(13,26,19,0.07);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  cursor:pointer;border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  position:relative;overflow:hidden;
+}
+.agent-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transform:scaleX(0);transition:transform 0.3s;transform-origin:left;
+}
+.agent-card:hover::before{transform:scaleX(1)}
+.agent-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(13,26,19,0.14)}
+
+/* ── TESTIMONIAL CARDS ── */
+.testi-card{
+  background:var(--surface);padding:1.6rem;border-radius:var(--radius);
+  box-shadow:0 2px 20px rgba(13,26,19,0.07);border:1px solid var(--border);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;gap:12px;
+}
+.testi-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(13,26,19,0.14)}
+
+/* ── CALL FLOAT BUTTON ── */
+#waFloat{
+  background:linear-gradient(135deg,#1a9c50,#25D366)!important;
+  box-shadow:0 6px 30px rgba(37,211,102,0.5)!important;
+}
+
+/* ── FILTER CHIPS ── */
+.filter-chip{
+  border-radius:12px;font-size:0.78rem;padding:8px 18px;
+  letter-spacing:0.1px;transition:all 0.2s;font-weight:600;
+}
+.filter-chip:hover{border-color:var(--gold);color:var(--gold-dark);background:var(--gold-light)}
+.filter-chip.active{
+  background:linear-gradient(135deg,var(--accent),var(--gold));
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 16px rgba(13,26,19,0.25);
+}
+
+/* ── FOOTER ── */
+footer{
+  background:linear-gradient(160deg,#070f0a 0%,#0d1a13 60%,#0a1610 100%);
+  color:rgba(255,255,255,0.55);
+  padding:clamp(3rem,5vw,4.5rem) clamp(1.2rem,4%,3rem) 2rem;
+  border-top:1px solid rgba(46,125,90,0.2);
+}
+
+/* ── MODAL ── */
+.modal{
+  background:var(--surface);border-radius:24px;
+  box-shadow:0 40px 100px rgba(13,26,19,0.3),0 0 0 1px rgba(205,214,200,0.5);
+}
+
+/* ── PROP BADGE ── */
+.prop-badge{border-radius:8px!important}
+
+/* ── SEARCH SECTION ── */
+.search-section{
+  background:var(--surface);
+  border-radius:var(--radius)!important;
+  border:1px solid var(--border)!important;
+  box-shadow:0 4px 24px rgba(13,26,19,0.06);
+}
+.search-btn{
+  border-radius:10px!important;
+  font-weight:700!important;
+  padding:10px 20px!important;
+}
+
+/* ── PULSE ANIMATION for float btn ── */
+@keyframes waPulse{
+  0%{box-shadow:0 0 0 0 rgba(37,211,102,0.5)}
+  70%{box-shadow:0 0 0 14px rgba(37,211,102,0)}
+  100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.visible{opacity:1;transform:none}
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -1144,50 +1286,103 @@ input {
   </button>
 </nav>
 
-<section class="hero">
-  <div class="hero-noise"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div>
-      <div class="hero-eyebrow">HSR Layout's Premier Realty</div>
-      <h1>Find Your <em>Perfect</em><br>Home in HSR</h1>
-      <p class="hero-desc">Verified listings across HSR Layout. Transparent pricing, trusted agents.</p>
-      <div class="hero-btns">
-        <a href="#listings" class="btn-primary">Browse Properties</a>
+<section class="hero" style="position:relative;overflow:hidden;min-height:92vh;display:flex;align-items:center;">
+  <!-- Three.js canvas background -->
+  <canvas id="heroCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></canvas>
+  <!-- Gradient overlays -->
+  <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(13,26,19,0.97) 0%,rgba(13,26,19,0.82) 55%,rgba(13,35,22,0.6) 100%);z-index:1;pointer-events:none;"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(to top,rgba(13,26,19,0.6),transparent);z-index:1;pointer-events:none;"></div>
+
+  <div class="hero-inner" style="position:relative;z-index:2;width:100%;max-width:1140px;margin:0 auto;padding:clamp(4rem,8vw,7rem) clamp(1.2rem,4%,3rem);display:grid;grid-template-columns:1fr 1.1fr;gap:4rem;align-items:center;">
+    <!-- Left: Text content -->
+    <div class="hero-text-col">
+      <div class="hero-eyebrow" style="animation:heroFadeUp 0.7s 0.1s both;">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold2);margin-right:4px;vertical-align:middle;"></span>
+        HSR Layout's Premier Realty
       </div>
-      <!-- 
-	  <div class="hero-stats">
-        <div><div class="hero-stat-num">12+</div><div class="hero-stat-label">Active Listings</div></div>
-        <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Expert Agents</div></div>
-        <div><div class="hero-stat-num">HSR</div><div class="hero-stat-label">All Sectors</div></div>
-      </div> 
-	  -->
+      <h1 style="animation:heroFadeUp 0.7s 0.25s both;font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:700;line-height:1.08;letter-spacing:-1px;margin-bottom:1.4rem;color:#fff;">
+        Find Your <em style="color:var(--gold2);font-style:italic;">Perfect</em><br>
+        <span style="color:rgba(255,255,255,0.92);">Home in HSR</span>
+      </h1>
+      <p class="hero-desc" style="animation:heroFadeUp 0.7s 0.38s both;color:rgba(255,255,255,0.6);font-size:1.05rem;line-height:1.85;max-width:440px;margin-bottom:2.4rem;">
+        Verified listings across HSR Layout. Transparent pricing, trusted agents, and your dream home — all in one place.
+      </p>
+      <div class="hero-btns" style="animation:heroFadeUp 0.7s 0.5s both;display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="#listings" class="btn-primary" style="padding:15px 34px;font-size:0.9rem;font-weight:700;letter-spacing:0.3px;box-shadow:0 8px 32px rgba(46,125,90,0.5);">Browse Properties</a>
+        <a href="#about" onclick="event.preventDefault();scrollToForm()" class="btn-ghost" style="padding:15px 28px;font-size:0.9rem;">
+          <span>Sign In</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <!-- Stats row -->
+      <div class="hero-stats" style="animation:heroFadeUp 0.7s 0.65s both;display:flex;gap:2.5rem;margin-top:3rem;padding-top:2.2rem;border-top:1px solid rgba(255,255,255,0.1);">
+        <div>
+          <div class="hero-stat-num" style="font-size:2rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1;">HSR</div>
+          <div class="hero-stat-label" style="font-size:0.72rem;color:rgba(255,255,255,0.42);margin-top:5px;font-weight:500;letter-spacing:0.5px;">All Sectors</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+        <div>
+          <div class="hero-stat-num" style="font-size:2rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1;">100%</div>
+          <div class="hero-stat-label" style="font-size:0.72rem;color:rgba(255,255,255,0.42);margin-top:5px;font-weight:500;letter-spacing:0.5px;">Verified Listings</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+        <div>
+          <div class="hero-stat-num" style="font-size:2rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1;">4★+</div>
+          <div class="hero-stat-label" style="font-size:0.72rem;color:rgba(255,255,255,0.42);margin-top:5px;font-weight:500;letter-spacing:0.5px;">Avg. Rating</div>
+        </div>
+      </div>
     </div>
-<!--	
-    <div class="hero-visual">
-      <div class="hero-card-big" onclick="openModal(0)">
-        <div class="hero-card-img" style="background:linear-gradient(135deg,#1a3a5c,#2d6a4f)">
-          <div class="hero-card-img-label">3 BHK · Ready to Move</div>
+
+    <!-- Right: Floating property cards -->
+    <div class="hero-cards-float" style="animation:heroFadeUp 0.9s 0.4s both;display:flex;flex-direction:column;gap:14px;">
+      <!-- Premium card -->
+      <div onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:20px;padding:1.5rem;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(255,255,255,0.07)';this.style.transform=''">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+          <div>
+            <div style="font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold2);margin-bottom:5px;">★ Featured Listing</div>
+            <div style="font-size:1rem;font-weight:600;color:#fff;">Premium 3 BHK</div>
+            <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-top:3px;">📍 HSR Sector 1, Bengaluru</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--gold2);text-align:right;line-height:1.1;">
+            ₹1.85<br><span style="font-size:0.8rem;font-weight:400;color:rgba(255,255,255,0.4);">Crores</span>
+          </div>
         </div>
-        <div class="hero-card-row">
-          <div><div class="hero-card-title">Prestige Lakeside Terrace</div><div class="hero-card-loc">📍 HSR Sector 1, Bengaluru</div></div>
-          <div class="hero-card-price">₹1.85 Cr</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;">
+          <span style="background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.7);font-size:0.7rem;padding:4px 11px;border-radius:99px;">🛏 3 BHK</span>
+          <span style="background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.7);font-size:0.7rem;padding:4px 11px;border-radius:99px;">📐 1,850 sqft</span>
+          <span style="background:rgba(58,171,114,0.2);color:var(--gold2);font-size:0.7rem;padding:4px 11px;border-radius:99px;">For Sale</span>
         </div>
       </div>
-      <div class="hero-cards-row">
-        <div class="hero-mini-card" onclick="openModal(1)">
-          <div class="hero-mini-price">₹68L</div>
-          <div class="hero-mini-title">Sobha Dream Acres</div>
-          <div class="hero-mini-sub">2 BHK · HSR Sector 2</div>
+
+      <!-- Two small cards row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.1rem;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px);" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.transform=''">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--gold2);">₹68L</div>
+          <div style="font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.82);margin:4px 0 2px;">2 BHK Apt</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);">HSR Sector 2</div>
+          <div style="margin-top:8px;display:inline-block;background:rgba(26,110,138,0.25);color:#7dd3fc;font-size:0.65rem;padding:3px 9px;border-radius:99px;">For Rent</div>
         </div>
-        <div class="hero-mini-card" onclick="openModal(4)">
-          <div class="hero-mini-price">₹25K/mo</div>
-          <div class="hero-mini-title">Purva Amaiti</div>
-          <div class="hero-mini-sub">2 BHK · HSR Sector 2</div>
+        <div onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})" style="background:rgba(46,125,90,0.12);border:1px solid rgba(46,125,90,0.25);border-radius:16px;padding:1.1rem;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px);" onmouseover="this.style.background='rgba(46,125,90,0.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(46,125,90,0.12)';this.style.transform=''">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--gold2);">New</div>
+          <div style="font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.82);margin:4px 0 2px;">New Launch</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);">HSR Layout</div>
+          <div style="margin-top:8px;display:inline-block;background:rgba(46,125,90,0.3);color:var(--gold2);font-size:0.65rem;padding:3px 9px;border-radius:99px;">🔥 Hot</div>
+        </div>
+      </div>
+
+      <!-- Trust badges -->
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:4px;">
+        <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 14px;font-size:0.74rem;color:rgba(255,255,255,0.6);">
+          <span style="font-size:1rem;">🔒</span> Verified
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 14px;font-size:0.74rem;color:rgba(255,255,255,0.6);">
+          <span style="font-size:1rem;">⚡</span> Instant Enquiry
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 14px;font-size:0.74rem;color:rgba(255,255,255,0.6);">
+          <span style="font-size:1rem;">🏆</span> Trusted
         </div>
       </div>
     </div>
--->
   </div>
 </section>
 
@@ -1419,7 +1614,7 @@ input {
             <label>Email</label>
             <div class="auth-otp-row">
               <input type="email" id="email" placeholder="you@email.com" autocomplete="email"/>
-              <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendRegOtp()">Send OTP</button>
+              <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendRegOtp()" disabled>Send OTP</button>
             </div>
           </div>
           <div class="auth-field" id="otpFieldWrap" style="display:none">
@@ -2299,14 +2494,6 @@ async function doRegister() {
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
     Swal.fire({icon:'warning',title:'Invalid Email',text:'Please enter a valid email address.'}); return;
   }
-  if (!_regOtpSent) {
-    Swal.fire({icon:'warning',title:'OTP Required',text:'Please send and verify the OTP sent to your email.'}); return;
-  }
-
-  if (!otp) {
-    Swal.fire({icon:'warning',title:'Enter OTP',text:'Please enter the 6-digit OTP sent to your email.'}); return;
-  }
-
   if (!mobile) {
     Swal.fire({icon:'warning',title:'Mobile Required',text:'Please enter your mobile number.'}); return;
   }
@@ -2315,24 +2502,10 @@ async function doRegister() {
   }
 
   const btn = document.getElementById('registerBtn');
-  if (btn) { btn.textContent = 'Verifying OTP…'; btn.disabled = true; }
+  if (btn) { btn.textContent = 'Creating account…'; btn.disabled = true; }
 
   try {
-    // Step 1: Verify OTP
-    const verifyRes = await fetch(BASE_URL + '/verify-otp', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email, otp })
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyData.success) {
-      Swal.fire({icon:'error',title:'Invalid OTP',text:'The OTP you entered is incorrect. Please try again.'});
-      if (btn) { btn.textContent = 'Create Account →'; btn.disabled = false; }
-      return;
-    }
-
-    if (btn) btn.textContent = 'Creating account…';
-
-    // Step 2: Register
+    // Register
     const regRes = await fetch(BASE_URL + '/submit', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ firstName, lastName, email, mobile, password })
@@ -3413,5 +3586,219 @@ async function submitListing(){
 document.getElementById('editPropertyModal').addEventListener('click',function(e){if(e.target===this)closeEditPropertyModal()});
 </script>
 
+
+<script>
+// ── THREE.JS HERO BACKGROUND ──
+(function initHeroThreeJS() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+  camera.position.set(0, 0, 28);
+
+  // Resize handler
+  function resize() {
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── Particle system ──
+  const COUNT = 1600;
+  const positions = new Float32Array(COUNT * 3);
+  const colors = new Float32Array(COUNT * 3);
+  const scales = new Float32Array(COUNT);
+  const speeds = new Float32Array(COUNT);
+  const phases = new Float32Array(COUNT);
+
+  const colA = new THREE.Color('#2e7d5a'); // green gold
+  const colB = new THREE.Color('#3aab72'); // lighter green
+  const colC = new THREE.Color('#a8e6c8'); // pale mint
+  const colD = new THREE.Color('#ffffff'); // white
+
+  for (let i = 0; i < COUNT; i++) {
+    positions[i * 3]     = (Math.random() - 0.5) * 80;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 40 - 5;
+    scales[i] = Math.random() * 2.5 + 0.5;
+    speeds[i] = Math.random() * 0.3 + 0.05;
+    phases[i] = Math.random() * Math.PI * 2;
+
+    const r = Math.random();
+    const col = r < 0.4 ? colA : r < 0.65 ? colB : r < 0.85 ? colC : colD;
+    colors[i * 3]     = col.r;
+    colors[i * 3 + 1] = col.g;
+    colors[i * 3 + 2] = col.b;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.22,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.75,
+    sizeAttenuation: true,
+    depthWrite: false,
+  });
+
+  const particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+
+  // ── Connecting lines between nearby particles ──
+  const lineGeo = new THREE.BufferGeometry();
+  const linePositions = new Float32Array(COUNT * COUNT * 2 * 3); // pre-alloc max
+  const lineMat = new THREE.LineSegmentsGeometry ? new THREE.LineBasicMaterial({
+    color: 0x2e7d5a, transparent: true, opacity: 0.08, depthWrite: false
+  }) : new THREE.LineBasicMaterial({
+    color: 0x2e7d5a, transparent: true, opacity: 0.08, depthWrite: false
+  });
+  // Use a smaller set for lines
+  const LINE_COUNT = 400;
+  const linePts = [];
+  for (let i = 0; i < LINE_COUNT; i++) {
+    linePts.push(
+      (Math.random() - 0.5) * 80, (Math.random() - 0.5) * 50, (Math.random() - 0.5) * 40,
+      (Math.random() - 0.5) * 80, (Math.random() - 0.5) * 50, (Math.random() - 0.5) * 40
+    );
+  }
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePts), 3));
+  const lines = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(lines);
+
+  // ── Floating geometric shapes (buildings/homes) ──
+  const shapes = [];
+  const shapeColors = [0x2e7d5a, 0x3aab72, 0x1a5c3f, 0x163320];
+  for (let i = 0; i < 12; i++) {
+    let mesh;
+    const r = Math.random();
+    if (r < 0.4) {
+      mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(
+          Math.random() * 2 + 0.5,
+          Math.random() * 3 + 1,
+          Math.random() * 2 + 0.5
+        ),
+        new THREE.MeshBasicMaterial({
+          color: shapeColors[Math.floor(Math.random() * shapeColors.length)],
+          transparent: true,
+          opacity: 0.07 + Math.random() * 0.06,
+          wireframe: Math.random() > 0.5,
+        })
+      );
+    } else if (r < 0.7) {
+      mesh = new THREE.Mesh(
+        new THREE.OctahedronGeometry(Math.random() * 1.5 + 0.5),
+        new THREE.MeshBasicMaterial({
+          color: shapeColors[Math.floor(Math.random() * shapeColors.length)],
+          transparent: true,
+          opacity: 0.06 + Math.random() * 0.05,
+          wireframe: true,
+        })
+      );
+    } else {
+      mesh = new THREE.Mesh(
+        new THREE.TetrahedronGeometry(Math.random() * 1.5 + 0.5),
+        new THREE.MeshBasicMaterial({
+          color: 0x3aab72,
+          transparent: true,
+          opacity: 0.05 + Math.random() * 0.04,
+          wireframe: true,
+        })
+      );
+    }
+    mesh.position.set(
+      (Math.random() - 0.5) * 60,
+      (Math.random() - 0.5) * 40,
+      (Math.random() - 0.5) * 20 - 8
+    );
+    mesh.userData = {
+      rotX: (Math.random() - 0.5) * 0.008,
+      rotY: (Math.random() - 0.5) * 0.008,
+      floatSpeed: Math.random() * 0.005 + 0.002,
+      floatAmp: Math.random() * 1.5 + 0.5,
+      initY: mesh.position.y,
+      phase: Math.random() * Math.PI * 2,
+    };
+    scene.add(mesh);
+    shapes.push(mesh);
+  }
+
+  // ── Mouse parallax ──
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  // ── Animate ──
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.008;
+
+    // Drift particles
+    const pos = geo.attributes.position.array;
+    for (let i = 0; i < COUNT; i++) {
+      pos[i * 3 + 1] += speeds[i] * 0.03;
+      pos[i * 3]     += Math.sin(t * 0.5 + phases[i]) * 0.008;
+      // Wrap around
+      if (pos[i * 3 + 1] > 25) pos[i * 3 + 1] = -25;
+    }
+    geo.attributes.position.needsUpdate = true;
+
+    // Animate shapes
+    shapes.forEach(s => {
+      s.rotation.x += s.userData.rotX;
+      s.rotation.y += s.userData.rotY;
+      s.position.y = s.userData.initY + Math.sin(t * s.userData.floatSpeed * 60 + s.userData.phase) * s.userData.floatAmp;
+    });
+
+    // Animate lines
+    const lp = lineGeo.attributes.position.array;
+    for (let i = 0; i < LINE_COUNT; i++) {
+      lp[i * 6 + 1] += 0.02;
+      lp[i * 6 + 4] += 0.02;
+      if (lp[i * 6 + 1] > 25) lp[i * 6 + 1] = -25;
+      if (lp[i * 6 + 4] > 25) lp[i * 6 + 4] = -25;
+    }
+    lineGeo.attributes.position.needsUpdate = true;
+
+    // Mouse parallax on camera
+    camera.position.x += (mouseX * 2.5 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.03;
+    camera.lookAt(0, 0, 0);
+
+    // Slow scene rotation
+    particles.rotation.z += 0.0003;
+    lines.rotation.z += 0.0002;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+
+<script>
+// ── SCROLL REVEAL ──
+(function(){
+  const els = document.querySelectorAll('.section, .testi-section, .auth-section, footer, .calc-section');
+  els.forEach(el => el.classList.add('reveal'));
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.07 });
+  els.forEach(el => io.observe(el));
+})();
+</script>
 </body>
 </html>
