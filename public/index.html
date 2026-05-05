@@ -43,7 +43,7 @@
 html{scroll-behavior:smooth}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;overflow-x:hidden}
 
-/* SCROLLBAR */
+/* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:99px}
@@ -1099,6 +1099,10 @@ input {
   <div class="nav-links" id="navLinks">
     <a href="#listings" class="active" onclick="closeNav()">Properties</a>
     <a href="#agents" onclick="closeNav()">Agents</a>
+    <a href="javascript:void(0)" onclick="openAdModal();closeNav()" style="position:relative;display:inline-flex;align-items:center;gap:5px">
+      <span style="position:absolute;top:-5px;right:-8px;background:var(--red);color:#fff;font-size:0.5rem;font-weight:800;padding:2px 5px;border-radius:99px;letter-spacing:0.5px;text-transform:uppercase;line-height:1;pointer-events:none">HOT</span>
+      🏷️ Offers
+    </a>
     <a href="#about" id="navLoginLink" onclick="scrollToForm();closeNav()">Sign In</a>
 
     <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
@@ -1267,6 +1271,89 @@ input {
   </div>
 </section>
 	-->
+
+<style>
+.commission-banner{
+  background:linear-gradient(135deg,var(--accent) 0%,#1a5c3f 100%);
+  border-bottom:2px solid var(--gold);
+  padding:0.85rem clamp(1.2rem,4%,3rem);
+  position:relative;
+}
+.commission-banner-inner{
+  max-width:1100px;margin:0 auto;
+  display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+}
+.commission-banner-icon{font-size:1.6rem;flex-shrink:0}
+.commission-banner-text{flex:1;min-width:180px}
+.commission-banner-heading{
+  display:block;
+  font-size:0.88rem;font-weight:700;color:#fff;
+  margin-bottom:1px;
+}
+.commission-banner-sub{font-size:0.74rem;color:rgba(255,255,255,0.55)}
+.commission-pills{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.commission-pill{
+  display:flex;flex-direction:column;align-items:center;
+  background:rgba(255,255,255,0.1);
+  border:1.5px solid rgba(255,255,255,0.2);
+  border-radius:14px;padding:8px 18px;
+  min-width:110px;
+  backdrop-filter:blur(4px);
+  transition:all 0.2s;
+}
+.commission-pill:hover{background:rgba(255,255,255,0.18);transform:translateY(-1px)}
+.commission-pill-rent{border-color:rgba(58,158,114,0.5);background:rgba(58,158,114,0.15)}
+.commission-pill-sale{border-color:rgba(255,165,0,0.4);background:rgba(255,165,0,0.12)}
+.commission-pill-label{
+  font-size:0.58rem;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:2px;
+}
+.commission-pill-value{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.35rem;font-weight:700;color:#fff;line-height:1;
+}
+.commission-pill-rent .commission-pill-value{color:#6ee7b7}
+.commission-pill-sale .commission-pill-value{color:#fbbf24}
+.commission-pill-note{font-size:0.62rem;color:rgba(255,255,255,0.45);margin-top:2px}
+.commission-pill-divider{font-size:1.2rem;color:rgba(255,255,255,0.25);font-weight:300}
+.commission-banner-close{
+  background:rgba(255,255,255,0.1);border:none;border-radius:50%;
+  width:28px;height:28px;color:rgba(255,255,255,0.6);
+  cursor:pointer;font-size:0.8rem;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.18s;
+}
+.commission-banner-close:hover{background:rgba(255,255,255,0.22);color:#fff}
+@media(max-width:600px){
+  .commission-banner-sub{display:none}
+  .commission-pill{padding:6px 12px;min-width:90px}
+  .commission-pill-value{font-size:1.1rem}
+}
+</style>
+<!-- COMMISSION TRANSPARENCY BANNER -->
+<div class="commission-banner" id="commissionBanner">
+  <div class="commission-banner-inner">
+    <div class="commission-banner-icon">🤝</div>
+    <div class="commission-banner-text">
+      <span class="commission-banner-heading">Transparent Commission — No Hidden Charges</span>
+      <span class="commission-banner-sub">We believe in full transparency with our clients.</span>
+    </div>
+    <div class="commission-pills">
+      <div class="commission-pill commission-pill-rent">
+        <span class="commission-pill-label">Rental</span>
+        <span class="commission-pill-value">½ Month</span>
+        <span class="commission-pill-note">one-time brokerage</span>
+      </div>
+      <div class="commission-pill-divider">·</div>
+      <div class="commission-pill commission-pill-sale">
+        <span class="commission-pill-label">Sale</span>
+        <span class="commission-pill-value">2%</span>
+        <span class="commission-pill-note">of sale value</span>
+      </div>
+    </div>
+    <button class="commission-banner-close" onclick="document.getElementById('commissionBanner').style.display='none'" aria-label="Dismiss">✕</button>
+  </div>
+</div>
 
 <!-- ALL LISTINGS -->
 <section class="section" id="listings" style="background:var(--surface2)">
@@ -3346,6 +3433,301 @@ async function submitListing(){
 // ── END OF SCRIPT ──
 </script>
 
+<!-- ── PROMOTIONS MODAL ── -->
+<style>
+/* Ad Modal Overlay */
+.ad-modal-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(10,15,12,0.72);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+  padding:1rem;
+}
+.ad-modal-overlay.open{opacity:1;pointer-events:all}
+
+.ad-modal-box{
+  background:var(--ink);
+  border-radius:24px;
+  overflow:hidden;
+  width:100%;max-width:680px;
+  max-height:90vh;
+  box-shadow:0 32px 80px rgba(0,0,0,0.55);
+  transform:scale(0.94) translateY(16px);
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;
+  display:flex;flex-direction:column;
+}
+.ad-modal-overlay.open .ad-modal-box{transform:scale(1) translateY(0)}
+
+/* Modal header */
+.ad-modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 1.5rem 1rem;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+.ad-modal-header-left{display:flex;align-items:center;gap:10px}
+.ad-modal-badge{
+  background:var(--red);color:#fff;
+  font-size:0.62rem;font-weight:800;letter-spacing:0.8px;
+  padding:4px 10px;border-radius:99px;text-transform:uppercase;
+  animation:adPulse 2s infinite;
+}
+@keyframes adPulse{0%,100%{box-shadow:0 0 0 0 rgba(192,48,64,0.5)}50%{box-shadow:0 0 0 6px rgba(192,48,64,0)}}
+.ad-modal-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.15rem;font-weight:700;color:#fff;
+}
+.ad-modal-close{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,0.1);border:none;
+  color:#fff;font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.18s;flex-shrink:0;
+}
+.ad-modal-close:hover{background:rgba(255,255,255,0.2);transform:scale(1.08)}
+
+/* Slider inside modal */
+.ad-modal-slider{position:relative;overflow:hidden;flex-shrink:0}
+.ad-modal-track{display:flex;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1)}
+.ad-modal-slide{
+  min-width:100%;position:relative;
+  min-height:260px;display:flex;align-items:flex-end;
+  cursor:pointer;
+}
+.ad-modal-slide-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  transition:transform 0.5s;
+}
+.ad-modal-slide:hover .ad-modal-slide-bg{transform:scale(1.04)}
+.ad-modal-slide-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.1) 60%,transparent 100%);
+}
+.ad-modal-slide-body{
+  position:relative;z-index:1;
+  padding:1.6rem 1.8rem;width:100%;
+}
+.ad-modal-slide-tag{
+  font-size:0.62rem;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;color:rgba(255,255,255,0.55);
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.ad-modal-slide-icon{font-size:1.3rem}
+.ad-modal-slide-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.3rem,3vw,1.8rem);font-weight:700;
+  color:#fff;line-height:1.2;margin-bottom:6px;
+}
+.ad-modal-slide-sub{
+  font-size:0.82rem;color:rgba(255,255,255,0.65);
+  line-height:1.5;margin-bottom:1rem;
+  max-width:460px;
+}
+.ad-modal-slide-cta{
+  display:inline-block;
+  padding:10px 22px;border-radius:99px;
+  background:#fff;color:var(--ink);
+  font-size:0.82rem;font-weight:700;font-family:inherit;
+  border:none;cursor:pointer;
+  text-decoration:none;
+  transition:all 0.18s;
+}
+.ad-modal-slide-cta:hover{background:var(--gold2);color:#fff;transform:translateY(-1px)}
+
+/* Nav arrows */
+.ad-modal-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  z-index:10;background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);
+  border-radius:50%;width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;color:#fff;cursor:pointer;border-style:solid;
+  transition:all 0.18s;
+}
+.ad-modal-arrow:hover{background:rgba(255,255,255,0.28)}
+.ad-modal-arrow-prev{left:14px}
+.ad-modal-arrow-next{right:14px}
+
+/* Dots + counter */
+.ad-modal-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.9rem 1.5rem;
+  border-top:1px solid rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+.ad-modal-dots{display:flex;gap:7px;align-items:center}
+.ad-modal-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  border:none;cursor:pointer;padding:0;
+  transition:all 0.22s;
+}
+.ad-modal-dot.active{background:var(--gold2);width:22px;border-radius:4px}
+.ad-modal-counter{font-size:0.75rem;color:rgba(255,255,255,0.4);font-weight:600}
+</style>
+
+<div class="ad-modal-overlay" id="adModalOverlay" onclick="if(event.target===this)closeAdModal()">
+  <div class="ad-modal-box" id="adModalBox">
+
+    <!-- Header -->
+    <div class="ad-modal-header">
+      <div class="ad-modal-header-left">
+        <span class="ad-modal-badge">🔥 Live Offers</span>
+        <span class="ad-modal-title">Current Promotions</span>
+      </div>
+      <button class="ad-modal-close" onclick="closeAdModal()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Slider -->
+    <div class="ad-modal-slider" id="adModalSlider">
+      <div class="ad-modal-track" id="adModalTrack">
+
+        <!-- Slide 1 -->
+        <div class="ad-modal-slide" onclick="closeAdModal();window.location='tel:+919876543210'">
+          <div class="ad-modal-slide-bg" style="background:linear-gradient(135deg,#0d2137 0%,#0d6e6e 100%)"></div>
+          <div class="ad-modal-slide-overlay"></div>
+          <div class="ad-modal-slide-body">
+            <div class="ad-modal-slide-tag"><span class="ad-modal-slide-icon">📞</span> Limited Time Offer</div>
+            <div class="ad-modal-slide-title">Free Site Visit — Book Today!</div>
+            <div class="ad-modal-slide-sub">Get a complimentary guided tour of any HSR Layout property. Our agents will be with you every step.</div>
+            <a class="ad-modal-slide-cta" href="tel:+919876543210">Call Now →</a>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="ad-modal-slide" onclick="closeAdModal();document.getElementById('listings').scrollIntoView({behavior:'smooth'})">
+          <div class="ad-modal-slide-bg" style="background:linear-gradient(135deg,#0e2a1c 0%,#2e7d5a 100%)"></div>
+          <div class="ad-modal-slide-overlay"></div>
+          <div class="ad-modal-slide-body">
+            <div class="ad-modal-slide-tag"><span class="ad-modal-slide-icon">🏠</span> New Launch</div>
+            <div class="ad-modal-slide-title">Premium 3 BHK from ₹85 Lakhs</div>
+            <div class="ad-modal-slide-sub">Ready-to-move flats in HSR Sector 2 & 6. Fully furnished options available. RERA registered.</div>
+            <span class="ad-modal-slide-cta">View Listings →</span>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="ad-modal-slide" onclick="closeAdModal();document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+          <div class="ad-modal-slide-bg" style="background:linear-gradient(135deg,#2a0e4a 0%,#6c3483 100%)"></div>
+          <div class="ad-modal-slide-overlay"></div>
+          <div class="ad-modal-slide-body">
+            <div class="ad-modal-slide-tag"><span class="ad-modal-slide-icon">💰</span> Home Loan Assistance</div>
+            <div class="ad-modal-slide-title">Pre-Approved in 24 Hours — Zero Processing Fee</div>
+            <div class="ad-modal-slide-sub">We partner with 12+ banks to get you the best interest rates. Expert loan advisors, no paperwork hassle.</div>
+            <span class="ad-modal-slide-cta">Talk to Advisor →</span>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="ad-modal-slide" onclick="closeAdModal();document.getElementById('listings').scrollIntoView({behavior:'smooth'})">
+          <div class="ad-modal-slide-bg" style="background:linear-gradient(135deg,#3d0a0a 0%,#c0392b 100%)"></div>
+          <div class="ad-modal-slide-overlay"></div>
+          <div class="ad-modal-slide-body">
+            <div class="ad-modal-slide-tag"><span class="ad-modal-slide-icon">🔥</span> Hot Deal · Expires Soon</div>
+            <div class="ad-modal-slide-title">2 BHK for Rent — ₹18,000/mo</div>
+            <div class="ad-modal-slide-sub">Semi-furnished, 2 mins from BDA complex in HSR Layout. Only 2 units remaining — act fast before it's gone!</div>
+            <span class="ad-modal-slide-cta">See Details →</span>
+          </div>
+        </div>
+
+      </div>
+
+        <!-- Slide 5: Commission Info -->
+        <div class="ad-modal-slide" style="cursor:default">
+          <div class="ad-modal-slide-bg" style="background:linear-gradient(135deg,#0a1f14 0%,#1b3a2d 100%)"></div>
+          <div class="ad-modal-slide-overlay"></div>
+          <div class="ad-modal-slide-body" style="display:flex;flex-direction:column;gap:0">
+            <div class="ad-modal-slide-tag"><span class="ad-modal-slide-icon">🤝</span> Our Commission Policy</div>
+            <div class="ad-modal-slide-title" style="margin-bottom:1rem">Fully Transparent — No Hidden Fees</div>
+            <div style="display:flex;gap:14px;flex-wrap:wrap">
+              <div style="flex:1;min-width:130px;background:rgba(110,231,183,0.1);border:1.5px solid rgba(110,231,183,0.3);border-radius:16px;padding:1rem 1.2rem;text-align:center">
+                <div style="font-size:0.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px">For Rent</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#6ee7b7;line-height:1;margin-bottom:4px">½ Month</div>
+                <div style="font-size:0.72rem;color:rgba(255,255,255,0.5)">One-time brokerage</div>
+                <div style="margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.35)">e.g. ₹20K rent → ₹10K fee</div>
+              </div>
+              <div style="flex:1;min-width:130px;background:rgba(251,191,36,0.1);border:1.5px solid rgba(251,191,36,0.3);border-radius:16px;padding:1rem 1.2rem;text-align:center">
+                <div style="font-size:0.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px">For Sale</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#fbbf24;line-height:1;margin-bottom:4px">2%</div>
+                <div style="font-size:0.72rem;color:rgba(255,255,255,0.5)">Of total sale value</div>
+                <div style="margin-top:8px;font-size:0.7rem;color:rgba(255,255,255,0.35)">e.g. ₹1Cr sale → ₹2L fee</div>
+              </div>
+            </div>
+            <div style="margin-top:0.9rem;font-size:0.72rem;color:rgba(255,255,255,0.35);display:flex;align-items:center;gap:5px">
+              <span>✅</span> Paid only on successful deal closure
+            </div>
+          </div>
+        </div>
+
+            <!-- Arrows -->
+      <button class="ad-modal-arrow ad-modal-arrow-prev" onclick="event.stopPropagation();adModalSlide(-1)">‹</button>
+      <button class="ad-modal-arrow ad-modal-arrow-next" onclick="event.stopPropagation();adModalSlide(1)">›</button>
+    </div>
+
+    <!-- Footer with dots + counter -->
+    <div class="ad-modal-footer">
+      <div class="ad-modal-dots" id="adModalDots"></div>
+      <span class="ad-modal-counter" id="adModalCounter">1 / 4</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const track  = document.getElementById('adModalTrack');
+  const dots   = document.getElementById('adModalDots');
+  const counter= document.getElementById('adModalCounter');
+  const slides = track.querySelectorAll('.ad-modal-slide');
+  const total  = slides.length;
+  let cur = 0, timer;
+
+  // Build dots
+  slides.forEach((_,i)=>{
+    const d = document.createElement('button');
+    d.className = 'ad-modal-dot'+(i===0?' active':'');
+    d.setAttribute('aria-label','Slide '+(i+1));
+    d.addEventListener('click', e=>{ e.stopPropagation(); goTo(i); });
+    dots.appendChild(d);
+  });
+
+  function goTo(n){
+    cur = (n + total) % total;
+    track.style.transform = `translateX(-${cur*100}%)`;
+    dots.querySelectorAll('.ad-modal-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+    counter.textContent = `${cur+1} / ${total}`;
+    resetTimer();
+  }
+
+  window.adModalSlide = function(dir){ goTo(cur+dir); };
+
+  function resetTimer(){
+    clearInterval(timer);
+    timer = setInterval(()=>goTo(cur+1), 4500);
+  }
+
+  window.openAdModal = function(){
+    goTo(0);
+    document.getElementById('adModalOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+    resetTimer();
+  };
+
+  window.closeAdModal = function(){
+    document.getElementById('adModalOverlay').classList.remove('open');
+    document.body.style.overflow='';
+    clearInterval(timer);
+  };
+
+  // Keyboard close
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAdModal(); });
+})();
+</script>
+
 <!-- EDIT PROPERTY MODAL (Admin only) -->
 <div class="modal-wrap" id="editPropertyModal">
   <div class="modal" style="max-width:680px">
@@ -3449,5 +3831,33 @@ async function submitListing(){
 document.getElementById('editPropertyModal').addEventListener('click',function(e){if(e.target===this)closeEditPropertyModal()});
 </script>
 
+<script>
+// Show commission info popup once per session on first page load
+(function(){
+  if(!sessionStorage.getItem('commissionSeen')){
+    sessionStorage.setItem('commissionSeen','1');
+    setTimeout(function(){
+      if(typeof openAdModal === 'function'){
+        // Go directly to the commission slide (index 4, 0-based)
+        openAdModal();
+        setTimeout(function(){
+          var track = document.getElementById('adModalTrack');
+          var dots  = document.getElementById('adModalDots');
+          var counter = document.getElementById('adModalCounter');
+          if(track){
+            track.style.transition = 'none';
+            track.style.transform  = 'translateX(-400%)';
+            setTimeout(function(){ track.style.transition = ''; }, 50);
+          }
+          if(dots){
+            dots.querySelectorAll('.ad-modal-dot').forEach(function(d,i){ d.classList.toggle('active', i===4); });
+          }
+          if(counter) counter.textContent = '5 / 5';
+        }, 100);
+      }
+    }, 1800);
+  }
+})();
+</script>
 </body>
 </html>
