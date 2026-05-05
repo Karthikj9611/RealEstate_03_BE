@@ -1054,6 +1054,31 @@ input {
   }
 }
 
+
+@media(max-width:640px){
+  .footer-grid{
+    display:flex;        /* switch to flex */
+    flex-direction:row;  /* single row */
+    width:100%;
+    gap:0;               /* remove gaps */
+  }
+
+  .footer-grid > div{
+    flex:1;              /* equal width */
+    text-align:center;   /* optional: center content */
+  }
+}
+
+@media(max-width:640px){
+  .footer-links{
+    align-items:center;
+  }
+
+  .footer-links a{
+    font-size:0.72rem;
+  }
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
