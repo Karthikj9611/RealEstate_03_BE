@@ -1034,6 +1034,26 @@ input {
   .auth-row-2{grid-template-columns:1fr}
   .prop-chips{gap:4px}
 }
+
+
+@media(max-width:600px){
+  .commission-pills{
+    display:flex;
+    width:100%;
+    gap:8px;
+  }
+
+  .commission-pill{
+    flex:1;              /* ✅ equal width */
+    min-width:0;         /* ✅ remove restriction */
+    padding:8px 6px;     /* optional: better spacing */
+  }
+
+  .commission-pill-divider{
+    display:none;        /* optional: remove dot in mobile */
+  }
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -1351,7 +1371,7 @@ input {
         <span class="commission-pill-note">of sale value</span>
       </div>
     </div>
-    <button class="commission-banner-close" onclick="document.getElementById('commissionBanner').style.display='none'" aria-label="Dismiss">✕</button>
+<!--    <button class="commission-banner-close" onclick="document.getElementById('commissionBanner').style.display='none'" aria-label="Dismiss">✕</button> -->
   </div>
 </div>
 
