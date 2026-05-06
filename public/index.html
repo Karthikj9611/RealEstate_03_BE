@@ -495,16 +495,15 @@ nav{
 }
 .testi-name{font-size:0.84rem;font-weight:600;color:var(--ink)}
 .testi-role{font-size:0.72rem;color:var(--ink3)}
-@media(max-width:768px){
-  .testimonials-grid{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){
+  .testimonials-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
 }
-@media(max-width:640px){
+@media(max-width:600px){
   .testimonials-grid{
-    display:flex;flex-wrap:nowrap;overflow-x:auto;
-    gap:10px;padding-bottom:8px;scroll-snap-type:x mandatory;
+    grid-template-columns:1fr;
+    gap:0.8rem;
   }
-  .testi-card{flex:0 0 80%;scroll-snap-align:center}
-  .testimonials-grid::-webkit-scrollbar{display:none}
+  .testi-card{padding:1.1rem 1rem}
 }
 
 /* ── REVIEW FORM ── */
@@ -775,14 +774,15 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 }
 .social-btn:hover{background:var(--gold);color:var(--ink)}
 @media(max-width:640px){
-  .footer-grid{grid-template-columns:1fr 1fr;gap:1.2rem 1rem}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:1.5rem 1rem}
   .footer-grid>div:last-child{grid-column:1/-1}
-  .footer-heading{font-size:0.7rem}
-  .footer-links a{font-size:0.74rem}
+  .footer-heading{font-size:0.72rem}
+  .footer-links a{font-size:0.76rem}
   .footer-bottom{justify-content:center}
 }
-@media(max-width:400px){
+@media(max-width:380px){
   .footer-grid{grid-template-columns:1fr}
+  .footer-grid>div:last-child{grid-column:auto}
 }
 
 /* ── MODAL ── */
@@ -1072,27 +1072,10 @@ input {
 }
 
 
-@media(max-width:640px){
-  .footer-grid{
-    display:flex;        /* switch to flex */
-    flex-direction:row;  /* single row */
-    width:100%;
-    gap:0;               /* remove gaps */
-  }
-
-  .footer-grid > div{
-    flex:1;              /* equal width */
-    text-align:center;   /* optional: center content */
-  }
-}
 
 @media(max-width:640px){
   .footer-links{
-    align-items:center;
-  }
-
-  .footer-links a{
-    font-size:0.72rem;
+    align-items:flex-start;
   }
 }
 
@@ -2136,7 +2119,7 @@ const MODAL_LABELS = {
   floorLevel:'Floor Level', parking:'Parking', carparking:'Car Parking',
   bikeparking:'Bike Parking', toilet:'Bathrooms', toilet_type:'Toilet Type',
   price:'Price(₹)', city:'City', facing:'Facing', age:'Property Age',
-  status:'Listing Type', desc:'Description',
+  status:'Listing Type', desc:'Description', deposit:'Security Deposit (₹)',
 };
 
 function openModal(id){
@@ -3238,7 +3221,14 @@ async function submitEditProperty() {
         </div>
         <div class="listing-field">
           <label>Location / Area</label>
-          <input type="text" id="l_loc" placeholder="e.g. HSR Layout"/>
+          <div style="display:flex;gap:7px;align-items:center">
+            <input type="text" id="l_loc" placeholder="e.g. HSR Layout" style="flex:1;min-width:0"/>
+            <button type="button" id="l_locBtn" onclick="captureLocation()" title="Use my current location" style="flex-shrink:0;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--gold);background:var(--gold-light);color:var(--gold-dark);font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.18s;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--gold-light)';this.style.color='var(--gold-dark)'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+              <span id="l_locBtnTxt">Live</span>
+            </button>
+          </div>
+          <div id="l_locStatus" style="font-size:0.72rem;color:var(--ink3);min-height:14px;margin-top:2px"></div>
         </div>
       </div>
       <div class="listing-grid-2">
@@ -3248,7 +3238,7 @@ async function submitEditProperty() {
         </div>
         <div class="listing-field">
           <label>Status</label>
-          <select id="l_status">
+          <select id="l_status" onchange="onListingStatusChange(this.value)">
             <option value="">Select…</option>
             <option value="For Sale">For Sale</option>
             <option value="For Rent">For Rent</option>
@@ -3261,15 +3251,13 @@ async function submitEditProperty() {
       <div class="listing-section-label">Pricing</div>
       <div class="listing-grid-2">
         <div class="listing-field">
-          <label>Price (₹)</label>
+          <label id="l_priceLabel">Price (₹)</label>
           <input type="number" id="l_price" placeholder=""/>
         </div>
-<!--
-        <div class="listing-field">
-          <label>Display Price</label>
-          <input type="text" id="l_displayPrice" placeholder="e.g. ₹85L or ₹25,000/Month"/>
+        <div class="listing-field" id="l_depositWrap" style="display:none">
+          <label>Security Deposit (₹)</label>
+          <input type="number" id="l_deposit" placeholder="e.g. 100000"/>
         </div>
--->
       </div>
 
       <!-- Section: Property Details -->
@@ -3614,6 +3602,7 @@ async function submitListing(){
     ? amenitiesRaw.split(',').map(s=>s.trim()).filter(Boolean)
     : [];
 
+  const deposit = get('l_deposit');
   const payload = {
     title, loc, city, status,
     price: Number(price),
@@ -3631,6 +3620,7 @@ async function submitListing(){
     desc:         get('l_desc')        || undefined,
     amenities:    amenities.length ? amenities : undefined,
     images:       images.length   ? images    : undefined,
+    deposit:      (status === 'For Rent' && deposit && !isNaN(Number(deposit))) ? Number(deposit) : undefined,
   };
   // Remove undefined keys
   Object.keys(payload).forEach(k => payload[k]===undefined && delete payload[k]);
@@ -3663,10 +3653,12 @@ async function submitListing(){
     setTimeout(loadPropertiesFromDB, 800);
 
     // Reset form
-    ['l_title','l_loc','l_city','l_price','l_area','l_floor','l_age','l_desc','l_amenities']
+    ['l_title','l_loc','l_city','l_price','l_deposit','l_area','l_floor','l_age','l_desc','l_amenities']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    // Hide deposit field on reset
+    const dw=document.getElementById('l_depositWrap'); if(dw) dw.style.display='none';
     // Reset image state
     _listingImages.length = 0;
     _refreshImgPreview();
@@ -3679,6 +3671,85 @@ async function submitListing(){
   }
 }
 
+
+// ── STATUS CHANGE: show/hide deposit ──
+function onListingStatusChange(val) {
+  const wrap = document.getElementById('l_depositWrap');
+  const lbl  = document.getElementById('l_priceLabel');
+  if (!wrap) return;
+  if (val === 'For Rent') {
+    wrap.style.display = '';
+    if (lbl) lbl.textContent = 'Monthly Rent (₹)';
+  } else {
+    wrap.style.display = 'none';
+    const dep = document.getElementById('l_deposit');
+    if (dep) dep.value = '';
+    if (lbl) lbl.textContent = 'Price (₹)';
+  }
+}
+
+// ── LIVE LOCATION CAPTURE ──
+async function captureLocation() {
+  const btn     = document.getElementById('l_locBtn');
+  const btnTxt  = document.getElementById('l_locBtnTxt');
+  const status  = document.getElementById('l_locStatus');
+  const locInp  = document.getElementById('l_loc');
+  const cityInp = document.getElementById('l_city');
+
+  if (!navigator.geolocation) {
+    status.textContent = '⚠ Geolocation not supported in this browser.';
+    return;
+  }
+
+  btn.disabled = true;
+  if (btnTxt) btnTxt.textContent = '…';
+  status.textContent = 'Detecting location…';
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      status.textContent = `📍 ${latitude.toFixed(5)}, ${longitude.toFixed(5)} — resolving address…`;
+
+      try {
+        // Use OpenStreetMap Nominatim (free, no API key)
+        const resp = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+          { headers: { 'Accept-Language': 'en' } }
+        );
+        const data = await resp.json();
+        const addr = data.address || {};
+        // Build locality string
+        const locality = addr.suburb || addr.neighbourhood || addr.village || addr.county || addr.state_district || '';
+        const city     = addr.city   || addr.town || addr.state_district || addr.state || '';
+        const area     = addr.road   || addr.pedestrian || '';
+
+        const locVal = [locality, area].filter(Boolean).join(', ') || data.display_name?.split(',')[0] || '';
+        if (locInp && locVal)  locInp.value  = locVal;
+        if (cityInp && city)   cityInp.value = city;
+
+        status.innerHTML = `<span style="color:var(--gold-dark)">✅ Location set: <strong>${locVal || 'detected'}</strong></span>`;
+      } catch (err) {
+        // Coords captured but reverse geocode failed — fill coords as fallback
+        if (locInp) locInp.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        status.innerHTML = `<span style="color:var(--gold-dark)">✅ Coordinates captured (address lookup failed)</span>`;
+      }
+
+      if (btnTxt) btnTxt.textContent = 'Live';
+      btn.disabled = false;
+    },
+    (err) => {
+      const msgs = {
+        1: 'Location permission denied. Please allow location access.',
+        2: 'Location unavailable. Please enter manually.',
+        3: 'Location request timed out. Try again.',
+      };
+      status.innerHTML = `<span style="color:var(--red)">⚠ ${msgs[err.code] || err.message}</span>`;
+      if (btnTxt) btnTxt.textContent = 'Live';
+      btn.disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
 
 // ── END OF SCRIPT ──
 </script>
