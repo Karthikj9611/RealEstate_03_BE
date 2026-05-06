@@ -1123,6 +1123,21 @@ input {
   }
 }
 
+.img-url-textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 9px 12px;
+  font-size: 0.86rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.18s;
+  resize: vertical;
+  line-height: 1.5;
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -3261,13 +3276,15 @@ async function submitEditProperty() {
       </div>
       <!-- ── IMAGES SECTION ── -->
       <div class="listing-section-label">Property Images</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-start">
-        <textarea id="l_imgUrlInput" rows="2" placeholder="Paste one or more image URLs, one per line or comma-separated (https://…)" style="flex:1;min-width:180px;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:9px 12px;font-size:0.86rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none;transition:border-color 0.18s;resize:vertical;line-height:1.5" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-        <div style="display:flex;flex-direction:column;gap:7px">
+      <div class="img-upload-row">
+        <textarea id="l_imgUrlInput" rows="2" placeholder="Paste one or more image URLs, one per line or comma-separated (https://…)" class="img-url-textarea" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <div class="img-upload-btns">
           <button type="button" onclick="addImageFromUrl()" style="padding:9px 16px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">+ Add URL(s)</button>
-          <button type="button" onclick="document.getElementById('l_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁Upload</button>
+          <button type="button" onclick="document.getElementById('l_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁 Upload</button>
+          <button type="button" onclick="document.getElementById('l_imgCameraInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📷 Camera</button>
         </div>
         <input type="file" id="l_imgFileInput" accept="image/*" multiple style="display:none" onchange="addImagesFromFiles(this)"/>
+        <input type="file" id="l_imgCameraInput" accept="image/*" capture="environment" style="display:none" onchange="addImagesFromFiles(this)"/>
       </div>
       <div id="imgPreviewGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px"></div>
       <div id="imgEmptyHint" style="font-size:0.78rem;color:var(--ink3);margin-bottom:18px">No images added yet. Paste a URL or upload/capture photos above.</div>
@@ -3325,6 +3342,23 @@ async function submitEditProperty() {
 
 /* Section head divider accent */
 .section-title::after{content:'';display:block;width:36px;height:3px;background:var(--gold);border-radius:3px;margin-top:8px}
+
+.img-upload-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.img-upload-row textarea {
+  flex: 1 1 100%;
+}
+.img-upload-btns {
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  flex-shrink: 0;
+}
 </style>
 
 <script>
@@ -3955,13 +3989,15 @@ async function submitListing(){
       </div>
 
       <div class="listing-section-label">Property Images</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-start">
-        <textarea id="ep_imgUrlInput" rows="2" placeholder="Paste image URLs — one per line or comma-separated (https://…)" style="flex:1;min-width:180px;border:1.5px solid var(--border);border-radius:var(--radius-xs);padding:9px 12px;font-size:0.86rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none;transition:border-color 0.18s;resize:vertical;line-height:1.5" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-        <div style="display:flex;flex-direction:column;gap:7px">
+      <div class="img-upload-row">
+        <textarea id="ep_imgUrlInput" rows="2" placeholder="Paste image URLs — one per line or comma-separated (https://…)" class="img-url-textarea" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <div class="img-upload-btns">
           <button type="button" onclick="epAddImageFromUrl()" style="padding:9px 16px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">+ Add URL(s)</button>
-          <button type="button" onclick="document.getElementById('ep_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁 Upload / Camera</button>
+          <button type="button" onclick="document.getElementById('ep_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁 Upload</button>
+          <button type="button" onclick="document.getElementById('ep_imgCameraInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📷 Camera</button>
         </div>
         <input type="file" id="ep_imgFileInput" accept="image/*" multiple style="display:none" onchange="epAddImagesFromFiles(this)"/>
+        <input type="file" id="ep_imgCameraInput" accept="image/*" capture="environment" style="display:none" onchange="epAddImagesFromFiles(this)"/>
       </div>
       <div id="epImgPreviewGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px"></div>
       <div id="epImgEmptyHint" style="font-size:0.78rem;color:var(--ink3);margin-bottom:18px">No images added yet. Paste URLs or upload photos above.</div>
