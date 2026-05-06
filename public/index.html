@@ -1888,6 +1888,7 @@ function renderProps(list){
     grid.innerHTML='<p style="color:var(--ink3);padding:2rem 0;grid-column:1/-1">No properties match your filters.</p>';
     return;
   }
+  debugger;
   grid.innerHTML=list.map(p=>`
     <div class="prop-card fade-up" onclick="openModal(${p.id})">
       <div class="prop-img">
@@ -1901,8 +1902,10 @@ function renderProps(list){
         <div class="prop-loc">📍 ${p.loc}</div>
         <div class="prop-chips">
           <span class="prop-chip">🛏 ${p.bhk} BHK</span>
-          ${p.area?`<span class="prop-chip">📐 ${p.area}</span>`:''}
           ${p.furnishing?`<span class="prop-chip">🪑 ${p.furnishing}</span>`:''}
+		  ${p.toilet?`<span class="prop-chip">🚽 ${p.toilet}</span>`:''}
+		  ${p.bikeparking?`<span class="prop-chip">🏍️ ${p.bikeparking}</span>`:''}
+		  ${p.carparking?`<span class="prop-chip">🚗 ${p.carparking}</span>`:''}
         </div>
         <div class="prop-footer">
           <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">📞</button>
@@ -3233,14 +3236,14 @@ async function submitEditProperty() {
           <label>Car Parking</label>
           <select id="l_carparking">
             <option value="">None</option>
-            <option>1 Car</option><option>2 Car</option><option>3 Car</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
         <div class="listing-field">
           <label>Bike Parking</label>
           <select id="l_bikeparking">
             <option value="">None</option>
-            <option>1 Bike</option><option>2 Bike</option><option>3 Bike</option><option>4 Bike</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
       </div>
