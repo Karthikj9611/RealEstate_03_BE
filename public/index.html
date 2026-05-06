@@ -3097,7 +3097,7 @@ function formatDisplayPrice(price, status){
   if(num>=10000000)       d='₹'+(num/10000000).toFixed(2).replace(/\.?0+$/,'')+'  Cr';
   else if(num>=100000)    d='₹'+(num/100000).toFixed(1).replace(/\.?0+$/,'')+' L';
   else                    d='₹'+num.toLocaleString('en-IN');
-  if(status==='For Rent') d+='/mo';
+  if(status==='For Rent') d+='/Month';
   return d;
 }
 
@@ -3508,7 +3508,7 @@ function _fmtPrice(price, status){
   if(num >= 10000000)       display = '₹' + (num/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
   else if(num >= 100000)    display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
   else                      display = '₹' + num.toLocaleString('en-IN');
-  if(status === 'For Rent') display += '/mo';
+  if(status === 'For Rent') display += '/Month';
   return display;
 }
 
