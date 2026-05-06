@@ -1897,7 +1897,7 @@ function renderProps(list){
         <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button>
       </div>
       <div class="prop-body">
-        <div class="prop-price">${p.displayPrice} <small>${p.status==='For Rent'?'per month':''}</small></div>
+        <div class="prop-price">${p.displayPrice} <small>${p.status==='For Rent'?'':''}</small></div>
         <div class="prop-title">${p.title}</div>
         <div class="prop-loc">📍 ${p.loc}</div>
         <div class="prop-chips">
