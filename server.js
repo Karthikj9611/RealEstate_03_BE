@@ -227,7 +227,7 @@ app.put("/api/properties/:id", async (req, res) => {
       if (num >= 10000000)    display = '₹' + (num/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
       else if (num >= 100000) display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
       else                    display = '₹' + num.toLocaleString('en-IN');
-      if (updated.status === 'For Rent') display += '/mo';
+      if (updated.status === 'For Rent') display += '/Month';
       updated.displayPrice = display;
       await updated.save();
     }
