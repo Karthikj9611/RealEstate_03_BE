@@ -634,16 +634,19 @@ nav{
 
 /* ── AUTH SECTION ── */
 .auth-section{
-  background:linear-gradient(160deg,#0c1a12 0%,#1b3a2d 40%,#0f2318 100%);
-  padding:clamp(3rem,6vw,5rem) clamp(1rem,4%,2rem);
-  display:flex;align-items:center;justify-content:center;
-  min-height:auto;
+  display:none;position:fixed;inset:0;z-index:600;
+  background:rgba(12,13,16,0.7);
+  align-items:center;justify-content:center;
+  padding:1rem;backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
 }
+.auth-section.open{display:flex}
 .auth-card{
   background:var(--surface);
   border-radius:24px;
   box-shadow:0 40px 100px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04);
   width:100%;max-width:440px;overflow:hidden;
+  position:relative;max-height:92vh;overflow-y:auto;
 }
 .auth-brand{
   background:linear-gradient(135deg,var(--accent),var(--gold-dark));
@@ -1079,6 +1082,47 @@ input {
   }
 }
 
+/* Replace .auth-section */
+.auth-section{
+  display:none;position:fixed;inset:0;z-index:600;
+  background:rgba(12,13,16,0.7);
+  align-items:flex-start;justify-content:center;
+  padding:1rem;backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.auth-section.open{display:flex}
+
+/* Replace .auth-card */
+.auth-card{
+  background:var(--surface);
+  border-radius:24px;
+  box-shadow:0 40px 100px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04);
+  width:100%;max-width:440px;overflow:hidden;
+  position:relative;max-height:92vh;overflow-y:auto;
+  margin-top:2rem;
+  /* Desktop: no animation */
+  transform:none;
+  transition:none;
+}
+
+/* Mobile: slide in from top */
+@media(max-width:760px){
+  .auth-section{
+    align-items:flex-start;
+    padding:0;
+  }
+  .auth-card{
+    border-radius:0 0 24px 24px;
+    margin-top:0;
+    max-height:95vh;
+    transform:translateY(-100%);
+    transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);
+  }
+  .auth-section.open .auth-card{
+    transform:translateY(0);
+  }
+}
+
 </style>
 <style>
 /* ── SWEETALERT2 CUSTOM THEME ── */
@@ -1148,7 +1192,7 @@ input {
       <span style="position:absolute;top:-5px;right:-8px;background:var(--red);color:#fff;font-size:0.5rem;font-weight:800;padding:2px 5px;border-radius:99px;letter-spacing:0.5px;text-transform:uppercase;line-height:1;pointer-events:none">HOT</span>
       🏷️ Offers
     </a>
-    <a href="#about" id="navLoginLink" onclick="scrollToForm();closeNav()">Sign In</a>
+    <a href="#" id="navLoginLink" onclick="event.preventDefault();openAuthModal('login');closeNav()">Sign In</a>
 
     <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
     <div id="mobileUserBlock" style="display:none;margin-top:6px;padding:12px 14px;background:var(--gold-light);border-radius:var(--radius-xs);border:1.5px solid var(--gold);flex-direction:column;gap:4px">
@@ -1483,9 +1527,10 @@ input {
   </div>
 </section>
 
-<!-- AUTH SECTION -->
-<div class="auth-section" id="about">
+<!-- AUTH MODAL -->
+<div class="auth-section" id="authModal" onclick="if(event.target===this)closeAuthModal()">
   <div class="auth-card">
+    <button onclick="closeAuthModal()" style="position:absolute;top:12px;right:14px;z-index:10;background:rgba(255,255,255,0.18);border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:background 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">✕</button>
 
     <div class="auth-brand">
       <div class="auth-brand-icon">K</div>
@@ -1572,6 +1617,13 @@ input {
               <button type="button" class="auth-pw-toggle" onclick="togglePw('regPassword',this)" tabindex="-1">👁</button>
             </div>
           </div>
+          <div class="auth-field">
+            <label>Confirm Password</label>
+            <div class="auth-pw-wrap">
+              <input type="password" id="regConfirmPassword" placeholder="Re-enter your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"/>
+              <button type="button" class="auth-pw-toggle" onclick="togglePw('regConfirmPassword',this)" tabindex="-1">👁</button>
+            </div>
+          </div>
         </div>
         <button class="auth-submit" id="registerBtn" onclick="doRegister()">Create Account →</button>
       </div>
@@ -1582,6 +1634,7 @@ input {
     </div>
   </div>
 </div>
+<!-- END AUTH MODAL -->
 
 
 
@@ -2200,9 +2253,9 @@ function applyLoginUI(firstName, lastName, admin) {
   if (mobileAvatar) mobileAvatar.textContent = initials;
   if (mobileName)   mobileName.textContent   = fullName;
 
-  // ── Hide auth section ──
+  // ── Hide auth modal ──
   const authSection = document.querySelector('.auth-section');
-  if (authSection) authSection.style.display = 'none';
+  if (authSection) { authSection.classList.remove('open'); document.body.style.overflow = ''; }
 
   // ── Review form ──
   const reviewSubmitted = localStorage.getItem('kr_review_submitted');
@@ -2241,8 +2294,7 @@ function closeLoginAlert(){
 }
 function goToLogin(){
   closeLoginAlert();
-  document.getElementById('about').scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>switchAuthTab('login'),400);
+  openAuthModal('login');
 }
 function unlockReviewForm(firstName, lastName, admin, email){
   try {
@@ -2296,9 +2348,9 @@ function logoutUser() {
       const navListBtn = document.getElementById('navListBtn');
       if (navListBtn) navListBtn.style.display = 'none';
 
-      // Show auth section again
+      // Show auth modal again on logout
       const authSection = document.querySelector('.auth-section');
-      if (authSection) { authSection.style.display = ''; switchAuthTab('login'); }
+      if (authSection) { authSection.classList.remove('open'); switchAuthTab('login'); }
 
       const gate = document.getElementById('reviewLoginGate');
       const fields = document.getElementById('reviewFormFields');
@@ -2317,9 +2369,35 @@ window.addEventListener('scroll',()=>{
 });
 
 function scrollToForm(){
-  document.getElementById('about').scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>switchAuthTab('login'), 400);
+  openAuthModal('login');
 }
+
+// ── AUTH MODAL OPEN / CLOSE ──
+function openAuthModal(tab) {
+  const modal = document.getElementById('authModal');
+  if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  switchAuthTab(tab || 'login');
+}
+function closeAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (!modal) return;
+  const isMobile = window.innerWidth <= 760;
+  if (isMobile) {
+    const card = modal.querySelector('.auth-card');
+    if (card) {
+      card.style.transform = 'translateY(-100%)';
+      setTimeout(() => {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        card.style.transform = '';
+      }, 380);
+    }
+  } else {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAuthModal(); });
 
 // ── AUTH TAB SWITCHER ──
 function switchAuthTab(tab) {
@@ -2350,7 +2428,7 @@ function resetRegForm() {
   _regOtpSent = false;
   _regOtpVerified = false;
   clearInterval(_regOtpTimer);
-  ['firstName','lastName','email','otpInput','mobile','regPassword'].forEach(id=>{
+  ['firstName','lastName','email','otpInput','mobile','regPassword','regConfirmPassword'].forEach(id=>{
     const el = document.getElementById(id);
     if (el) { el.value=''; el.disabled=false; }
   });
@@ -2459,6 +2537,17 @@ async function doRegister() {
     Swal.fire({icon:'warning',title:'Weak Password',text:'Password must be at least 6 characters long.'}); return;
   }
 
+  const confirmPassword = (document.getElementById('regConfirmPassword')?.value || '');
+  if (!confirmPassword) {
+    Swal.fire({icon:'warning',title:'Confirm Password',text:'Please re-enter your password to confirm.'}); return;
+  }
+  if (password !== confirmPassword) {
+    Swal.fire({icon:'error',title:'Passwords Do Not Match',text:'The password and confirm password fields must match. Please try again.'});
+    document.getElementById('regConfirmPassword').value = '';
+    document.getElementById('regConfirmPassword').focus();
+    return;
+  }
+
   const btn = document.getElementById('registerBtn');
   if (btn) { btn.textContent = 'Verifying OTP…'; btn.disabled = true; }
 
@@ -2556,8 +2645,7 @@ async function doLogin() {
 }
 
 function hideLoginForm() {
-  const s = document.querySelector('.auth-section');
-  if (s) s.style.display = 'none';
+  closeAuthModal();
 }
 
 // STAR RATING HANDLER
@@ -3656,7 +3744,7 @@ async function submitListing(){
         </div>
 
         <!-- Slide 3 -->
-        <div class="ad-modal-slide" onclick="closeAdModal();document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+        <div class="ad-modal-slide" onclick="closeAdModal();openAuthModal('login')" style="cursor:pointer">
           <div class="ad-modal-slide-bg" style="background:linear-gradient(135deg,#2a0e4a 0%,#6c3483 100%)"></div>
           <div class="ad-modal-slide-overlay"></div>
           <div class="ad-modal-slide-body">
