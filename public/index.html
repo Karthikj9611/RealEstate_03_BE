@@ -1913,11 +1913,9 @@ input {
       <div class="modal-desc" id="modalDesc"></div>
       <div class="modal-actions">
         <button class="modal-btn-call" onclick="window.location.href='tel:9611459960'" style="display:inline-flex;align-items:center;justify-content:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Call Agent</button>
-        <!-- <a class="modal-btn-wa" href="https://wa.me/919611459960" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-          WhatsApp
-        </a> -->
       </div>
+      <!-- Admin navigate button slot -->
+      <div id="modalAdminNavSlot"></div>
     </div>
   </div>
 </div>
@@ -1963,7 +1961,6 @@ function renderProps(list){
     grid.innerHTML='<p style="color:var(--ink3);padding:2rem 0;grid-column:1/-1">No properties match your filters.</p>';
     return;
   }
-  debugger;
   grid.innerHTML=list.map(p=>`
     <div class="prop-card fade-up" onclick="openModal(${p.id})">
       <div class="prop-img">
@@ -2149,7 +2146,7 @@ function toggleFav(e,id){
 // Fields to skip in the dynamic details grid (shown elsewhere or internal)
 //const MODAL_SKIP = new Set(['_id','title','loc','city','price','displayPrice','bhk','area','status','furnishing','floor','floorLevel','facing','toilet','amenities','images','desc','createdAt','__v','color','icon','id','updatedAt']);
 //const MODAL_SKIP = new Set(['_id','title','city','loc','area','','','status','','floor','floorLevel','facing','','amenities','images','desc','','__v','color','icon','id','updatedAt','displayPrice']);
-const MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel']);
+const MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
 // Human-readable labels for known keys
 const MODAL_LABELS = {
   title:'Building Name',loc:'Area',bhk:'BHK', area:'Area (sqft)', furnishing:'Furnishing', floor:'Floor',
@@ -2229,6 +2226,25 @@ track.innerHTML = imgs.map((src, i) =>
 
   document.getElementById('propModal').classList.add('open');
   document.body.style.overflow='hidden';
+
+  // Admin: Navigate button (shown if coordinates available)
+  const adminNavSlot = document.getElementById('modalAdminNavSlot');
+  if(adminNavSlot){
+    if(isAdmin && p.latitude && p.longitude){
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;
+      adminNavSlot.innerHTML = `
+        <a href="${mapsUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()"
+          style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:11px;border-radius:var(--radius-xs);background:#1a73e8;color:#fff;font-size:0.86rem;font-weight:700;text-decoration:none;margin-top:10px;transition:background 0.18s;font-family:inherit;"
+          onmouseover="this.style.background='#1558c0'" onmouseout="this.style.background='#1a73e8'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Navigate to Property (Google Maps)
+        </a>`;
+    } else if(isAdmin && (!p.latitude || !p.longitude)){
+      adminNavSlot.innerHTML = `<div style="margin-top:10px;padding:9px 12px;border-radius:var(--radius-xs);background:var(--surface2);border:1px dashed var(--border2);font-size:0.76rem;color:var(--ink3);text-align:center">📍 No coordinates saved — edit property to add GPS location for navigation</div>`;
+    } else {
+      adminNavSlot.innerHTML = '';
+    }
+  }
 }
 
 function closeModal(){
@@ -3166,6 +3182,7 @@ function openEditPropertyModal(localId) {
     ep_price:p.price||'', ep_area:p.area||'',
     ep_floor:p.floor||'', ep_age:p.age||'', ep_desc:p.desc||'',
     ep_amenities:Array.isArray(p.amenities)?p.amenities.join(', '):(p.amenities||''),
+    ep_latitude: p.latitude || '', ep_longitude: p.longitude || '',
   };
   Object.entries(textFields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
 
@@ -3231,6 +3248,8 @@ async function submitEditProperty() {
     age:get('ep_age')||undefined, desc:get('ep_desc')||undefined,
     amenities:amenities.length?amenities:undefined,
     images:images.length?images:undefined,
+    latitude: get('ep_latitude') && !isNaN(Number(get('ep_latitude'))) && Number(get('ep_latitude')) !== 0 ? Number(get('ep_latitude')) : undefined,
+    longitude: get('ep_longitude') && !isNaN(Number(get('ep_longitude'))) && Number(get('ep_longitude')) !== 0 ? Number(get('ep_longitude')) : undefined,
   };
   Object.keys(payload).forEach(k=>payload[k]===undefined&&delete payload[k]);
 
@@ -3297,6 +3316,20 @@ async function submitEditProperty() {
             <option value="For Rent">For Rent</option>
             <option value="New Launch">New Launch</option>
           </select>
+        </div>
+      </div>
+      <!-- Hidden coordinate fields — filled by captureLocation() or manual GPS entry -->
+      <input type="hidden" id="l_latitude" value=""/>
+      <input type="hidden" id="l_longitude" value=""/>
+      <!-- Optional: manual GPS coordinate entry -->
+      <div class="listing-grid-2" style="margin-bottom:10px">
+        <div class="listing-field">
+          <label>Latitude <span style="font-weight:400;color:var(--ink3)">(optional, for map navigation)</span></label>
+          <input type="number" step="any" id="l_lat_manual" placeholder="e.g. 12.91234" oninput="document.getElementById('l_latitude').value=this.value"/>
+        </div>
+        <div class="listing-field">
+          <label>Longitude <span style="font-weight:400;color:var(--ink3)">(optional, for map navigation)</span></label>
+          <input type="number" step="any" id="l_lng_manual" placeholder="e.g. 77.61234" oninput="document.getElementById('l_longitude').value=this.value"/>
         </div>
       </div>
 
@@ -3656,6 +3689,8 @@ async function submitListing(){
     : [];
 
   const deposit = get('l_deposit');
+  const latVal = document.getElementById('l_latitude')?.value;
+  const lngVal = document.getElementById('l_longitude')?.value;
   const payload = {
     title, loc, city, status,
     price: Number(price),
@@ -3674,6 +3709,8 @@ async function submitListing(){
     amenities:    amenities.length ? amenities : undefined,
     images:       images.length   ? images    : undefined,
     deposit:      (status === 'For Rent' && deposit && !isNaN(Number(deposit))) ? Number(deposit) : undefined,
+    latitude:     (latVal && !isNaN(Number(latVal)) && Number(latVal) !== 0) ? Number(latVal) : undefined,
+    longitude:    (lngVal && !isNaN(Number(lngVal)) && Number(lngVal) !== 0) ? Number(lngVal) : undefined,
   };
   // Remove undefined keys
   Object.keys(payload).forEach(k => payload[k]===undefined && delete payload[k]);
@@ -3709,6 +3746,9 @@ async function submitListing(){
     ['l_title','l_loc','l_city','l_price','l_deposit','l_area','l_floor','l_age','l_desc','l_amenities']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking']
+      .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    // Reset coordinate fields
+    ['l_latitude','l_longitude','l_lat_manual','l_lng_manual']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     // Hide deposit field on reset
     const dw=document.getElementById('l_depositWrap'); if(dw) dw.style.display='none';
@@ -3748,6 +3788,8 @@ async function captureLocation() {
   const status  = document.getElementById('l_locStatus');
   const locInp  = document.getElementById('l_loc');
   const cityInp = document.getElementById('l_city');
+  const latInp  = document.getElementById('l_latitude');
+  const lngInp  = document.getElementById('l_longitude');
 
   if (!navigator.geolocation) {
     status.textContent = '⚠ Geolocation not supported in this browser.';
@@ -3761,6 +3803,10 @@ async function captureLocation() {
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
       const { latitude, longitude } = pos.coords;
+      // Store coordinates in hidden fields
+      if (latInp) latInp.value = latitude;
+      if (lngInp) lngInp.value = longitude;
+
       status.textContent = `📍 ${latitude.toFixed(5)}, ${longitude.toFixed(5)} — resolving address…`;
 
       try {
@@ -3805,6 +3851,157 @@ async function captureLocation() {
 }
 
 // ── END OF SCRIPT ──
+</script>
+
+<!-- ── TRUST NOTES MODAL ── -->
+<style>
+.trust-modal-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(10,15,12,0.72);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+  padding:1rem;
+}
+.trust-modal-overlay.open{display:flex}
+.trust-modal-box{
+  background:var(--surface);
+  border-radius:24px;
+  overflow:hidden;
+  width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 32px 80px rgba(0,0,0,0.45);
+  animation:trustSlideIn 0.4s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes trustSlideIn{from{opacity:0;transform:scale(0.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.trust-modal-header{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--gold-dark) 100%);
+  padding:1.5rem 1.8rem 1.3rem;
+  position:relative;
+}
+.trust-modal-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px;
+}
+.trust-modal-logo span{color:var(--gold2);font-style:italic}
+.trust-modal-tagline{font-size:0.78rem;color:rgba(255,255,255,0.55)}
+.trust-modal-close-btn{
+  position:absolute;top:14px;right:16px;
+  background:rgba(255,255,255,0.15);border:none;border-radius:50%;
+  width:32px;height:32px;color:#fff;font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.18s;
+}
+.trust-modal-close-btn:hover{background:rgba(255,255,255,0.3)}
+
+.trust-modal-body{padding:1.6rem 1.8rem 2rem}
+.trust-modal-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:8px;
+}
+.trust-notes-list{display:flex;flex-direction:column;gap:10px;margin-bottom:1.6rem}
+.trust-note-item{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--surface2);border-radius:14px;
+  padding:12px 15px;border:1px solid var(--border);
+  transition:border-color 0.18s;
+}
+.trust-note-item:hover{border-color:var(--gold)}
+.trust-note-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;flex-shrink:0;
+}
+.trust-note-text{flex:1}
+.trust-note-heading{font-size:0.86rem;font-weight:700;color:var(--ink);margin-bottom:2px}
+.trust-note-sub{font-size:0.76rem;color:var(--ink3);line-height:1.5}
+
+.trust-modal-cta{
+  width:100%;padding:14px;border:none;border-radius:12px;
+  background:var(--accent);color:#fff;
+  font-size:0.92rem;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.trust-modal-cta:hover{background:var(--gold);color:var(--ink)}
+
+@media(max-width:480px){
+  .trust-modal-box{border-radius:20px}
+  .trust-modal-body{padding:1.2rem 1.2rem 1.6rem}
+  .trust-note-icon{width:30px;height:30px;font-size:1rem}
+}
+</style>
+
+<div class="trust-modal-overlay" id="trustNotesModal">
+  <div class="trust-modal-box">
+    <div class="trust-modal-header">
+      <div class="trust-modal-logo"><span>K</span>R Real-Estate</div>
+      <div class="trust-modal-tagline">HSR Layout's Premier Realty — Trusted since day one</div>
+      <button class="trust-modal-close-btn" onclick="closeTrustModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="trust-modal-body">
+      <div class="trust-modal-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Our Promise to You
+      </div>
+      <div class="trust-notes-list">
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#e8f7f0">🔒</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Your Data is 100% Private</div>
+            <div class="trust-note-sub">We never share, sell, or trade your personal information with any third party. Ever.</div>
+          </div>
+        </div>
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#fff8e0">💳</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Zero Online Payments Before Deal</div>
+            <div class="trust-note-sub">No advance fees. No token amounts online. All payments happen only after full deal closure — face to face.</div>
+          </div>
+        </div>
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#e8f0ff">🤝</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Transparent Commission, No Hidden Charges</div>
+            <div class="trust-note-sub">Rental brokerage: ½ month's rent · Sale brokerage: 2% of sale value. Nothing more, nothing less.</div>
+          </div>
+        </div>
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#f0f9e8">✅</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Verified Listings Only</div>
+            <div class="trust-note-sub">Every property is personally verified by our agents. No fake listings, no misleading photos.</div>
+          </div>
+        </div>
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#fdecea">❤️</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Loved Our Service? Tell the World!</div>
+            <div class="trust-note-sub">If we helped you find your home, we'd love a review and a recommendation to friends & family. It means the world to us.</div>
+          </div>
+        </div>
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#f4e8ff">📞</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Free Site Visit, Always</div>
+            <div class="trust-note-sub">Book a guided site visit at no cost. Our agents are with you from enquiry to key handover.</div>
+          </div>
+        </div>
+      </div>
+      <button class="trust-modal-cta" onclick="closeTrustModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        Explore Properties →
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+function closeTrustModal(){
+  var m=document.getElementById('trustNotesModal');
+  if(m){m.classList.remove('open');document.body.style.overflow='';}
+}
+document.getElementById('trustNotesModal').addEventListener('click',function(e){if(e.target===this)closeTrustModal();});
 </script>
 
 <!-- ── PROMOTIONS MODAL ── -->
@@ -4183,6 +4380,18 @@ async function captureLocation() {
         <input type="text" id="ep_amenities" placeholder="e.g. Gym, Swimming Pool"/>
       </div>
 
+      <div class="listing-section-label">Map Location <span style="font-weight:400;color:var(--ink3);font-size:0.7rem;letter-spacing:0;text-transform:none">(for admin navigation)</span></div>
+      <div class="listing-grid-2" style="margin-bottom:10px">
+        <div class="listing-field">
+          <label>Latitude</label>
+          <input type="number" step="any" id="ep_latitude" placeholder="e.g. 12.91234"/>
+        </div>
+        <div class="listing-field">
+          <label>Longitude</label>
+          <input type="number" step="any" id="ep_longitude" placeholder="e.g. 77.61234"/>
+        </div>
+      </div>
+
       <div class="listing-section-label">Property Images</div>
       <div class="img-upload-row">
         <textarea id="ep_imgUrlInput" rows="2" placeholder="Paste image URLs — one per line or comma-separated (https://…)" class="img-url-textarea" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
@@ -4208,30 +4417,14 @@ document.getElementById('editPropertyModal').addEventListener('click',function(e
 </script>
 
 <script>
-// Show commission info popup once per session on first page load
+// Show trust notes modal once per session on first page load
 (function(){
-  if(!sessionStorage.getItem('commissionSeen')){
-    sessionStorage.setItem('commissionSeen','1');
+  if(!sessionStorage.getItem('trustNotesSeen')){
+    sessionStorage.setItem('trustNotesSeen','1');
     setTimeout(function(){
-      if(typeof openAdModal === 'function'){
-        // Go directly to the commission slide (index 4, 0-based)
-        openAdModal();
-        setTimeout(function(){
-          var track = document.getElementById('adModalTrack');
-          var dots  = document.getElementById('adModalDots');
-          var counter = document.getElementById('adModalCounter');
-          if(track){
-            track.style.transition = 'none';
-            track.style.transform  = 'translateX(-400%)';
-            setTimeout(function(){ track.style.transition = ''; }, 50);
-          }
-          if(dots){
-            dots.querySelectorAll('.ad-modal-dot').forEach(function(d,i){ d.classList.toggle('active', i===4); });
-          }
-          if(counter) counter.textContent = '5 / 5';
-        }, 100);
-      }
-    }, 1800);
+      var modal = document.getElementById('trustNotesModal');
+      if(modal){ modal.classList.add('open'); document.body.style.overflow='hidden'; }
+    }, 1200);
   }
 })();
 

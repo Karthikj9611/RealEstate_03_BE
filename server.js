@@ -43,6 +43,8 @@ const PropertySchema = new mongoose.Schema({
   carparking: String, bikeparking: String, toilet: String,
   amenities: [String], images: [String], desc: String, color: String, icon: String,
   deposit: { type: Number, default: null },
+  latitude:  { type: Number, default: null },
+  longitude: { type: Number, default: null },
   createdAt: { type: Date, default: Date.now }
 });
 const Property = mongoose.model("Property", PropertySchema);
