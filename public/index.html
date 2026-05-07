@@ -8,6 +8,11 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Three.js + GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d1b2a">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1338,11 +1343,12 @@ input {
   </button>
 </nav>
 
-<section class="hero">
+<section class="hero" style="position:relative;overflow:hidden">
+  <canvas id="heroCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:0.55;pointer-events:none"></canvas>
   <div class="hero-noise"></div>
   <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div>
+  <div class="hero-inner" style="position:relative;z-index:1">
+    <div class="hero-text-anim">
       <div class="hero-eyebrow">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         HSR Layout's Premier Realty
@@ -1552,8 +1558,9 @@ input {
 </div>
 
 <!-- ALL LISTINGS -->
-<section class="section" id="listings" style="background:var(--surface2)">
-  <div class="section-inner">
+<section class="section" id="listings" style="background:var(--surface2);position:relative;overflow:hidden">
+  <canvas id="listingsParticles" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.35"></canvas>
+  <div class="section-inner" style="position:relative;z-index:1">
     <div class="section-head">
       <div>
         <div class="section-title">All <span>Listings</span></div>
@@ -3353,6 +3360,27 @@ async function loadPropertiesFromDB() {
 }
 loadPropertiesFromDB();
 
+/* ── Patch renderProps to animate newly rendered cards ── */
+(function patchRenderProps(){
+  var waitMs = 0;
+  var interval = setInterval(function(){
+    waitMs += 50;
+    if(typeof window.renderProps !== 'function' || waitMs > 5000){ clearInterval(interval); return; }
+    var _orig = window.renderProps;
+    window.renderProps = function(props){
+      _orig(props);
+      if(typeof gsap !== 'undefined'){
+        setTimeout(function(){
+          var cards = document.querySelectorAll('#propertyGrid .prop-card');
+          gsap.fromTo(cards,{opacity:0,y:40,scale:0.93},{opacity:1,y:0,scale:1,duration:0.5,stagger:0.06,ease:'power3.out'});
+          setTimeout(applyCardTilt, 200);
+        }, 80);
+      }
+    };
+    clearInterval(interval);
+  }, 50);
+})();
+
 loadReviews();
 document.addEventListener('DOMContentLoaded', () => {
   initStarRating();
@@ -4812,6 +4840,795 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
 </div>
 <script>
 document.getElementById('editPropertyModal').addEventListener('click',function(e){if(e.target===this)closeEditPropertyModal()});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     KR REAL-ESTATE — THREE.JS + GSAP ANIMATION ENGINE
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+/* ── GLOBAL ANIMATION STYLES ── */
+.hero-text-anim > * { opacity: 0; }
+.prop-card { transform-style: preserve-3d; will-change: transform; }
+.agent-card { will-change: transform; }
+
+/* ── CURSOR GLOW ── */
+#cursorGlow {
+  position: fixed; pointer-events: none; z-index: 9999;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(46,125,90,0.55) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s, opacity 0.3s;
+  mix-blend-mode: screen;
+}
+#cursorDot {
+  position: fixed; pointer-events: none; z-index: 9999;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold2); transform: translate(-50%, -50%);
+  transition: transform 0.1s;
+}
+
+/* ── SCROLL REVEAL CLASSES ── */
+.sr-fade-up   { opacity: 0; transform: translateY(40px); }
+.sr-fade-left { opacity: 0; transform: translateX(-40px); }
+.sr-fade-in   { opacity: 0; }
+.sr-scale     { opacity: 0; transform: scale(0.88); }
+
+/* ── HERO BADGE SHIMMER ── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.hero-eyebrow {
+  background: linear-gradient(90deg,
+    rgba(46,125,90,0.18) 25%,
+    rgba(58,158,114,0.35) 50%,
+    rgba(46,125,90,0.18) 75%);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ── PROPERTY CARD GLOW ON HOVER ── */
+.prop-card::after {
+  content: '';
+  position: absolute; inset: 0; border-radius: var(--radius);
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%),
+    rgba(46,125,90,0.12) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none; z-index: 0;
+}
+.prop-card:hover::after { opacity: 1; }
+
+/* ── COUNTER ELEMENT ── */
+.stat-num, .hero-stat-num { will-change: contents; }
+
+/* ── NAV SCROLL TINT ── */
+nav.scrolled {
+  background: rgba(17,24,22,0.95) !important;
+}
+nav.scrolled .nav-logo,
+nav.scrolled .nav-links a { color: rgba(255,255,255,0.85); }
+nav.scrolled .nav-links a:hover { background: rgba(46,125,90,0.25); }
+
+/* ── AGENT CARD RING ── */
+.agent-avatar {
+  transition: box-shadow 0.3s;
+}
+.agent-card:hover .agent-avatar {
+  box-shadow: 0 0 0 3px var(--gold), 0 0 20px rgba(46,125,90,0.3);
+}
+
+/* ── COMMISSION BANNER PULSE ── */
+.commission-pill {
+  animation: pillPulse 3.5s ease-in-out infinite;
+}
+.commission-pill:nth-child(3) { animation-delay: 1.2s; }
+@keyframes pillPulse {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-3px); }
+}
+
+/* ── FLOATING ACTION ── */
+#waFloat { animation: waPulse 2.4s infinite, waFloat 4s ease-in-out infinite !important; }
+#waFloat:hover { animation: none !important; }
+@keyframes waFloat {
+  0%, 100% { bottom: 22px; }
+  50%       { bottom: 28px; }
+}
+
+/* ── SECTION TITLES UNDERLINE ── */
+.section-title {
+  position: relative; display: inline-block;
+}
+.section-title::after {
+  content: '';
+  position: absolute; left: 0; bottom: -4px;
+  height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.section-title.line-animate::after { width: 100%; }
+
+/* ── SKELETON LOADING SHIMMER ── */
+@keyframes skeletonWave {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.prop-card.skeleton .prop-img::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  animation: skeletonWave 1.4s infinite;
+}
+
+/* ── THREE.JS CANVAS smooth transitions ── */
+#heroCanvas { transition: opacity 1s ease; }
+</style>
+
+<div id="cursorGlow"></div>
+<div id="cursorDot"></div>
+
+<script>
+/* ══════════════════════════════════════════════
+   1.  GSAP + ScrollTrigger SETUP
+══════════════════════════════════════════════ */
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+/* ══════════════════════════════════════════════
+   2.  THREE.JS — HERO BACKGROUND (City + Stars)
+══════════════════════════════════════════════ */
+(function initHeroThree() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+  camera.position.set(0, 8, 28);
+  camera.lookAt(0, 2, 0);
+
+  /* ── resize helper ── */
+  function resizeHero() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resizeHero();
+
+  /* ── Lights ── */
+  const ambient = new THREE.AmbientLight(0x1a3a2d, 1.2);
+  scene.add(ambient);
+  const dirLight = new THREE.DirectionalLight(0x3a9e72, 1.8);
+  dirLight.position.set(10, 20, 10);
+  scene.add(dirLight);
+  const pointLight = new THREE.PointLight(0x2e7d5a, 3, 60);
+  pointLight.position.set(-8, 10, 5);
+  scene.add(pointLight);
+
+  /* ── City Buildings ── */
+  const buildingMat = new THREE.MeshPhongMaterial({
+    color: 0x1a3028, transparent: true, opacity: 0.85,
+    emissive: 0x0d1a14, shininess: 40
+  });
+  const accentMat = new THREE.MeshPhongMaterial({
+    color: 0x2e7d5a, emissive: 0x1a4d33, shininess: 80
+  });
+  const windowMat = new THREE.MeshBasicMaterial({ color: 0x6ee7b7, transparent: true, opacity: 0.7 });
+
+  const buildings = [];
+  const buildingDefs = [
+    // x,    z,   w,    d,    h,    accent
+    [-18, -5,  2.5, 2.5, 12,  false],
+    [-14, -3,  2,   2,   18,  true ],
+    [-10, -6,  3,   2.5, 9,   false],
+    [-7,  -4,  2,   2,   22,  true ],
+    [-4,  -5,  2.5, 2,   15,  false],
+    [-1,  -3,  3,   3,   28,  true ],
+    [ 2,  -5,  2,   2.5, 14,  false],
+    [ 5,  -4,  2.5, 2,   20,  true ],
+    [ 8,  -6,  2,   2,   11,  false],
+    [ 11, -3,  3,   2.5, 24,  true ],
+    [ 14, -5,  2,   2,   16,  false],
+    [ 17, -4,  2.5, 2.5, 19,  true ],
+    [-16, -8,  2,   2,   8,   false],
+    [-9,  -9,  2,   2,   6,   false],
+    [ 0,  -9,  2.5, 2,   10,  true ],
+    [ 9,  -8,  2,   2,   7,   false],
+    [ 16, -8,  2,   2,   9,   false],
+  ];
+
+  buildingDefs.forEach(([x, z, w, d, h, accent]) => {
+    const geo = new THREE.BoxGeometry(w, h, d);
+    const mat = (accent ? accentMat : buildingMat).clone();
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, h / 2 - 1, z);
+    scene.add(mesh);
+    buildings.push({ mesh, h, origY: h / 2 - 1 });
+
+    /* windows */
+    const rows = Math.floor(h / 1.8), cols = Math.floor(w / 0.9);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (Math.random() > 0.45) {
+          const wGeo = new THREE.PlaneGeometry(0.25, 0.35);
+          const wMesh = new THREE.Mesh(wGeo, windowMat.clone());
+          wMesh.material.opacity = Math.random() * 0.5 + 0.2;
+          wMesh.position.set(
+            x - w / 2 + 0.45 + c * 0.9,
+            r * 1.8 + 1,
+            z + d / 2 + 0.01
+          );
+          scene.add(wMesh);
+        }
+      }
+    }
+  });
+
+  /* ── Ground plane ── */
+  const groundGeo = new THREE.PlaneGeometry(100, 50);
+  const groundMat = new THREE.MeshPhongMaterial({ color: 0x0d1a12, shininess: 10 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -1;
+  scene.add(ground);
+
+  /* ── Stars / floating particles ── */
+  const starCount = 600;
+  const starGeo = new THREE.BufferGeometry();
+  const starPos = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount * 3; i++) {
+    starPos[i * 3]     = (Math.random() - 0.5) * 120;
+    starPos[i * 3 + 1] = Math.random() * 50 + 5;
+    starPos[i * 3 + 2] = (Math.random() - 0.5) * 60;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starMat = new THREE.PointsMaterial({
+    color: 0x6ee7b7, size: 0.18, transparent: true, opacity: 0.7
+  });
+  const stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  /* ── Floating orbs (property icons) ── */
+  const orbPositions = [
+    [-12, 14, -2], [5, 18, -4], [14, 12, -3], [-4, 20, -1], [8, 16, -5]
+  ];
+  const orbs = orbPositions.map(([x, y, z]) => {
+    const geo = new THREE.SphereGeometry(0.4, 16, 16);
+    const mat = new THREE.MeshPhongMaterial({
+      color: 0x3a9e72, emissive: 0x1a5c3f,
+      transparent: true, opacity: 0.75, shininess: 120
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+    return { mesh, baseY: y, phase: Math.random() * Math.PI * 2 };
+  });
+
+  /* ── Grid lines (ground grid) ── */
+  const gridHelper = new THREE.GridHelper(80, 40, 0x1a3028, 0x0f2018);
+  gridHelper.position.y = -0.98;
+  scene.add(gridHelper);
+
+  /* ── Mouse parallax ── */
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  /* ── Animate ── */
+  let heroTime = 0;
+  function animateHero() {
+    requestAnimationFrame(animateHero);
+    heroTime += 0.008;
+
+    /* camera subtle drift */
+    camera.position.x += (mouseX * 3 - camera.position.x) * 0.03;
+    camera.position.y += (-mouseY * 1.5 + 8 - camera.position.y) * 0.03;
+    camera.lookAt(0, 2, 0);
+
+    /* buildings breathe */
+    buildings.forEach((b, i) => {
+      b.mesh.position.y = b.origY + Math.sin(heroTime + i * 0.4) * 0.12;
+    });
+
+    /* orb float */
+    orbs.forEach((o, i) => {
+      o.mesh.position.y = o.baseY + Math.sin(heroTime * 0.7 + o.phase) * 0.8;
+      o.mesh.rotation.y += 0.015;
+    });
+
+    /* star twinkle via opacity */
+    starMat.opacity = 0.55 + Math.sin(heroTime * 1.5) * 0.15;
+
+    /* slow star drift */
+    stars.rotation.y += 0.0003;
+
+    /* point light orbit */
+    pointLight.position.x = Math.cos(heroTime * 0.4) * 15;
+    pointLight.position.z = Math.sin(heroTime * 0.4) * 10 + 5;
+
+    renderer.render(scene, camera);
+  }
+  animateHero();
+
+  window.addEventListener('resize', resizeHero);
+
+  /* Fade-in canvas after scene is ready */
+  setTimeout(() => { canvas.style.opacity = '0.55'; }, 200);
+})();
+
+/* ══════════════════════════════════════════════
+   3.  THREE.JS — LISTINGS PARTICLE BACKGROUND
+══════════════════════════════════════════════ */
+(function initListingsParticles() {
+  const canvas = document.getElementById('listingsParticles');
+  if (!canvas) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 100);
+  camera.position.z = 15;
+
+  function resizeLP() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resizeLP();
+
+  /* Hexagonal grid of dots */
+  const count = 300;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count * 3);
+  const vel = [];
+  for (let i = 0; i < count; i++) {
+    pos[i * 3]     = (Math.random() - 0.5) * 40;
+    pos[i * 3 + 1] = (Math.random() - 0.5) * 25;
+    pos[i * 3 + 2] = (Math.random() - 0.5) * 5;
+    vel.push({ x: (Math.random() - 0.5) * 0.008, y: (Math.random() - 0.5) * 0.006 });
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ color: 0x2e7d5a, size: 0.12, transparent: true, opacity: 0.5 });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  let t = 0;
+  function animateLP() {
+    requestAnimationFrame(animateLP);
+    t += 0.005;
+    const positions = geo.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     += vel[i].x;
+      positions[i * 3 + 1] += vel[i].y;
+      if (Math.abs(positions[i * 3]) > 20)     vel[i].x *= -1;
+      if (Math.abs(positions[i * 3 + 1]) > 13) vel[i].y *= -1;
+    }
+    geo.attributes.position.needsUpdate = true;
+    points.rotation.z += 0.0003;
+    renderer.render(scene, camera);
+  }
+  animateLP();
+
+  window.addEventListener('resize', resizeLP);
+})();
+
+/* ══════════════════════════════════════════════
+   4.  HERO TEXT — GSAP STAGGERED ENTRANCE
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', function () {
+  /* Hero */
+  gsap.timeline({ delay: 0.4 })
+    .fromTo('.hero-eyebrow',
+      { opacity: 0, y: 30, scale: 0.9 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'back.out(1.4)' })
+    .fromTo('.hero h1',
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.2')
+    .fromTo('.hero-desc',
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+    .fromTo('.hero-btns',
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.5 }, '-=0.2')
+    .fromTo('.hero-stats > *',
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.12 }, '-=0.1');
+
+  /* Commission banner */
+  gsap.fromTo('.commission-banner',
+    { opacity: 0, y: -20 },
+    { opacity: 1, y: 0, duration: 0.6, delay: 1.1, ease: 'power2.out' });
+
+  /* Nav items */
+  gsap.fromTo('nav > *',
+    { opacity: 0, y: -10 },
+    { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, delay: 0.2, ease: 'power2.out' });
+
+  /* ── SCROLL-TRIGGERED REVEALS ── */
+
+  /* Section titles */
+  gsap.utils.toArray('.section-title').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, x: -30 },
+      { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true,
+          onEnter: () => el.classList.add('line-animate') }
+      });
+  });
+
+  /* Section subtitles & filter bar */
+  gsap.utils.toArray('.section-sub, .filter-count').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 15 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+  });
+
+  /* Property cards — cascading wave */
+  ScrollTrigger.create({
+    trigger: '#propertyGrid',
+    start: 'top 85%',
+    once: true,
+    onEnter: () => {
+      const cards = document.querySelectorAll('.prop-card');
+      gsap.fromTo(cards,
+        { opacity: 0, y: 50, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, stagger: { each: 0.07, from: 'start' },
+          ease: 'power3.out' });
+    }
+  });
+
+  /* Agent cards */
+  gsap.utils.toArray('.agent-card').forEach((card, i) => {
+    gsap.fromTo(card,
+      { opacity: 0, y: 40, scale: 0.88 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.2)',
+        scrollTrigger: { trigger: card, start: 'top 90%', once: true },
+        delay: i * 0.08 });
+  });
+
+  /* Testimonials section */
+  gsap.fromTo('.testi-form',
+    { opacity: 0, y: 40 },
+    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+      scrollTrigger: { trigger: '.testi-section', start: 'top 80%', once: true } });
+
+  /* Footer */
+  gsap.fromTo('.footer-grid > div',
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out',
+      scrollTrigger: { trigger: 'footer', start: 'top 90%', once: true } });
+
+  /* Commission pills entrance */
+  gsap.fromTo('.commission-pill',
+    { opacity: 0, scale: 0.7 },
+    { opacity: 1, scale: 1, duration: 0.5, stagger: 0.15, ease: 'back.out(1.5)',
+      scrollTrigger: { trigger: '.commission-banner', start: 'top 95%', once: true } });
+
+  /* search section */
+  gsap.fromTo('.search-section',
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
+      scrollTrigger: { trigger: '.search-section', start: 'top 92%', once: true } });
+
+  /* filter chips */
+  gsap.fromTo('.filter-chip',
+    { opacity: 0, scale: 0.8 },
+    { opacity: 1, scale: 1, duration: 0.3, stagger: 0.05, ease: 'back.out(1.4)',
+      scrollTrigger: { trigger: '#filterBar', start: 'top 92%', once: true } });
+});
+
+/* Re-animate new property cards when renderProps is called */
+const _origRenderProps = window.renderProps;
+if (typeof window.renderProps === 'function') {
+  // override after page load to re-animate
+  window.addEventListener('load', () => {
+    const orig = window.renderProps;
+    if (orig) {
+      window.renderProps = function(props) {
+        orig(props);
+        setTimeout(() => {
+          const cards = document.querySelectorAll('#propertyGrid .prop-card');
+          gsap.fromTo(cards,
+            { opacity: 0, y: 40, scale: 0.93 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.06, ease: 'power3.out' });
+        }, 60);
+      };
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════
+   5.  CUSTOM CURSOR (desktop only)
+══════════════════════════════════════════════ */
+(function initCursor() {
+  if (window.innerWidth < 768) return;
+  const glow = document.getElementById('cursorGlow');
+  const dot  = document.getElementById('cursorDot');
+  if (!glow || !dot) return;
+
+  let cx = 0, cy = 0, gx = 0, gy = 0;
+  document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+
+  function tickCursor() {
+    gx += (cx - gx) * 0.12;
+    gy += (cy - gy) * 0.12;
+    glow.style.left = gx + 'px';
+    glow.style.top  = gy + 'px';
+    dot.style.left  = cx + 'px';
+    dot.style.top   = cy + 'px';
+    requestAnimationFrame(tickCursor);
+  }
+  tickCursor();
+
+  /* Expand cursor on interactive elements */
+  document.querySelectorAll('a, button, .prop-card, .agent-card, .filter-chip').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      glow.style.width = '60px'; glow.style.height = '60px';
+      glow.style.opacity = '1';
+    });
+    el.addEventListener('mouseleave', () => {
+      glow.style.width = '28px'; glow.style.height = '28px';
+      glow.style.opacity = '0.7';
+    });
+  });
+})();
+
+/* ══════════════════════════════════════════════
+   6.  PROPERTY CARD — 3D TILT + MOUSE GLOW
+══════════════════════════════════════════════ */
+function applyCardTilt() {
+  document.querySelectorAll('.prop-card').forEach(card => {
+    if (card._tiltApplied) return;
+    card._tiltApplied = true;
+
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width  - 0.5;
+      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      gsap.to(card, {
+        rotateY: x * 8, rotateX: -y * 8,
+        transformPerspective: 900, duration: 0.3, ease: 'power2.out'
+      });
+      card.style.setProperty('--mx', (x + 0.5) * 100 + '%');
+      card.style.setProperty('--my', (y + 0.5) * 100 + '%');
+    });
+    card.addEventListener('mouseleave', () => {
+      gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1,0.5)' });
+    });
+  });
+}
+
+/* Apply tilt on initial load + after dynamic renders */
+window.addEventListener('load', () => {
+  setTimeout(applyCardTilt, 500);
+  /* MutationObserver to catch new cards */
+  const grid = document.getElementById('propertyGrid');
+  if (grid) {
+    new MutationObserver(() => setTimeout(applyCardTilt, 100))
+      .observe(grid, { childList: true, subtree: false });
+  }
+});
+
+/* ══════════════════════════════════════════════
+   7.  NUMBER COUNTER ANIMATION
+══════════════════════════════════════════════ */
+function animateCounter(el, target, prefix, suffix, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const tick = () => {
+    start = Math.min(start + step, target);
+    el.textContent = prefix + Math.round(start).toLocaleString('en-IN') + suffix;
+    if (start < target) requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+ScrollTrigger.create({
+  trigger: '.stats-strip, .hero-stats',
+  start: 'top 90%',
+  once: true,
+  onEnter: () => {
+    document.querySelectorAll('.stat-num').forEach(el => {
+      const text = el.textContent.trim();
+      const num = parseFloat(text.replace(/[^0-9.]/g, ''));
+      const prefix = text.match(/^[₹]/) ? '₹' : '';
+      const suffix = text.replace(prefix, '').replace(/[0-9.,]/g, '');
+      if (!isNaN(num)) animateCounter(el, num, prefix, suffix, 1200);
+    });
+  }
+});
+
+/* ══════════════════════════════════════════════
+   8.  NAV SCROLL BEHAVIOUR
+══════════════════════════════════════════════ */
+const navEl = document.querySelector('nav');
+window.addEventListener('scroll', () => {
+  if (navEl) navEl.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+
+/* ══════════════════════════════════════════════
+   9.  SMOOTH SCROLL FOR INTERNAL ANCHORS
+══════════════════════════════════════════════ */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      gsap.to(window, { scrollTo: { y: target, offsetY: 70 }, duration: 1, ease: 'power3.inOut' });
+    }
+  });
+});
+
+/* ══════════════════════════════════════════════
+   10.  ABOUT MODAL — THREE.JS BACKGROUND
+══════════════════════════════════════════════ */
+(function initAboutThree() {
+  // Add a subtle canvas to the about modal header when it opens
+  const origOpen = window.openAboutModal;
+  window.openAboutModal = function() {
+    if (origOpen) origOpen();
+    const header = document.querySelector('.about-modal-header');
+    if (!header || header._threeReady) return;
+    header._threeReady = true;
+
+    const c = document.createElement('canvas');
+    c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.25;border-radius:24px 24px 0 0';
+    header.style.position = 'relative';
+    header.style.overflow = 'hidden';
+    header.insertBefore(c, header.firstChild);
+
+    const r = new THREE.WebGLRenderer({ canvas: c, alpha: true });
+    const s = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(60, 2, 0.1, 100);
+    cam.position.z = 8;
+    r.setSize(c.clientWidth || 400, c.clientHeight || 200, false);
+    cam.aspect = (c.clientWidth || 2) / (c.clientHeight || 1);
+    cam.updateProjectionMatrix();
+
+    /* small floating diamonds */
+    for (let i = 0; i < 30; i++) {
+      const geo = new THREE.OctahedronGeometry(Math.random() * 0.25 + 0.08);
+      const mat = new THREE.MeshBasicMaterial({ color: 0x6ee7b7, wireframe: true, transparent: true, opacity: 0.5 });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*5, (Math.random()-0.5)*3);
+      m._rx = (Math.random()-0.5)*0.02; m._ry = (Math.random()-0.5)*0.02;
+      s.add(m);
+    }
+
+    let running = true;
+    (function loop() {
+      if (!running) return;
+      requestAnimationFrame(loop);
+      s.children.forEach(m => { m.rotation.x += m._rx; m.rotation.y += m._ry; });
+      r.render(s, cam);
+    })();
+  };
+})();
+
+/* ══════════════════════════════════════════════
+   11.  STAGGER NEW REVIEWS as they appear
+══════════════════════════════════════════════ */
+const reviewGrid = document.getElementById('testimonialsGrid');
+if (reviewGrid) {
+  new MutationObserver(() => {
+    const cards = reviewGrid.querySelectorAll('.testi-card:not([data-animated])');
+    cards.forEach(c => { c.setAttribute('data-animated', '1'); });
+    if (cards.length) {
+      gsap.fromTo(cards,
+        { opacity: 0, y: 30, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.08, ease: 'power3.out' });
+    }
+  }).observe(reviewGrid, { childList: true });
+}
+
+/* ══════════════════════════════════════════════
+   12.  MODAL ENTRANCE ANIMATIONS
+══════════════════════════════════════════════ */
+function animateModalOpen(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  const box = modal.querySelector('.modal, .auth-card, .about-modal-box');
+  if (box) {
+    gsap.fromTo(box,
+      { scale: 0.88, opacity: 0, y: 30 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.3)' });
+  }
+}
+
+/* Patch modal openers */
+['propModal','listingModal','editPropertyModal','authModal'].forEach(id => {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const obs = new MutationObserver(muts => {
+    muts.forEach(m => {
+      if (m.attributeName === 'class' && wrap.classList.contains('open')) {
+        animateModalOpen(id);
+      }
+    });
+  });
+  obs.observe(wrap, { attributes: true });
+});
+
+/* ══════════════════════════════════════════════
+   13.  FILTER CHIP ANIMATION
+══════════════════════════════════════════════ */
+const origSetFilter = window.setFilter;
+if (origSetFilter) {
+  window.setFilter = function(el, f) {
+    origSetFilter(el, f);
+    /* pop-bounce on active chip */
+    gsap.fromTo(el, { scale: 0.85 }, { scale: 1, duration: 0.35, ease: 'back.out(2)' });
+  };
+}
+
+/* ══════════════════════════════════════════════
+   14.  SEARCH BUTTON RIPPLE
+══════════════════════════════════════════════ */
+document.querySelectorAll('.search-btn, .btn-primary, .nav-cta').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const r = document.createElement('span');
+    r.style.cssText = `
+      position:absolute;border-radius:50%;transform:scale(0);
+      background:rgba(255,255,255,0.3);
+      width:${btn.offsetWidth * 2}px;height:${btn.offsetWidth * 2}px;
+      left:${e.offsetX - btn.offsetWidth}px;top:${e.offsetY - btn.offsetWidth}px;
+      pointer-events:none;animation:ripple 0.5s linear;
+    `;
+    if (!document.getElementById('rippleStyle')) {
+      const st = document.createElement('style');
+      st.id = 'rippleStyle';
+      st.textContent = '@keyframes ripple{to{transform:scale(2);opacity:0}}';
+      document.head.appendChild(st);
+    }
+    const prevPos = btn.style.position;
+    btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.appendChild(r);
+    setTimeout(() => { r.remove(); if (!prevPos) btn.style.position = ''; }, 550);
+  });
+});
+
+/* ══════════════════════════════════════════════
+   15.  PARTICLE BURST on "Submit Review" / "Submit Listing"
+══════════════════════════════════════════════ */
+function burstParticles(x, y) {
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    const angle = (i / 18) * Math.PI * 2;
+    const dist = 60 + Math.random() * 60;
+    p.style.cssText = `
+      position:fixed;width:6px;height:6px;border-radius:50%;
+      background:${['#2e7d5a','#3a9e72','#6ee7b7','#fbbf24'][Math.floor(Math.random()*4)]};
+      left:${x}px;top:${y}px;pointer-events:none;z-index:9999;
+    `;
+    document.body.appendChild(p);
+    gsap.to(p, {
+      x: Math.cos(angle) * dist, y: Math.sin(angle) * dist,
+      opacity: 0, scale: 0, duration: 0.7 + Math.random() * 0.3,
+      ease: 'power2.out',
+      onComplete: () => p.remove()
+    });
+  }
+}
+
+/* Intercept review submit button */
+const reviewSubmitBtn = document.querySelector('.testi-form button[onclick="submitReview()"]');
+if (reviewSubmitBtn) {
+  reviewSubmitBtn.addEventListener('click', e => {
+    const r = e.target.getBoundingClientRect();
+    burstParticles(r.left + r.width / 2, r.top + r.height / 2);
+  });
+}
+
+console.log('%cKR Real-Estate 🏠 Three.js Engine Active', 'color:#3a9e72;font-weight:bold;font-size:14px');
 </script>
 
 <script>
