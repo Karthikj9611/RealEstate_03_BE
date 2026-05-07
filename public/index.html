@@ -17,6 +17,15 @@
 <meta name="theme-color" content="#0d1b2a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
+
+/* Hide page until 3D UI fully loads */
+html,body{
+  opacity:0;
+  visibility:hidden;
+  background:#0d1b2a;
+  transition:opacity .35s ease;
+}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#111816;
@@ -5672,6 +5681,15 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'ArrowRight') window._fullGalleryGo(window._fullGalleryImgs.indexOf(document.getElementById('imgFullSrc').src)+1);
   if(e.key === 'ArrowLeft')  window._fullGalleryGo(window._fullGalleryImgs.indexOf(document.getElementById('imgFullSrc').src)-1);
   if(e.key === 'Escape')     ov.style.display = 'none';
+});
+</script>
+
+<script>
+window.addEventListener('load', () => {
+  document.body.style.visibility = 'visible';
+  document.body.style.opacity = '1';
+  document.documentElement.style.visibility = 'visible';
+  document.documentElement.style.opacity = '1';
 });
 </script>
 </body>
