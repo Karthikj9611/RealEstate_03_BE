@@ -368,6 +368,8 @@ nav{
 .badge-rent{background:var(--teal);color:#fff}
 .badge-new{background:var(--gold);color:var(--ink)}
 .badge-sold{background:#888;color:#fff}
+.badge-lease{background:#7c3aed;color:#fff}
+.badge-pg{background:#d97706;color:#fff}
 .prop-fav{
   position:absolute;top:11px;right:11px;z-index:2;
   width:32px;height:32px;background:rgba(255,255,255,0.92);
@@ -2228,7 +2230,7 @@ function renderProps(list){
     <div class="prop-card fade-up" onclick="openModal(${p.id})">
       <div class="prop-img">
         ${buildGallery(p.images, 'gal-'+p.id, true)}
-        <div class="prop-badge ${p.status==='For Sale'?'badge-sale':p.status==='For Rent'?'badge-rent':'badge-new'}">${p.status}</div>
+        <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
         <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button>
       </div>
       <div class="prop-body">
@@ -2287,14 +2289,52 @@ const FILTER_CONFIG = {
 // Keys to SKIP (they are handled by filter chips or aren't useful dropdowns)
 const SKIP_KEYS = new Set(['id','title','price','displayPrice','floor','desc','color','icon','images','amenities']);
 
-// Budget bands (special case, not a property key)
-const BUDGET_BANDS = [
+// Badge class helper
+function getBadgeClass(status){
+  if(status==='For Sale')   return 'badge-sale';
+  if(status==='For Rent')   return 'badge-rent';
+  if(status==='New Launch') return 'badge-new';
+  if(status==='Sold')       return 'badge-sold';
+  if(status==='Lease')      return 'badge-lease';
+  if(status==='PG')         return 'badge-pg';
+  return 'badge-new';
+}
+
+// Rent budget bands (monthly)
+const BUDGET_BANDS_RENT = [
+  {value:'all',   label:'Any Budget'},
+  {value:'r1',    label:'Under ₹10,000/mo'},
+  {value:'r2',    label:'₹10,000 – ₹15,000/mo'},
+  {value:'r3',    label:'₹15,000 – ₹20,000/mo'},
+  {value:'r4',    label:'₹20,000 – ₹25,000/mo'},
+  {value:'r5',    label:'₹25,000 – ₹35,000/mo'},
+  {value:'r6',    label:'₹35,000+/mo'},
+];
+const BUDGET_MAP_RENT = {
+  r1:[0,10000], r2:[10000,15000], r3:[15000,20000],
+  r4:[20000,25000], r5:[25000,35000], r6:[35000,Infinity]
+};
+
+// Sale/Lease/New Launch budget bands
+const BUDGET_BANDS_SALE = [
   {value:'all', label:'Any Budget'},
   {value:'50',  label:'Under ₹50L'},
   {value:'100', label:'₹50L – ₹1Cr'},
   {value:'200', label:'₹1Cr – ₹2Cr'},
   {value:'999', label:'₹2Cr+'},
 ];
+const BUDGET_MAP_SALE = {
+  '50':[0,5000000],'100':[5000000,10000000],
+  '200':[10000000,20000000],'999':[20000000,Infinity]
+};
+
+// Budget bands (special case, not a property key)
+const BUDGET_BANDS = BUDGET_BANDS_SALE; // fallback default
+
+function getActiveBudgetBands(){
+  const isRentType = (activeFilter==='For Rent' || activeFilter==='PG' || activeFilter==='Lease');
+  return isRentType ? BUDGET_BANDS_RENT : BUDGET_BANDS_SALE;
+}
 
 function buildFilters(){
   // ── 1. Rebuild status chips from data ──
@@ -2332,8 +2372,9 @@ function buildFilters(){
     html += `<div class="search-field"><label>${cfg.label}</label><select id="sf_${key}" onchange="filterProps()">${opts}</select></div>`;
   }
 
-  // Insert Budget field (special)
-  const budgetOpts = BUDGET_BANDS.map(b=>`<option value="${b.value}">${b.label}</option>`).join('');
+  // Insert Budget field (special) — bands change based on active filter type
+  const activeBands = getActiveBudgetBands();
+  const budgetOpts = activeBands.map(b=>`<option value="${b.value}">${b.label}</option>`).join('');
   const budgetHtml = `<div class="search-field"><label>Budget</label><select id="sf_budget" onchange="filterProps()">${budgetOpts}</select></div>`;
 
   bar.insertAdjacentHTML('afterbegin', budgetHtml + html);
@@ -2362,12 +2403,16 @@ function filterProps(){
       list = list.filter(p => String(p[key]||'').toLowerCase()===String(val).toLowerCase());
     }
   }
-  // Budget (applies to price numeric value, works for sale; for rent compare monthly figure)
+  // Budget (dynamic: rent bands for rent/pg/lease, sale bands otherwise)
   const budget = getFilterVal('sf_budget');
   if(budget!=='all'){
-    const bMap={'50':[0,5000000],'100':[5000000,10000000],'200':[10000000,20000000],'999':[20000000,Infinity]};
-    const [lo, hi] = bMap[budget];
-    list = list.filter(p => p.price >= lo && p.price < hi);
+    const isRentType = (activeFilter==='For Rent' || activeFilter==='PG' || activeFilter==='Lease');
+    const bMap = isRentType ? BUDGET_MAP_RENT : BUDGET_MAP_SALE;
+    const range = bMap[budget];
+    if(range){
+      const [lo, hi] = range;
+      list = list.filter(p => p.price >= lo && p.price < hi);
+    }
   }
   // Active chip filter
   if(activeFilter!=='all') list=list.filter(p=>p.status===activeFilter);
@@ -2391,6 +2436,12 @@ function setFilter(btn,val){
   document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   activeFilter=val;
+  // Rebuild budget dropdown with correct bands for this filter type
+  const budgetSel = document.getElementById('sf_budget');
+  if(budgetSel){
+    const activeBands = getActiveBudgetBands();
+    budgetSel.innerHTML = activeBands.map(b=>`<option value="${b.value}">${b.label}</option>`).join('');
+  }
   filterProps();
 }
 
@@ -2444,7 +2495,7 @@ track.innerHTML = imgs.map((src, i) =>
 }
 
   // Price + status badge
-  const badgeClass = p.status==='For Sale'?'badge-sale':p.status==='For Rent'?'badge-rent':'badge-new';
+  const badgeClass = getBadgeClass(p.status);
   document.getElementById('modalPrice').innerHTML =
     `${p.displayPrice} <span class="prop-badge ${badgeClass}" style="position:relative;top:0;left:0;display:inline-block;margin-left:10px;font-size:0.72rem;vertical-align:middle">${p.status||''}</span>`;
 
@@ -3482,6 +3533,8 @@ function formatDisplayPrice(price, status){
   else if(num>=100000)    d='₹'+(num/100000).toFixed(1).replace(/\.?0+$/,'')+' L';
   else                    d='₹'+num.toLocaleString('en-IN');
   if(status==='For Rent') d+='/Month';
+  if(status==='Lease')    d+='/Month';
+  if(status==='PG')       d+='/Month';
   return d;
 }
 
@@ -3578,6 +3631,8 @@ async function submitEditProperty() {
             <option value="For Sale">For Sale</option>
             <option value="For Rent">For Rent</option>
             <option value="New Launch">New Launch</option>
+            <option value="Lease">Lease</option>
+            <option value="PG">PG / Co-living</option>
           </select>
         </div>
       </div>
@@ -3671,6 +3726,65 @@ async function submitEditProperty() {
         </div>
       </div>
       
+
+      <!-- Section: Description & Amenities -->
+      <!-- PG Specific Fields (shown only when PG is selected) -->
+      <div id="l_pgSection" style="display:none">
+        <div class="listing-section-label">PG / Co-living Details</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Gender Preference</label>
+            <select id="l_pgGender">
+              <option value="">Any</option>
+              <option>Boys</option>
+              <option>Girls</option>
+              <option>Co-ed</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Room Type</label>
+            <select id="l_pgRoomType">
+              <option value="">Any</option>
+              <option>Single</option>
+              <option>Double Sharing</option>
+              <option>Triple Sharing</option>
+              <option>Dormitory</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Meals Included</label>
+            <select id="l_pgMeals">
+              <option value="">Select</option>
+              <option>Yes – All Meals</option>
+              <option>Yes – Breakfast Only</option>
+              <option>No Meals</option>
+            </select>
+          </div>
+        </div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Occupancy Available</label>
+            <input type="text" id="l_pgOccupancy" placeholder="e.g. 2 beds available"/>
+          </div>
+          <div class="listing-field">
+            <label>Notice Period</label>
+            <select id="l_pgNotice">
+              <option value="">Any</option>
+              <option>15 Days</option>
+              <option>1 Month</option>
+              <option>2 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Attached Bathroom</label>
+            <select id="l_pgBathroom">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>Shared</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <!-- Section: Description & Amenities -->
       <div class="listing-section-label">Description & Extras</div>
@@ -3914,6 +4028,8 @@ function _fmtPrice(price, status){
   else if(num >= 100000)    display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
   else                      display = '₹' + num.toLocaleString('en-IN');
   if(status === 'For Rent') display += '/Month';
+  if(status === 'Lease')    display += '/Month';
+  if(status === 'PG')       display += '/Month';
   return display;
 }
 
@@ -4030,18 +4146,28 @@ async function submitListing(){
 
 // ── STATUS CHANGE: show/hide deposit ──
 function onListingStatusChange(val) {
-  const wrap = document.getElementById('l_depositWrap');
-  const lbl  = document.getElementById('l_priceLabel');
+  const wrap    = document.getElementById('l_depositWrap');
+  const lbl     = document.getElementById('l_priceLabel');
+  const pgSec   = document.getElementById('l_pgSection');
+  const bhkWrap = document.getElementById('l_bhk')?.closest('.listing-field');
   if (!wrap) return;
-  if (val === 'For Rent') {
+
+  const isMonthly = (val === 'For Rent' || val === 'Lease' || val === 'PG');
+  const isPG      = (val === 'PG');
+
+  // Deposit / price label
+  if (isMonthly) {
     wrap.style.display = '';
-    if (lbl) lbl.textContent = 'Monthly Rent (₹)';
+    if (lbl) lbl.textContent = val === 'PG' ? 'Monthly Rent / Bed (₹)' : val === 'Lease' ? 'Monthly Lease (₹)' : 'Monthly Rent (₹)';
   } else {
     wrap.style.display = 'none';
     const dep = document.getElementById('l_deposit');
     if (dep) dep.value = '';
     if (lbl) lbl.textContent = 'Price (₹)';
   }
+
+  // PG section
+  if (pgSec) pgSec.style.display = isPG ? '' : 'none';
 }
 
 // ── LIVE LOCATION CAPTURE ──
@@ -4595,6 +4721,8 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
             <option value="For Sale">For Sale</option>
             <option value="For Rent">For Rent</option>
             <option value="New Launch">New Launch</option>
+            <option value="Lease">Lease</option>
+            <option value="PG">PG / Co-living</option>
             <option value="Sold">Sold</option>
           </select>
         </div>
