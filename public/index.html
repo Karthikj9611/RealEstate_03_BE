@@ -104,16 +104,26 @@ nav{
   .nav-links{
     display:none;position:absolute;top:64px;left:0;right:0;
     background:var(--surface);flex-direction:column;
-    padding:1rem 1.5rem 1.5rem;border-bottom:1px solid var(--border);
-    gap:2px;box-shadow:var(--shadow-md);
+    padding:0.6rem 1rem 1.2rem;border-bottom:1px solid var(--border);
+    gap:0;box-shadow:var(--shadow-md);
   }
   .nav-links.open{display:flex}
-  .nav-links a{font-size:1rem;padding:11px 14px}
+  .nav-links a{
+    font-size:0.92rem;padding:11px 14px;
+    border-radius:10px;
+    border-bottom:1px solid var(--surface2);
+    justify-content:center;
+    width:100%;
+  }
+  .nav-links a:last-of-type{border-bottom:none}
+  .nav-links a .icon{font-size:1rem;opacity:1;color:var(--gold-dark)}
   .nav-hamburger{display:flex}
   .nav-cta{font-size:0.78rem;padding:8px 14px}
   /* Hide desktop pill and CTA on mobile */
   #navUserPill{display:none!important}
-  #navListBtn{display:none!important} /* always hidden on mobile; admin uses drawer button */
+  #navListBtn{display:none!important}
+  /* User block spacing */
+  #mobileUserBlock{margin-top:8px!important}
 }
 
 /* ── HERO ── */
