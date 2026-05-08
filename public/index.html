@@ -4501,19 +4501,20 @@ async function submitListing(){
 
 // ── STATUS CHANGE: show/hide deposit ──
 function onListingStatusChange(val) {
+debugger;
   const wrap    = document.getElementById('l_depositWrap');
   const lbl     = document.getElementById('l_priceLabel');
   const pgSec   = document.getElementById('l_pgSection');
   const bhkWrap = document.getElementById('l_bhk')?.closest('.listing-field');
   if (!wrap) return;
 
-  const isMonthly = (val === 'For Rent' || val === 'Lease' || val === 'PG');
+  const isMonthly = (val === 'For Rent' || val === 'PG' || val == "New Launch");
   const isPG      = (val === 'PG');
 
   // Deposit / price label
   if (isMonthly) {
     wrap.style.display = '';
-    if (lbl) lbl.textContent = val === 'PG' ? 'Monthly Rent / Bed (₹)' : val === 'Lease' ? 'Monthly Lease (₹)' : 'Monthly Rent (₹)';
+    if (lbl) lbl.textContent = val === 'PG' ? 'Monthly Rent (₹)' : val === 'Lease' ? 'Monthly Lease (₹)' : 'Monthly Rent (₹)';
   } else {
     wrap.style.display = 'none';
     const dep = document.getElementById('l_deposit');
