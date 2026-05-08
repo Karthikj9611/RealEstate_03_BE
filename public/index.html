@@ -116,27 +116,21 @@ nav{
 
 @media(max-width:760px){
   .nav-links{
-    display:none;position:fixed;top:64px;left:0;right:0;
+    display:none;position:absolute;top:64px;left:0;right:0;
     background:var(--surface);flex-direction:column;
-    padding:0.6rem 1rem 1.4rem;border-bottom:1px solid var(--border);
+    padding:0.6rem 1rem 1.2rem;border-bottom:1px solid var(--border);
     gap:0;box-shadow:var(--shadow-md);
-    z-index:199;
-    max-height:calc(100vh - 64px);
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
   }
   .nav-links.open{display:flex}
   .nav-links a{
     font-size:0.92rem;padding:11px 14px;
     border-radius:10px;
     border-bottom:1px solid var(--surface2);
-    justify-content:flex-start;
+    justify-content:center;
     width:100%;
-    white-space:nowrap;
-    overflow:visible;
   }
   .nav-links a:last-of-type{border-bottom:none}
-  .nav-links a .icon{font-size:1rem;opacity:1;color:var(--gold-dark);flex-shrink:0}
+  .nav-links a .icon{font-size:1rem;opacity:1;color:var(--gold-dark)}
   .nav-hamburger{display:flex}
   .nav-cta{font-size:0.78rem;padding:8px 14px}
   /* Hide desktop pill and CTA on mobile */
@@ -1303,6 +1297,7 @@ input {
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#"><span class="k">K</span>R</a>
+<!--  <a class="nav-logo" href="#"><img src="Logo.png" alt="KR Logo" style="height:42px;width:42px;object-fit:contain;border-radius:6px;"/></a> -->
 
   <!-- Desktop + Mobile drawer links -->
   <div class="nav-links" id="navLinks">
@@ -1778,7 +1773,7 @@ input {
     <div class="about-modal-header">
       <button class="about-modal-close" onclick="closeAboutModal()" aria-label="Close">✕</button>
       <div class="about-modal-brand"><span>K</span>R Real-Estate</div>
-      <div class="about-modal-tagline">HSR Layout's Premier Realty · Est. 2018</div>
+      <div class="about-modal-tagline">HSR Layout's Premier Realty · Est. 2026</div>
       <p class="about-modal-story">
         We started KR Real-Estate with a simple belief — finding a home should feel exciting, not overwhelming.
         From a single desk in HSR Layout to a trusted name across Bengaluru, our team of passionate professionals
@@ -2589,19 +2584,8 @@ function closeModal(){
 document.getElementById('propModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.getElementById('loginAlertModal').addEventListener('click',function(e){if(e.target===this)closeLoginAlert()});
 
-var _navAutoCloseTimer = null;
-function toggleNav(){
-  var nl = document.getElementById('navLinks');
-  nl.classList.toggle('open');
-  clearTimeout(_navAutoCloseTimer);
-  if(nl.classList.contains('open')){
-    _navAutoCloseTimer = setTimeout(function(){ nl.classList.remove('open'); }, 3000);
-  }
-}
-function closeNav(){
-  clearTimeout(_navAutoCloseTimer);
-  document.getElementById('navLinks').classList.remove('open');
-}
+function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
+function closeNav(){document.getElementById('navLinks').classList.remove('open')}
 
 let toastTimer;
 function showToast(msg, type){
@@ -4387,6 +4371,17 @@ async function captureLocation() {
         Our Promise to You
       </div>
       <div class="trust-notes-list">
+
+        <!-- 1. COMFORT FIRST — we won't bother you -->
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#e8f4fd">🚫</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">We Will Never Disturb You</div>
+            <div class="trust-note-sub">No spam calls, no promo messages, no unsolicited emails. We only reach out when YOU contact us first — on your terms, your time.</div>
+          </div>
+        </div>
+
+        <!-- 2. SAFETY — your data is safe -->
         <div class="trust-note-item">
           <div class="trust-note-icon" style="background:#e8f7f0">🔒</div>
           <div class="trust-note-text">
@@ -4394,46 +4389,49 @@ async function captureLocation() {
             <div class="trust-note-sub">We never share, sell, or trade your personal information with any third party. Ever.</div>
           </div>
         </div>
-        <div class="trust-note-item">
-          <div class="trust-note-icon" style="background:#fff8e0">💳</div>
-          <div class="trust-note-text">
-            <div class="trust-note-heading">Zero Online Payments Before Deal</div>
-            <div class="trust-note-sub">No advance fees. No token amounts online. All payments happen only after full deal closure — face to face.</div>
-          </div>
-        </div>
-        <div class="trust-note-item">
-          <div class="trust-note-icon" style="background:#e8f0ff">🤝</div>
-          <div class="trust-note-text">
-            <div class="trust-note-heading">Transparent Commission, No Hidden Charges</div>
-            <div class="trust-note-sub">Rental brokerage: ½ month's rent · Sale brokerage: 2% of sale value. Nothing more, nothing less.</div>
-          </div>
-        </div>
+
+        <!-- 3. CREDIBILITY — what you see is real -->
         <div class="trust-note-item">
           <div class="trust-note-icon" style="background:#f0f9e8">✅</div>
           <div class="trust-note-text">
             <div class="trust-note-heading">Verified Listings Only</div>
-            <div class="trust-note-sub">Every property is personally verified by our agents. No fake listings, no misleading photos.</div>
+            <div class="trust-note-sub">Every property is personally verified by our agents. No fake listings, no misleading photos — what you see is exactly what you get.</div>
           </div>
         </div>
+
+        <!-- 4. TRANSPARENCY — pricing upfront -->
         <div class="trust-note-item">
-          <div class="trust-note-icon" style="background:#fdecea">❤️</div>
+          <div class="trust-note-icon" style="background:#e8f0ff">🤝</div>
           <div class="trust-note-text">
-            <div class="trust-note-heading">Loved Our Service? Tell the World!</div>
-            <div class="trust-note-sub">If we helped you find your home, we'd love a review and a recommendation to friends & family. It means the world to us.</div>
+            <div class="trust-note-heading">Transparent Commission, No Hidden Charges</div>
+            <div class="trust-note-sub">Rental brokerage: ½ month's rent · Sale brokerage: 2% of sale value. Told upfront. No surprises at closing.</div>
           </div>
         </div>
+
+        <!-- 5. FINANCIAL SAFETY — no online money before deal -->
+        <div class="trust-note-item">
+          <div class="trust-note-icon" style="background:#fff8e0">💳</div>
+          <div class="trust-note-text">
+            <div class="trust-note-heading">Zero Online Payments Before Deal</div>
+            <div class="trust-note-sub">No advance fees, no token amounts online. All payments happen only after full deal closure — face to face, in person.</div>
+          </div>
+        </div>
+
+        <!-- 6. EXPERIENCE — we walk the whole journey with you -->
         <div class="trust-note-item">
           <div class="trust-note-icon" style="background:#f4e8ff">📞</div>
           <div class="trust-note-text">
-            <div class="trust-note-heading">Free Site Visit, Always</div>
-            <div class="trust-note-sub">Book a guided site visit at no cost. Our agents are with you from enquiry to key handover.</div>
+            <div class="trust-note-heading">Free Site Visit — We're With You All the Way</div>
+            <div class="trust-note-sub">Book a guided site visit at zero cost. Our agents stay with you from first enquiry right through to key handover.</div>
           </div>
         </div>
+
+        <!-- 7. REWARD — love it? share it -->
         <div class="trust-note-item">
-          <div class="trust-note-icon" style="background:#e8f4fd">🚫</div>
+          <div class="trust-note-icon" style="background:#fdecea">❤️</div>
           <div class="trust-note-text">
-            <div class="trust-note-heading">We Will Never Disturb You</div>
-            <div class="trust-note-sub">We do not send promotional emails, spam messages, or make unsolicited calls. We only contact you when you reach out to us first — on your terms, at your convenience.</div>
+            <div class="trust-note-heading">Happy? Tell a Friend — It Means Everything to Us</div>
+            <div class="trust-note-sub">We grow purely on trust and word of mouth. If we found you your home, a review or referral to friends & family is the greatest gift you can give us.</div>
           </div>
         </div>
       </div>
@@ -5277,18 +5275,12 @@ window.addEventListener('DOMContentLoaded', function () {
 
   /* ── SCROLL-TRIGGERED REVEALS ── */
 
-  /* ── SCROLL SPEED HELPER: elements lower on page animate faster ── */
-  function scrollSpeed(el, baseDuration) {
-    const ratio = Math.min(el.getBoundingClientRect().top / document.body.scrollHeight, 1);
-    return Math.max(baseDuration * (0.45 + ratio * 0.55), 0.2);
-  }
-
   /* Section titles */
   gsap.utils.toArray('.section-title').forEach(el => {
     gsap.fromTo(el,
-      { opacity: 0, x: -24 },
-      { opacity: 1, x: 0, duration: scrollSpeed(el, 0.6), ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 92%', once: true,
+      { opacity: 0, x: -30 },
+      { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true,
           onEnter: () => el.classList.add('line-animate') }
       });
   });
@@ -5296,21 +5288,21 @@ window.addEventListener('DOMContentLoaded', function () {
   /* Section subtitles & filter bar */
   gsap.utils.toArray('.section-sub, .filter-count').forEach(el => {
     gsap.fromTo(el,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: scrollSpeed(el, 0.4), ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 93%', once: true } });
+      { opacity: 0, y: 15 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
   });
 
   /* Property cards — cascading wave */
   ScrollTrigger.create({
     trigger: '#propertyGrid',
-    start: 'top 88%',
+    start: 'top 85%',
     once: true,
     onEnter: () => {
       const cards = document.querySelectorAll('.prop-card');
       gsap.fromTo(cards,
-        { opacity: 0, y: 35, scale: 0.93 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: { each: 0.05, from: 'start' },
+        { opacity: 0, y: 50, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, stagger: { each: 0.07, from: 'start' },
           ease: 'power3.out' });
     }
   });
@@ -5318,41 +5310,41 @@ window.addEventListener('DOMContentLoaded', function () {
   /* Agent cards */
   gsap.utils.toArray('.agent-card').forEach((card, i) => {
     gsap.fromTo(card,
-      { opacity: 0, y: 30, scale: 0.9 },
-      { opacity: 1, y: 0, scale: 1, duration: scrollSpeed(card, 0.42), ease: 'back.out(1.2)',
-        scrollTrigger: { trigger: card, start: 'top 93%', once: true },
-        delay: i * 0.055 });
+      { opacity: 0, y: 40, scale: 0.88 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.2)',
+        scrollTrigger: { trigger: card, start: 'top 90%', once: true },
+        delay: i * 0.08 });
   });
 
   /* Testimonials section */
   gsap.fromTo('.testi-form',
-    { opacity: 0, y: 28 },
-    { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out',
-      scrollTrigger: { trigger: '.testi-section', start: 'top 88%', once: true } });
+    { opacity: 0, y: 40 },
+    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+      scrollTrigger: { trigger: '.testi-section', start: 'top 80%', once: true } });
 
   /* Footer */
   gsap.fromTo('.footer-grid > div',
-    { opacity: 0, y: 20 },
-    { opacity: 1, y: 0, duration: 0.35, stagger: 0.07, ease: 'power2.out',
-      scrollTrigger: { trigger: 'footer', start: 'top 93%', once: true } });
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out',
+      scrollTrigger: { trigger: 'footer', start: 'top 90%', once: true } });
 
   /* Commission pills entrance */
   gsap.fromTo('.commission-pill',
-    { opacity: 0, scale: 0.75 },
-    { opacity: 1, scale: 1, duration: 0.38, stagger: 0.1, ease: 'back.out(1.5)',
-      scrollTrigger: { trigger: '.commission-banner', start: 'top 96%', once: true } });
+    { opacity: 0, scale: 0.7 },
+    { opacity: 1, scale: 1, duration: 0.5, stagger: 0.15, ease: 'back.out(1.5)',
+      scrollTrigger: { trigger: '.commission-banner', start: 'top 95%', once: true } });
 
   /* search section */
   gsap.fromTo('.search-section',
-    { opacity: 0, y: 15 },
-    { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out',
-      scrollTrigger: { trigger: '.search-section', start: 'top 94%', once: true } });
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
+      scrollTrigger: { trigger: '.search-section', start: 'top 92%', once: true } });
 
   /* filter chips */
   gsap.fromTo('.filter-chip',
-    { opacity: 0, scale: 0.82 },
-    { opacity: 1, scale: 1, duration: 0.22, stagger: 0.035, ease: 'back.out(1.4)',
-      scrollTrigger: { trigger: '#filterBar', start: 'top 94%', once: true } });
+    { opacity: 0, scale: 0.8 },
+    { opacity: 1, scale: 1, duration: 0.3, stagger: 0.05, ease: 'back.out(1.4)',
+      scrollTrigger: { trigger: '#filterBar', start: 'top 92%', once: true } });
 });
 
 /* Re-animate new property cards when renderProps is called */
