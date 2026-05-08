@@ -116,21 +116,27 @@ nav{
 
 @media(max-width:760px){
   .nav-links{
-    display:none;position:absolute;top:64px;left:0;right:0;
+    display:none;position:fixed;top:64px;left:0;right:0;
     background:var(--surface);flex-direction:column;
-    padding:0.6rem 1rem 1.2rem;border-bottom:1px solid var(--border);
+    padding:0.6rem 1rem 1.4rem;border-bottom:1px solid var(--border);
     gap:0;box-shadow:var(--shadow-md);
+    z-index:199;
+    max-height:calc(100vh - 64px);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
   .nav-links.open{display:flex}
   .nav-links a{
     font-size:0.92rem;padding:11px 14px;
     border-radius:10px;
     border-bottom:1px solid var(--surface2);
-    justify-content:center;
+    justify-content:flex-start;
     width:100%;
+    white-space:nowrap;
+    overflow:visible;
   }
   .nav-links a:last-of-type{border-bottom:none}
-  .nav-links a .icon{font-size:1rem;opacity:1;color:var(--gold-dark)}
+  .nav-links a .icon{font-size:1rem;opacity:1;color:var(--gold-dark);flex-shrink:0}
   .nav-hamburger{display:flex}
   .nav-cta{font-size:0.78rem;padding:8px 14px}
   /* Hide desktop pill and CTA on mobile */
@@ -2583,8 +2589,19 @@ function closeModal(){
 document.getElementById('propModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.getElementById('loginAlertModal').addEventListener('click',function(e){if(e.target===this)closeLoginAlert()});
 
-function toggleNav(){document.getElementById('navLinks').classList.toggle('open')}
-function closeNav(){document.getElementById('navLinks').classList.remove('open')}
+var _navAutoCloseTimer = null;
+function toggleNav(){
+  var nl = document.getElementById('navLinks');
+  nl.classList.toggle('open');
+  clearTimeout(_navAutoCloseTimer);
+  if(nl.classList.contains('open')){
+    _navAutoCloseTimer = setTimeout(function(){ nl.classList.remove('open'); }, 3000);
+  }
+}
+function closeNav(){
+  clearTimeout(_navAutoCloseTimer);
+  document.getElementById('navLinks').classList.remove('open');
+}
 
 let toastTimer;
 function showToast(msg, type){
@@ -5260,12 +5277,18 @@ window.addEventListener('DOMContentLoaded', function () {
 
   /* ── SCROLL-TRIGGERED REVEALS ── */
 
+  /* ── SCROLL SPEED HELPER: elements lower on page animate faster ── */
+  function scrollSpeed(el, baseDuration) {
+    const ratio = Math.min(el.getBoundingClientRect().top / document.body.scrollHeight, 1);
+    return Math.max(baseDuration * (0.45 + ratio * 0.55), 0.2);
+  }
+
   /* Section titles */
   gsap.utils.toArray('.section-title').forEach(el => {
     gsap.fromTo(el,
-      { opacity: 0, x: -30 },
-      { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true,
+      { opacity: 0, x: -24 },
+      { opacity: 1, x: 0, duration: scrollSpeed(el, 0.6), ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 92%', once: true,
           onEnter: () => el.classList.add('line-animate') }
       });
   });
@@ -5273,21 +5296,21 @@ window.addEventListener('DOMContentLoaded', function () {
   /* Section subtitles & filter bar */
   gsap.utils.toArray('.section-sub, .filter-count').forEach(el => {
     gsap.fromTo(el,
-      { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: scrollSpeed(el, 0.4), ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 93%', once: true } });
   });
 
   /* Property cards — cascading wave */
   ScrollTrigger.create({
     trigger: '#propertyGrid',
-    start: 'top 85%',
+    start: 'top 88%',
     once: true,
     onEnter: () => {
       const cards = document.querySelectorAll('.prop-card');
       gsap.fromTo(cards,
-        { opacity: 0, y: 50, scale: 0.92 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.55, stagger: { each: 0.07, from: 'start' },
+        { opacity: 0, y: 35, scale: 0.93 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: { each: 0.05, from: 'start' },
           ease: 'power3.out' });
     }
   });
@@ -5295,41 +5318,41 @@ window.addEventListener('DOMContentLoaded', function () {
   /* Agent cards */
   gsap.utils.toArray('.agent-card').forEach((card, i) => {
     gsap.fromTo(card,
-      { opacity: 0, y: 40, scale: 0.88 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.2)',
-        scrollTrigger: { trigger: card, start: 'top 90%', once: true },
-        delay: i * 0.08 });
+      { opacity: 0, y: 30, scale: 0.9 },
+      { opacity: 1, y: 0, scale: 1, duration: scrollSpeed(card, 0.42), ease: 'back.out(1.2)',
+        scrollTrigger: { trigger: card, start: 'top 93%', once: true },
+        delay: i * 0.055 });
   });
 
   /* Testimonials section */
   gsap.fromTo('.testi-form',
-    { opacity: 0, y: 40 },
-    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
-      scrollTrigger: { trigger: '.testi-section', start: 'top 80%', once: true } });
+    { opacity: 0, y: 28 },
+    { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out',
+      scrollTrigger: { trigger: '.testi-section', start: 'top 88%', once: true } });
 
   /* Footer */
   gsap.fromTo('.footer-grid > div',
-    { opacity: 0, y: 30 },
-    { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out',
-      scrollTrigger: { trigger: 'footer', start: 'top 90%', once: true } });
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.35, stagger: 0.07, ease: 'power2.out',
+      scrollTrigger: { trigger: 'footer', start: 'top 93%', once: true } });
 
   /* Commission pills entrance */
   gsap.fromTo('.commission-pill',
-    { opacity: 0, scale: 0.7 },
-    { opacity: 1, scale: 1, duration: 0.5, stagger: 0.15, ease: 'back.out(1.5)',
-      scrollTrigger: { trigger: '.commission-banner', start: 'top 95%', once: true } });
+    { opacity: 0, scale: 0.75 },
+    { opacity: 1, scale: 1, duration: 0.38, stagger: 0.1, ease: 'back.out(1.5)',
+      scrollTrigger: { trigger: '.commission-banner', start: 'top 96%', once: true } });
 
   /* search section */
   gsap.fromTo('.search-section',
-    { opacity: 0, y: 20 },
-    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
-      scrollTrigger: { trigger: '.search-section', start: 'top 92%', once: true } });
+    { opacity: 0, y: 15 },
+    { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out',
+      scrollTrigger: { trigger: '.search-section', start: 'top 94%', once: true } });
 
   /* filter chips */
   gsap.fromTo('.filter-chip',
-    { opacity: 0, scale: 0.8 },
-    { opacity: 1, scale: 1, duration: 0.3, stagger: 0.05, ease: 'back.out(1.4)',
-      scrollTrigger: { trigger: '#filterBar', start: 'top 92%', once: true } });
+    { opacity: 0, scale: 0.82 },
+    { opacity: 1, scale: 1, duration: 0.22, stagger: 0.035, ease: 'back.out(1.4)',
+      scrollTrigger: { trigger: '#filterBar', start: 'top 94%', once: true } });
 });
 
 /* Re-animate new property cards when renderProps is called */
