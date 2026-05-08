@@ -4508,6 +4508,12 @@ async function submitListing(){
     deposit:      (['For Rent','Lease','PG'].includes(status) && deposit && !isNaN(Number(deposit))) ? Number(deposit) : undefined,
     latitude:     (latVal && !isNaN(Number(latVal)) && Number(latVal) !== 0) ? Number(latVal) : undefined,
     longitude:    (lngVal && !isNaN(Number(lngVal)) && Number(lngVal) !== 0) ? Number(lngVal) : undefined,
+    pgGender:    status === 'PG' ? get('l_pgGender')    || undefined : undefined,
+    pgRoomType:  status === 'PG' ? get('l_pgRoomType')  || undefined : undefined,
+    pgMeals:     status === 'PG' ? get('l_pgMeals')     || undefined : undefined,
+    pgOccupancy: status === 'PG' ? get('l_pgOccupancy') || undefined : undefined,
+    pgNotice:    status === 'PG' ? get('l_pgNotice')    || undefined : undefined,
+    pgBathroom:  status === 'PG' ? get('l_pgBathroom')  || undefined : undefined,
   };
   // Remove undefined keys
   Object.keys(payload).forEach(k => payload[k]===undefined && delete payload[k]);

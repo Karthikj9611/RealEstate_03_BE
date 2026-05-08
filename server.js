@@ -45,6 +45,12 @@ const PropertySchema = new mongoose.Schema({
   deposit: { type: Number, default: null },
   latitude:  { type: Number, default: null },
   longitude: { type: Number, default: null },
+  pgGender:    { type: String, default: null },
+  pgRoomType:  { type: String, default: null },
+  pgMeals:     { type: String, default: null },
+  pgOccupancy: { type: String, default: null },
+  pgNotice:    { type: String, default: null },
+  pgBathroom:  { type: String, default: null },
   createdAt: { type: Date, default: Date.now }
 });
 const Property = mongoose.model("Property", PropertySchema);
