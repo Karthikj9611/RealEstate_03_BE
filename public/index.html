@@ -3813,23 +3813,31 @@ function openEditPropertyModal(localId) {
   if(!p) return;
   _editPropertyId = String(p._id);
 
-  // Populate text fields
+  // Populate text/number fields
   const textFields = {
     ep_title:p.title||'', ep_loc:p.loc||'', ep_city:p.city||'',
     ep_price:p.price||'', ep_area:p.area||'',
     ep_floor:p.floor||'', ep_age:p.age||'', ep_desc:p.desc||'',
+    ep_deposit:p.deposit||'',
     ep_amenities:Array.isArray(p.amenities)?p.amenities.join(', '):(p.amenities||''),
     ep_latitude: p.latitude || '', ep_longitude: p.longitude || '',
+    ep_pgOccupancy: p.pgOccupancy||'',
   };
   Object.entries(textFields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
 
   // Populate selects
   const selects = {
-    ep_status:p.status||'', ep_bhk:p.bhk||'', ep_toilet:p.toilet||'',
-    ep_furnishing:p.furnishing||'', ep_facing:p.facing||'',
+    ep_status:p.status||'For Sale', ep_bhk:p.bhk||'', ep_toilet:p.toilet||'',
+    ep_furnishing:p.furnishing||'Unfurnished', ep_facing:p.facing||'',
     ep_carparking:p.carparking||'', ep_bikeparking:p.bikeparking||'',
+    ep_pgGender:p.pgGender||'', ep_pgRoomType:p.pgRoomType||'',
+    ep_pgMeals:p.pgMeals||'', ep_pgNotice:p.pgNotice||'',
+    ep_pgBathroom:p.pgBathroom||'Yes',
   };
   Object.entries(selects).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
+
+  // Trigger status UI update (deposit, PG section, price label)
+  onEditStatusChange(p.status||'For Sale');
 
   // Load existing images into image manager
   _editImages.length=0;
@@ -3846,6 +3854,74 @@ function closeEditPropertyModal() {
   _editPropertyId=null;
   _editImages.length=0;
   _refreshEpImgPreview();
+  // Reset ep_locStatus
+  const s=document.getElementById('ep_locStatus'); if(s) s.innerHTML='';
+}
+
+// ── EDIT STATUS CHANGE: mirrors onListingStatusChange ──
+function onEditStatusChange(val) {
+  const wrap = document.getElementById('ep_depositWrap');
+  const lbl  = document.getElementById('ep_priceLabel');
+  const pgSec= document.getElementById('ep_pgSection');
+  if (!wrap) return;
+  const isMonthly = (val === 'For Rent' || val === 'PG' || val === 'Lease');
+  const isPG      = (val === 'PG');
+  if (isMonthly) {
+    wrap.style.display = '';
+    if (lbl) { lbl.innerHTML = val === 'PG' ? 'Monthly Rent<span style="color:red">*</span>' : val === 'Lease' ? 'Monthly Lease (₹)<span style="color:red">*</span>' : 'Monthly Rent<span style="color:red">*</span>'; }
+  } else {
+    wrap.style.display = 'none';
+    const dep = document.getElementById('ep_deposit'); if(dep) dep.value='';
+    if (lbl) lbl.innerHTML = 'Price<span style="color:red">*</span>';
+  }
+  if (pgSec) pgSec.style.display = isPG ? '' : 'none';
+}
+
+// ── LIVE LOCATION CAPTURE (Edit modal) ──
+async function captureLocationEdit() {
+  const btn    = document.getElementById('ep_locBtn');
+  const btnTxt = document.getElementById('ep_locBtnTxt');
+  const status = document.getElementById('ep_locStatus');
+  const locInp = document.getElementById('ep_loc');
+  const cityInp= document.getElementById('ep_city');
+  const latInp = document.getElementById('ep_latitude');
+  const lngInp = document.getElementById('ep_longitude');
+  if (!navigator.geolocation) { if(status) status.textContent='⚠ Geolocation not supported.'; return; }
+  if(btn) btn.disabled=true;
+  if(btnTxt) btnTxt.textContent='…';
+  if(status) status.textContent='Detecting location…';
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      if(latInp) latInp.value=latitude;
+      if(lngInp) lngInp.value=longitude;
+      if(status) status.textContent=`📍 ${latitude.toFixed(5)}, ${longitude.toFixed(5)} — resolving address…`;
+      try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,{headers:{'Accept-Language':'en'}});
+        const data = await resp.json();
+        const addr = data.address||{};
+        const locality = addr.suburb||addr.neighbourhood||addr.village||addr.county||addr.state_district||'';
+        const city     = addr.city||addr.town||addr.state_district||addr.state||'';
+        const area     = addr.road||addr.pedestrian||'';
+        const locVal   = [locality,area].filter(Boolean).join(', ')||data.display_name?.split(',')[0]||'';
+        if(locInp&&locVal) locInp.value=locVal;
+        if(cityInp&&city)  cityInp.value=city;
+        if(status) status.innerHTML=`<span style="color:var(--gold-dark)">✅ Location set: <strong>${locVal||'detected'}</strong></span>`;
+      } catch {
+        if(locInp) locInp.value=`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        if(status) status.innerHTML=`<span style="color:var(--gold-dark)">✅ Coordinates captured (address lookup failed)</span>`;
+      }
+      if(btnTxt) btnTxt.textContent='Live';
+      if(btn) btn.disabled=false;
+    },
+    (err) => {
+      const msgs={1:'Location permission denied.',2:'Location unavailable.',3:'Request timed out.'};
+      if(status) status.innerHTML=`<span style="color:var(--red)">⚠ ${msgs[err.code]||err.message}</span>`;
+      if(btnTxt) btnTxt.textContent='Live';
+      if(btn) btn.disabled=false;
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
 }
 
 function formatDisplayPrice(price, status){
@@ -3855,9 +3931,7 @@ function formatDisplayPrice(price, status){
   if(num>=10000000)       d='₹'+(num/10000000).toFixed(2).replace(/\.?0+$/,'')+'  Cr';
   else if(num>=100000)    d='₹'+(num/100000).toFixed(1).replace(/\.?0+$/,'')+' L';
   else                    d='₹'+num.toLocaleString('en-IN');
-  if(status==='For Rent') d+='/Month';
-  if(status==='Lease')    d+='/Month';
-  if(status==='PG')       d+='/Month';
+  if(['For Rent','Lease','PG'].includes(status)) d+='/Month';
   return d;
 }
 
@@ -3874,21 +3948,35 @@ async function submitEditProperty() {
   const amenities=get('ep_amenities')?get('ep_amenities').split(',').map(s=>s.trim()).filter(Boolean):[];
   const images=_editImages.map(img=>img.value).filter(v=>v&&v.startsWith('http'));
   const displayPrice=formatDisplayPrice(price,status);
+  const deposit=get('ep_deposit');
+  const latVal=get('ep_latitude');
+  const lngVal=get('ep_longitude');
 
   const payload={
     title:get('ep_title'), loc:get('ep_loc'), city:get('ep_city')||'Bengaluru',
     status, price:Number(price), displayPrice,
     bhk:get('ep_bhk')?parseInt(get('ep_bhk')):undefined,
-    area:get('ep_area')||undefined, furnishing:get('ep_furnishing')||undefined,
-    facing:get('ep_facing')||undefined, floor:get('ep_floor')||undefined,
+    area:get('ep_area')||undefined,
+    furnishing:get('ep_furnishing')||undefined,
+    facing:get('ep_facing')||undefined,
+    floor:get('ep_floor')||undefined,
     floorLevel:get('ep_floor')||undefined,
     toilet:get('ep_toilet')?parseInt(get('ep_toilet')):undefined,
-    carparking:get('ep_carparking')||undefined, bikeparking:get('ep_bikeparking')||undefined,
-    age:get('ep_age')||undefined, desc:get('ep_desc')||undefined,
+    carparking:get('ep_carparking')||undefined,
+    bikeparking:get('ep_bikeparking')||undefined,
+    age:get('ep_age')||undefined,
+    desc:get('ep_desc')||undefined,
     amenities:amenities.length?amenities:undefined,
     images:images.length?images:undefined,
-    latitude: get('ep_latitude') && !isNaN(Number(get('ep_latitude'))) && Number(get('ep_latitude')) !== 0 ? Number(get('ep_latitude')) : undefined,
-    longitude: get('ep_longitude') && !isNaN(Number(get('ep_longitude'))) && Number(get('ep_longitude')) !== 0 ? Number(get('ep_longitude')) : undefined,
+    deposit:(['For Rent','Lease','PG'].includes(status)&&deposit&&!isNaN(Number(deposit)))?Number(deposit):undefined,
+    latitude:(latVal&&!isNaN(Number(latVal))&&Number(latVal)!==0)?Number(latVal):undefined,
+    longitude:(lngVal&&!isNaN(Number(lngVal))&&Number(lngVal)!==0)?Number(lngVal):undefined,
+    pgGender:   status==='PG'?get('ep_pgGender')||undefined:undefined,
+    pgRoomType: status==='PG'?get('ep_pgRoomType')||undefined:undefined,
+    pgMeals:    status==='PG'?get('ep_pgMeals')||undefined:undefined,
+    pgOccupancy:status==='PG'?get('ep_pgOccupancy')||undefined:undefined,
+    pgNotice:   status==='PG'?get('ep_pgNotice')||undefined:undefined,
+    pgBathroom: status==='PG'?get('ep_pgBathroom')||undefined:undefined,
   };
   Object.keys(payload).forEach(k=>payload[k]===undefined&&delete payload[k]);
 
@@ -3930,10 +4018,11 @@ async function submitEditProperty() {
           <label>Status<span style="color:red;">*</span></label>
           <select id="l_status" onchange="onListingStatusChange(this.value)">
             <option value="For Sale">For Sale</option>
-			<option value="New Launch">New Launch</option>
-			<option value="For Rent">For Rent</option>
-			<option value="Lease">Lease</option>
-			<option value="PG">PG / Co-living</option>
+            <option value="New Launch">New Launch</option>
+            <option value="For Rent">For Rent</option>
+            <option value="Lease">Lease</option>
+            <option value="PG">PG / Co-living</option>
+            <option value="Sold">Sold</option>
           </select>
         </div>
 		
@@ -4048,9 +4137,13 @@ async function submitEditProperty() {
             <option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option>
           </select>
         </div>
-        
+        <div class="listing-field">
+          <label>Property Age</label>
+          <input type="text" id="l_age" placeholder="e.g. 2 years"/>
+        </div>
       </div>
-      
+      <input type="hidden" id="l_latitude"/>
+      <input type="hidden" id="l_longitude"/>
 
       <!-- Section: Description & Amenities -->
       <!-- PG Specific Fields (shown only when PG is selected) -->
@@ -4108,40 +4201,8 @@ async function submitEditProperty() {
             </select>
           </div>
         </div>
-		<div class="listing-grid-3">
-		 <div class="listing-field">
-  <label>Floor<span style="color:red;">*</span></label>
-  <select id="l_floor">
-    <option value="">Select Floor</option>
-    <option value="0th Floor">0th Floor</option>
-    <option value="1st Floor">1st Floor</option>
-    <option value="2nd Floor">2nd Floor</option>
-    <option value="3rd Floor">3rd Floor</option>
-    <option value="4th Floor">4th Floor</option>
-    <option value="5th Floor">5th Floor</option>
-    <option value="6th Floor">6th Floor</option>
-    <option value="7th Floor">7th Floor</option>
-    <option value="8th Floor">8th Floor</option>
-    <option value="9th Floor">9th Floor</option>
-    <option value="10th Floor">10th Floor</option>
-  </select>
-</div>
-        <div class="listing-field">
-          <label>Car Parking<span style="color:red;">*</span></label>
-          <select id="l_carparking">
-            <option value="">0</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-          </select>
-        </div>
-        <div class="listing-field">
-          <label>Bike Parking<span style="color:red;">*</span></label>
-          <select id="l_bikeparking">
-            <option value="">0</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-          </select>
-        </div>
       </div>
-      </div>
+
 
       <!-- Section: Description & Amenities -->
       <div class="listing-section-label">Description & Extras</div>
@@ -4444,7 +4505,7 @@ async function submitListing(){
     desc:         get('l_desc')        || undefined,
     amenities:    amenities.length ? amenities : undefined,
     images:       images.length   ? images    : undefined,
-    deposit:      (status === 'For Rent' && deposit && !isNaN(Number(deposit))) ? Number(deposit) : undefined,
+    deposit:      (['For Rent','Lease','PG'].includes(status) && deposit && !isNaN(Number(deposit))) ? Number(deposit) : undefined,
     latitude:     (latVal && !isNaN(Number(latVal)) && Number(latVal) !== 0) ? Number(latVal) : undefined,
     longitude:    (lngVal && !isNaN(Number(lngVal)) && Number(lngVal) !== 0) ? Number(lngVal) : undefined,
   };
@@ -4503,14 +4564,13 @@ async function submitListing(){
 
 // ── STATUS CHANGE: show/hide deposit ──
 function onListingStatusChange(val) {
-debugger;
   const wrap    = document.getElementById('l_depositWrap');
   const lbl     = document.getElementById('l_priceLabel');
   const pgSec   = document.getElementById('l_pgSection');
   const bhkWrap = document.getElementById('l_bhk')?.closest('.listing-field');
   if (!wrap) return;
 
-  const isMonthly = (val === 'For Rent' || val === 'PG' || val == "New Launch");
+  const isMonthly = (val === 'For Rent' || val === 'PG' || val === 'Lease');
   const isPG      = (val === 'PG');
 
   // Deposit / price label
@@ -5085,93 +5145,209 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
         <div style="font-size:0.85rem;color:var(--ink3)">Update the property details below.</div>
       </div>
 
+      <!-- Section: Basic Info -->
       <div class="listing-section-label">Basic Information</div>
-      
       <div class="listing-grid-2">
-        
         <div class="listing-field">
-          <label>Status</label>
-          <select id="ep_status">
-            
+          <label>Status<span style="color:red;">*</span></label>
+          <select id="ep_status" onchange="onEditStatusChange(this.value)">
             <option value="For Sale">For Sale</option>
-            <option value="For Rent">For Rent</option>
             <option value="New Launch">New Launch</option>
+            <option value="For Rent">For Rent</option>
             <option value="Lease">Lease</option>
             <option value="PG">PG / Co-living</option>
+            <option value="Sold">Sold</option>
           </select>
         </div>
-		<div class="listing-field"><label>City</label><input type="text" id="ep_city" placeholder="e.g. Bengaluru"/></div>
+        <div class="listing-field">
+          <label>City<span style="color:red;">*</span></label>
+          <input type="text" id="ep_city" placeholder="e.g. Bengaluru"/>
+        </div>
       </div>
-	  <div class="listing-grid-2">
-        <div class="listing-field"><label>Property Title</label><input type="text" id="ep_title" placeholder="e.g. Prestige Lakeside"/></div>
-        <div class="listing-field"><label>Location / Area</label><input type="text" id="ep_loc" placeholder="e.g. HSR Layout"/></div>
+      <div class="listing-grid-2">
+        <div class="listing-field">
+          <label>Property Title<span style="color:red;">*</span></label>
+          <input type="text" id="ep_title" placeholder="e.g. Prestige Lakeside"/>
+        </div>
+        <div class="listing-field">
+          <label>Location / Area<span style="color:red;">*</span></label>
+          <div style="display:flex;gap:7px;align-items:center">
+            <input type="text" id="ep_loc" placeholder="e.g. HSR Layout" style="flex:1;min-width:0"/>
+            <button type="button" id="ep_locBtn" onclick="captureLocationEdit()" title="Use my current location" style="flex-shrink:0;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--gold);background:var(--gold-light);color:var(--gold-dark);font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.18s;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--gold-light)';this.style.color='var(--gold-dark)'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+              <span id="ep_locBtnTxt">Live</span>
+            </button>
+          </div>
+          <div id="ep_locStatus" style="font-size:0.72rem;color:var(--ink3);min-height:14px;margin-top:2px"></div>
+        </div>
       </div>
 
+      <!-- Section: Pricing -->
       <div class="listing-section-label">Pricing</div>
       <div class="listing-grid-2">
-        <div class="listing-field"><label>Price*</label><input type="number" id="ep_price" placeholder="e.g. 8500000"/></div>
+        <div class="listing-field">
+          <label id="ep_priceLabel">Price<span style="color:red;">*</span></label>
+          <input type="number" id="ep_price" placeholder="e.g. 8500000"/>
+        </div>
+        <div class="listing-field" id="ep_depositWrap" style="display:none">
+          <label>Security Deposit<span style="color:red;">*</span></label>
+          <input type="number" id="ep_deposit" placeholder="e.g. 50000"/>
+        </div>
       </div>
 
+      <!-- Section: Property Details -->
       <div class="listing-section-label">Property Details</div>
       <div class="listing-grid-3">
         <div class="listing-field">
-          <label>BHK</label>
-          <select id="ep_bhk"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          <label>BHK<span style="color:red;">*</span></label>
+          <select id="ep_bhk">
+            <option value="">0</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          </select>
         </div>
         <div class="listing-field">
-          <label>Bathrooms</label>
-          <select id="ep_toilet"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+          <label>Bathrooms<span style="color:red;">*</span></label>
+          <select id="ep_toilet">
+            <option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
         </div>
         <div class="listing-field">
-          <label>Furnishing</label>
-          <select id="ep_furnishing"><option>Fully Furnished</option><option>Semi-Furnished</option><option>Unfurnished</option></select>
+          <label>Furnishing<span style="color:red;">*</span></label>
+          <select id="ep_furnishing">
+            <option value="Unfurnished">Unfurnished</option>
+            <option>Fully Furnished</option>
+            <option>Semi-Furnished</option>
+          </select>
         </div>
       </div>
       <div class="listing-grid-3">
         <div class="listing-field">
-          <label>Car Parking</label>
-          <select id="ep_carparking"><option value="">None</option><option>1</option><option>2</option><option>3</option></select>
+          <label>Car Parking<span style="color:red;">*</span></label>
+          <select id="ep_carparking">
+            <option value="">0</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
         </div>
         <div class="listing-field">
-          <label>Bike Parking</label>
-          <select id="ep_bikeparking"><option value="">None</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+          <label>Bike Parking<span style="color:red;">*</span></label>
+          <select id="ep_bikeparking">
+            <option value="">0</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
         </div>
-        <div class="listing-field"><label>Area (sqft)</label><input type="text" id="ep_area" placeholder="e.g. 1250 sqft"/></div>
       </div>
       <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Floor<span style="color:red;">*</span></label>
+          <select id="ep_floor">
+            <option value="">Select Floor</option>
+            <option value="0th Floor">0th Floor</option>
+            <option value="1st Floor">1st Floor</option>
+            <option value="2nd Floor">2nd Floor</option>
+            <option value="3rd Floor">3rd Floor</option>
+            <option value="4th Floor">4th Floor</option>
+            <option value="5th Floor">5th Floor</option>
+            <option value="6th Floor">6th Floor</option>
+            <option value="7th Floor">7th Floor</option>
+            <option value="8th Floor">8th Floor</option>
+            <option value="9th Floor">9th Floor</option>
+            <option value="10th Floor">10th Floor</option>
+          </select>
+        </div>
+        <div class="listing-field">
+          <label>Area (sqft)</label>
+          <input type="text" id="ep_area" placeholder="e.g. 1250 sqft"/>
+        </div>
         <div class="listing-field">
           <label>Facing</label>
-          <select id="ep_facing"><option value="">Any</option><option>East</option><option>West</option><option>North</option><option>South</option><option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option></select>
+          <select id="ep_facing">
+            <option value="">Any</option>
+            <option>East</option><option>West</option><option>North</option><option>South</option>
+            <option>North-East</option><option>North-West</option><option>South-East</option><option>South-West</option>
+          </select>
         </div>
-        <div class="listing-field"><label>Floor / Level</label><input type="text" id="ep_floor" placeholder="e.g. 4th Floor"/></div>
-        <div class="listing-field"><label>Property Age</label><input type="text" id="ep_age" placeholder="e.g. 2 years"/></div>
+      </div>
+      <div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Property Age</label>
+          <input type="text" id="ep_age" placeholder="e.g. 2 years"/>
+        </div>
+      </div>
+      <input type="hidden" id="ep_latitude"/>
+      <input type="hidden" id="ep_longitude"/>
+
+      <!-- PG Specific Fields -->
+      <div id="ep_pgSection" style="display:none">
+        <div class="listing-section-label">PG / Co-living Details</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Gender Preference<span style="color:red;">*</span></label>
+            <select id="ep_pgGender">
+              <option value="">Any</option>
+              <option>Boys</option>
+              <option>Girls</option>
+              <option>Co-ed</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Room Type<span style="color:red;">*</span></label>
+            <select id="ep_pgRoomType">
+              <option value="">Any</option>
+              <option>Single</option>
+              <option>Double Sharing</option>
+              <option>Triple Sharing</option>
+              <option>Dormitory</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Meals Included<span style="color:red;">*</span></label>
+            <select id="ep_pgMeals">
+              <option value="">Select</option>
+              <option>Yes – All Meals</option>
+              <option>Yes – Breakfast Only</option>
+              <option>No Meals</option>
+            </select>
+          </div>
+        </div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Occupancy Available<span style="color:red;">*</span></label>
+            <input type="text" id="ep_pgOccupancy" placeholder="e.g. 2 beds available"/>
+          </div>
+          <div class="listing-field">
+            <label>Notice Period<span style="color:red;">*</span></label>
+            <select id="ep_pgNotice">
+              <option value="">Any</option>
+              <option>15 Days</option>
+              <option>1 Month</option>
+              <option>2 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Attached Bathroom<span style="color:red;">*</span></label>
+            <select id="ep_pgBathroom">
+              <option value="Yes">Yes</option>
+              <option>Shared</option>
+            </select>
+          </div>
+        </div>
       </div>
 
+      <!-- Section: Description & Extras -->
       <div class="listing-section-label">Description & Extras</div>
       <div class="listing-field" style="margin-bottom:10px">
         <label>Description</label>
-        <textarea id="ep_desc" rows="3" placeholder="Brief description…"></textarea>
+        <textarea id="ep_desc" rows="3" placeholder="Brief description of the property…"></textarea>
       </div>
       <div class="listing-field" style="margin-bottom:10px">
         <label>Amenities <span style="font-weight:400;color:var(--ink3)">(comma-separated)</span></label>
-        <input type="text" id="ep_amenities" placeholder="e.g. Gym, Swimming Pool"/>
+        <input type="text" id="ep_amenities" placeholder="e.g. Gym, Swimming Pool, Clubhouse"/>
       </div>
 
-      <div class="listing-section-label">Map Location <span style="font-weight:400;color:var(--ink3);font-size:0.7rem;letter-spacing:0;text-transform:none">(for admin navigation)</span></div>
-      <div class="listing-grid-2" style="margin-bottom:10px">
-        <div class="listing-field">
-          <label>Latitude</label>
-          <input type="number" step="any" id="ep_latitude" placeholder="e.g. 12.91234"/>
-        </div>
-        <div class="listing-field">
-          <label>Longitude</label>
-          <input type="number" step="any" id="ep_longitude" placeholder="e.g. 77.61234"/>
-        </div>
-      </div>
-
+      <!-- Section: Property Images -->
       <div class="listing-section-label">Property Images</div>
       <div class="img-upload-row">
-        <textarea id="ep_imgUrlInput" rows="2" placeholder="Paste image URLs — one per line or comma-separated (https://…)" class="img-url-textarea" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <textarea id="ep_imgUrlInput" rows="2" placeholder="Paste one or more image URLs, one per line or comma-separated (https://…)" class="img-url-textarea" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
         <div class="img-upload-btns">
           <button type="button" onclick="epAddImageFromUrl()" style="padding:9px 16px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">+ Add URL(s)</button>
           <button type="button" onclick="document.getElementById('ep_imgFileInput').click()" style="padding:9px 14px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);font-size:0.82rem;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all 0.18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold-dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink2)'">📁 Upload</button>
@@ -5181,7 +5357,7 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
         <input type="file" id="ep_imgCameraInput" accept="image/*" capture="environment" style="display:none" onchange="epAddImagesFromFiles(this)"/>
       </div>
       <div id="epImgPreviewGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px"></div>
-      <div id="epImgEmptyHint" style="font-size:0.78rem;color:var(--ink3);margin-bottom:18px">No images added yet. Paste URLs or upload photos above.</div>
+      <div id="epImgEmptyHint" style="font-size:0.78rem;color:var(--ink3);margin-bottom:18px">No images added yet. Paste a URL or upload/capture photos above.</div>
 
       <button id="editPropertySubmitBtn" onclick="submitEditProperty()" style="width:100%;padding:14px;border:none;background:var(--ink);color:#fff;border-radius:var(--radius-xs);font-size:0.92rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--ink)';this.style.color='#fff'">
         Save Changes →

@@ -37,7 +37,7 @@ const PropertySchema = new mongoose.Schema({
   price:       { type: Number, required: true },
   displayPrice:{ type: String, required: true },
   bhk:         { type: Number, required: true },
-  area:        String, status: { type: String, enum:["For Sale","For Rent","New Launch","Sold"], default:"For Sale" },
+  area:        String, status: { type: String, enum:["For Sale","For Rent","New Launch","Sold","Lease","PG"], default:"For Sale" },
   furnishing:  { type: String, default: "Unfurnished" },
   floor: String, floorLevel: String, age: String, facing: String,
   carparking: String, bikeparking: String, toilet: String,
@@ -230,7 +230,7 @@ app.put("/api/properties/:id", async (req, res) => {
       if (num >= 10000000)    display = '₹' + (num/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
       else if (num >= 100000) display = '₹' + (num/100000).toFixed(1).replace(/\.?0+$/,'') + ' L';
       else                    display = '₹' + num.toLocaleString('en-IN');
-      if (updated.status === 'For Rent') display += '/Month';
+      if (['For Rent','Lease','PG'].includes(updated.status)) display += '/Month';
       updated.displayPrice = display;
       await updated.save();
     }
