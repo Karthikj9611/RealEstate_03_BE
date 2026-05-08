@@ -2535,12 +2535,20 @@ function renderProps(list){
           ${p.loc}
         </div>
         <div class="prop-chips">
+          ${p.status === 'PG' ? `
+            ${p.pgRoomType  ? `<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16M2 8h18a2 2 0 012 2v10M2 16h20M6 8v-4"/></svg>${p.pgRoomType}</span>` : ''}
+            ${p.pgGender    ? `<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>${p.pgGender}</span>` : ''}
+            ${p.pgMeals     ? `<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>${p.pgMeals}</span>` : ''}
+            ${p.pgBathroom  ? `<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>${p.pgBathroom} Bathroom</span>` : ''}
+            ${p.deposit     ? `<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Deposit ₹${Number(p.deposit).toLocaleString('en-IN')}</span>` : ''}
+          ` : `
           ${p.bhk?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16M2 8h18a2 2 0 012 2v10M2 16h20M6 8v-4"/></svg>${p.bhk} BHK</span>`:''}
           ${p.area?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>${p.area}</span>`:''}
           ${p.toilet?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>${p.toilet} Bathroom</span>`:''}
           ${p.furnishing?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9V6a2 2 0 00-2-2H6a2 2 0 00-2 2v3"/><path d="M2 11a2 2 0 012 2v2h16v-2a2 2 0 012-2 2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2z"/></svg>${p.furnishing}</span>`:''}
           ${p.carparking?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>${p.carparking} Car</span>`:''}
           ${p.bikeparking?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>${p.bikeparking} Bike</span>`:''}
+          `}
         </div>
         <div class="prop-footer">
           <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">
@@ -2758,7 +2766,9 @@ const MODAL_LABELS = {
   floorLevel:'Floor Level', parking:'Parking', carparking:'Car Parking',
   bikeparking:'Bike Parking', toilet:'Bathrooms', toilet_type:'Toilet Type',
   price:'Price(₹)', city:'City', facing:'Facing', age:'Property Age',
-  status:'Listing Type', desc:'Description', deposit:'Security Deposit (₹)',
+  status:'Listing Type', desc:'Description', deposit:'Security Deposit (20b9)',
+  pgGender:'Gender Preference', pgRoomType:'Room Type', pgMeals:'Meals Included',
+  pgOccupancy:'Occupancy Available', pgNotice:'Notice Period', pgBathroom:'Attached Bathroom',
 };
 
 function openModal(id){
