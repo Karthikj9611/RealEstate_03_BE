@@ -3929,30 +3929,29 @@ async function submitEditProperty() {
         <div class="listing-field">
           <label>Status</label>
           <select id="l_status" onchange="onListingStatusChange(this.value)">
-            <option value="">--- Select ---</option>
-            <option value="For Sale">For Sale</option>
             <option value="For Rent">For Rent</option>
+			<option value="Lease">Lease</option>
+			<option value="PG">PG / Co-living</option>
             <option value="New Launch">New Launch</option>
-            <option value="Lease">Lease</option>
-            <option value="PG">PG / Co-living</option>
+			<option value="For Sale">For Sale</option>
           </select>
         </div>
 		
 		<div class="listing-field">
           <label>City</label>
-          <input type="text" id="l_city" placeholder="e.g. Bengaluru" value="Bengaluru"/>
+          <input type="text" id="l_city" placeholder="" value="Bengaluru"/>
         </div>
         
       </div>
 	  <div class="listing-grid-2">
         <div class="listing-field">
           <label>Property Title</label>
-          <input type="text" id="l_title" placeholder="e.g. Prestige Lakeside"/>
+          <input type="text" id="l_title" placeholder=""/>
         </div>
         <div class="listing-field">
           <label>Location / Area</label>
           <div style="display:flex;gap:7px;align-items:center">
-            <input type="text" id="l_loc" placeholder="e.g. HSR Layout" style="flex:1;min-width:0"/>
+            <input type="text" id="l_loc" placeholder="" style="flex:1;min-width:0"/>
             <button type="button" id="l_locBtn" onclick="captureLocation()" title="Use my current location" style="flex-shrink:0;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--gold);background:var(--gold-light);color:var(--gold-dark);font-size:0.82rem;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.18s;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--gold-light)';this.style.color='var(--gold-dark)'">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
               <span id="l_locBtnTxt">Live</span>
@@ -3968,12 +3967,12 @@ async function submitEditProperty() {
       <div class="listing-section-label">Pricing</div>
       <div class="listing-grid-2">
         <div class="listing-field">
-          <label id="l_priceLabel">Price (₹)</label>
-          <input type="number" id="l_price" placeholder="e.g. 100000"/>
+          <label id="l_priceLabel">Price(₹)</label>
+          <input type="number" id="l_price" placeholder=""/>
         </div>
         <div class="listing-field" id="l_depositWrap" style="display:none">
-          <label>Security Deposit (₹)</label>
-          <input type="number" id="l_deposit" placeholder="e.g. 100000"/>
+          <label>Security Deposit(₹)</label>
+          <input type="number" id="l_deposit" placeholder=""/>
         </div>
       </div>
 
@@ -3983,24 +3982,22 @@ async function submitEditProperty() {
         <div class="listing-field">
           <label>BHK</label>
           <select id="l_bhk">
-            <option value="">--- Select ---</option>
+            <option value="">0</option>
             <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
           </select>
         </div>
         <div class="listing-field">
           <label>Bathrooms</label>
           <select id="l_toilet">
-            <option value="">Any</option>
             <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
 		 <div class="listing-field">
           <label>Furnishing</label>
           <select id="l_furnishing">
-            <option value="">--- Select ---</option>
+            <option value="Unfurnished">Unfurnished</option>
             <option>Fully Furnished</option>
             <option>Semi-Furnished</option>
-            <option>Unfurnished</option>
           </select>
         </div>
       </div>
@@ -4008,21 +4005,21 @@ async function submitEditProperty() {
         <div class="listing-field">
           <label>Car Parking</label>
           <select id="l_carparking">
-            <option value="">None</option>
+            <option value="">0</option>
             <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
         <div class="listing-field">
           <label>Bike Parking</label>
           <select id="l_bikeparking">
-            <option value="">None</option>
+            <option value="">0</option>
             <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
       </div>
       <div class="listing-grid-3">
         <div class="listing-field">
-          <label>Area (sqft)</label>
+          <label>Area(sqft)</label>
           <input type="text" id="l_area" placeholder="e.g. 1250 sqft"/>
         </div>
         <div class="listing-field">
@@ -4034,9 +4031,22 @@ async function submitEditProperty() {
           </select>
         </div>
         <div class="listing-field">
-          <label>Floor / Level</label>
-          <input type="text" id="l_floor" placeholder="e.g. 4th Floor"/>
-        </div>
+  <label>Floor</label>
+  <select id="l_floor">
+    <option value="">Select Floor</option>
+    <option value="0th Floor">0th Floor</option>
+    <option value="1st Floor">1st Floor</option>
+    <option value="2nd Floor">2nd Floor</option>
+    <option value="3rd Floor">3rd Floor</option>
+    <option value="4th Floor">4th Floor</option>
+    <option value="5th Floor">5th Floor</option>
+    <option value="6th Floor">6th Floor</option>
+    <option value="7th Floor">7th Floor</option>
+    <option value="8th Floor">8th Floor</option>
+    <option value="9th Floor">9th Floor</option>
+    <option value="10th Floor">10th Floor</option>
+  </select>
+</div>
       </div>
       
 
@@ -4091,24 +4101,40 @@ async function submitEditProperty() {
           <div class="listing-field">
             <label>Attached Bathroom</label>
             <select id="l_pgBathroom">
-              <option value="">Select</option>
-              <option>Yes</option>
+              <option value="Yes">Yes</option>
               <option>Shared</option>
             </select>
           </div>
         </div>
 		<div class="listing-grid-3">
+		 <div class="listing-field">
+  <label>Floor</label>
+  <select id="l_floor">
+    <option value="">Select Floor</option>
+    <option value="0th Floor">0th Floor</option>
+    <option value="1st Floor">1st Floor</option>
+    <option value="2nd Floor">2nd Floor</option>
+    <option value="3rd Floor">3rd Floor</option>
+    <option value="4th Floor">4th Floor</option>
+    <option value="5th Floor">5th Floor</option>
+    <option value="6th Floor">6th Floor</option>
+    <option value="7th Floor">7th Floor</option>
+    <option value="8th Floor">8th Floor</option>
+    <option value="9th Floor">9th Floor</option>
+    <option value="10th Floor">10th Floor</option>
+  </select>
+</div>
         <div class="listing-field">
           <label>Car Parking</label>
           <select id="l_carparking">
-            <option value="">None</option>
+            <option value="">0</option>
             <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
         <div class="listing-field">
           <label>Bike Parking</label>
           <select id="l_bikeparking">
-            <option value="">None</option>
+            <option value="">0</option>
             <option>1</option><option>2</option><option>3</option><option>4</option>
           </select>
         </div>
@@ -4122,7 +4148,7 @@ async function submitEditProperty() {
         <textarea id="l_desc" rows="3" placeholder="Brief description of the property…"></textarea>
       </div>
       <div class="listing-field" style="margin-bottom:10px">
-        <label>Amenities <span style="font-weight:400;color:var(--ink3)">(comma-separated)</span></label>
+        <label>Amenities <span style="font-weight:400;color:var(--ink3)"></span></label>
         <input type="text" id="l_amenities" placeholder="e.g. Gym, Swimming Pool, Clubhouse"/>
       </div>
       <!-- ── IMAGES SECTION ── -->
