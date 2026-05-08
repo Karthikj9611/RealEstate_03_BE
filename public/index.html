@@ -5081,16 +5081,13 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
       </div>
 
       <div class="listing-section-label">Basic Information</div>
+      
       <div class="listing-grid-2">
-        <div class="listing-field"><label>Property Title</label><input type="text" id="ep_title" placeholder="e.g. Prestige Lakeside"/></div>
-        <div class="listing-field"><label>Location / Area</label><input type="text" id="ep_loc" placeholder="e.g. HSR Layout"/></div>
-      </div>
-      <div class="listing-grid-2">
-        <div class="listing-field"><label>City</label><input type="text" id="ep_city" placeholder="e.g. Bengaluru"/></div>
+        
         <div class="listing-field">
           <label>Status</label>
           <select id="ep_status">
-            <option value="">--- Select ---</option>
+            
             <option value="For Sale">For Sale</option>
             <option value="For Rent">For Rent</option>
             <option value="New Launch">New Launch</option>
@@ -5099,6 +5096,11 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
             <option value="Sold">Sold</option>
           </select>
         </div>
+		<div class="listing-field"><label>City</label><input type="text" id="ep_city" placeholder="e.g. Bengaluru"/></div>
+      </div>
+	  <div class="listing-grid-2">
+        <div class="listing-field"><label>Property Title</label><input type="text" id="ep_title" placeholder="e.g. Prestige Lakeside"/></div>
+        <div class="listing-field"><label>Location / Area</label><input type="text" id="ep_loc" placeholder="e.g. HSR Layout"/></div>
       </div>
 
       <div class="listing-section-label">Pricing</div>
@@ -5110,7 +5112,7 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
       <div class="listing-grid-3">
         <div class="listing-field">
           <label>BHK</label>
-          <select id="ep_bhk"><option value="">--- Select ---</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+          <select id="ep_bhk"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
         </div>
         <div class="listing-field">
           <label>Bathrooms</label>
@@ -5118,7 +5120,7 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
         </div>
         <div class="listing-field">
           <label>Furnishing</label>
-          <select id="ep_furnishing"><option value="">--- Select ---</option><option>Fully Furnished</option><option>Semi-Furnished</option><option>Unfurnished</option></select>
+          <select id="ep_furnishing"><option>Fully Furnished</option><option>Semi-Furnished</option><option>Unfurnished</option></select>
         </div>
       </div>
       <div class="listing-grid-3">
