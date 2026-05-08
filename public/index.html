@@ -3925,7 +3925,26 @@ async function submitEditProperty() {
 
       <!-- Section: Basic Info -->
       <div class="listing-section-label">Basic Information</div>
-      <div class="listing-grid-2">
+       <div class="listing-grid-2">
+        <div class="listing-field">
+          <label>Status</label>
+          <select id="l_status" onchange="onListingStatusChange(this.value)">
+            <option value="">--- Select ---</option>
+            <option value="For Sale">For Sale</option>
+            <option value="For Rent">For Rent</option>
+            <option value="New Launch">New Launch</option>
+            <option value="Lease">Lease</option>
+            <option value="PG">PG / Co-living</option>
+          </select>
+        </div>
+		
+		<div class="listing-field">
+          <label>City</label>
+          <input type="text" id="l_city" placeholder="e.g. Bengaluru" value="Bengaluru"/>
+        </div>
+        
+      </div>
+	  <div class="listing-grid-2">
         <div class="listing-field">
           <label>Property Title</label>
           <input type="text" id="l_title" placeholder="e.g. Prestige Lakeside"/>
@@ -3942,44 +3961,15 @@ async function submitEditProperty() {
           <div id="l_locStatus" style="font-size:0.72rem;color:var(--ink3);min-height:14px;margin-top:2px"></div>
         </div>
       </div>
-      <div class="listing-grid-2">
-        <div class="listing-field">
-          <label>City</label>
-          <input type="text" id="l_city" placeholder="e.g. Bengaluru" value="Bengaluru"/>
-        </div>
-        <div class="listing-field">
-          <label>Status</label>
-          <select id="l_status" onchange="onListingStatusChange(this.value)">
-            <option value="">Select…</option>
-            <option value="For Sale">For Sale</option>
-            <option value="For Rent">For Rent</option>
-            <option value="New Launch">New Launch</option>
-            <option value="Lease">Lease</option>
-            <option value="PG">PG / Co-living</option>
-          </select>
-        </div>
-      </div>
-      <!-- Hidden coordinate fields — filled by captureLocation() or manual GPS entry -->
-      <input type="hidden" id="l_latitude" value=""/>
-      <input type="hidden" id="l_longitude" value=""/>
-      <!-- Optional: manual GPS coordinate entry -->
-      <div class="listing-grid-2" style="margin-bottom:10px">
-        <div class="listing-field">
-          <label>Latitude <span style="font-weight:400;color:var(--ink3)">(optional, for map navigation)</span></label>
-          <input type="number" step="any" id="l_lat_manual" placeholder="e.g. 12.91234" oninput="document.getElementById('l_latitude').value=this.value"/>
-        </div>
-        <div class="listing-field">
-          <label>Longitude <span style="font-weight:400;color:var(--ink3)">(optional, for map navigation)</span></label>
-          <input type="number" step="any" id="l_lng_manual" placeholder="e.g. 77.61234" oninput="document.getElementById('l_longitude').value=this.value"/>
-        </div>
-      </div>
+     
+
 
       <!-- Section: Pricing -->
       <div class="listing-section-label">Pricing</div>
       <div class="listing-grid-2">
         <div class="listing-field">
           <label id="l_priceLabel">Price (₹)</label>
-          <input type="number" id="l_price" placeholder=""/>
+          <input type="number" id="l_price" placeholder="e.g. 100000"/>
         </div>
         <div class="listing-field" id="l_depositWrap" style="display:none">
           <label>Security Deposit (₹)</label>
@@ -4107,6 +4097,22 @@ async function submitEditProperty() {
             </select>
           </div>
         </div>
+		<div class="listing-grid-3">
+        <div class="listing-field">
+          <label>Car Parking</label>
+          <select id="l_carparking">
+            <option value="">None</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </div>
+        <div class="listing-field">
+          <label>Bike Parking</label>
+          <select id="l_bikeparking">
+            <option value="">None</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </div>
+      </div>
       </div>
 
       <!-- Section: Description & Amenities -->
