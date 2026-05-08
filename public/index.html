@@ -164,7 +164,6 @@ nav{
   /* Hide desktop pill and CTA on mobile */
   #navUserPill{display:none!important}
   #navListBtn{display:none!important}
-  #trustNotesNavBtn{display:none!important}
   /* User block spacing */
   #mobileUserBlock{margin-top:8px!important}
 }
@@ -1470,6 +1469,7 @@ input {
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#"><span class="k">K</span>R</a>
+<!--  <a class="nav-logo" href="#"><img src="Logo.png" alt="KR Logo" style="height:42px;width:42px;object-fit:contain;border-radius:6px;"/></a> -->
 
   <!-- Desktop + Mobile drawer links -->
   <div class="nav-links" id="navLinks">
@@ -1517,11 +1517,6 @@ input {
     </div>
   </div>
 
-
-  <button id="trustNotesNavBtn" onclick="openTrustModal()" style="background:var(--gold-light);color:var(--gold-dark);border:1.5px solid var(--gold);border-radius:99px;padding:7px 16px;font-size:0.8rem;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all 0.18s;flex-shrink:0" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--gold-light)';this.style.color='var(--gold-dark)'">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Our Promise
-  </button>
 
   <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -1972,7 +1967,7 @@ input {
     <div class="about-modal-header">
       <button class="about-modal-close" onclick="closeAboutModal()" aria-label="Close">✕</button>
       <div class="about-modal-brand"><span>K</span>R Real-Estate</div>
-      <div class="about-modal-tagline">HSR Layout's Premier Realty · Est. 2018</div>
+      <div class="about-modal-tagline">HSR Layout's Premier Realty · Est. 2026</div>
       <p class="about-modal-story">
         We started KR Real-Estate with a simple belief — finding a home should feel exciting, not overwhelming.
         From a single desk in HSR Layout to a trusted name across Bengaluru, our team of passionate professionals
@@ -4661,10 +4656,6 @@ async function captureLocation() {
   </div>
 </div>
 <script>
-function openTrustModal(){
-  var m=document.getElementById('trustNotesModal');
-  if(m){m.classList.add('open');document.body.style.overflow='hidden';}
-}
 function openTrustModal(){
   var m=document.getElementById('trustNotesModal');
   if(m){m.classList.add('open');document.body.style.overflow='hidden';}
