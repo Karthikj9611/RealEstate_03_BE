@@ -149,14 +149,15 @@ nav{
   }
   .nav-links.open{display:flex}
   .nav-links a{
-    font-size:0.92rem;padding:11px 14px;
-    border-radius:10px;
-    border-bottom:1px solid var(--surface2);
-    justify-content:flex-start;
-    width:100%;
-    white-space:nowrap;
-    overflow:visible;
-  }
+  font-size:0.92rem;padding:11px 14px;
+  border-radius:10px;
+  border-bottom:1px solid var(--surface2);
+  justify-content:center;
+  text-align:center;
+  width:100%;
+  white-space:nowrap;
+  overflow:visible;
+}
   .nav-links a:last-of-type{border-bottom:none}
   .nav-links a .icon{font-size:1rem;opacity:1;color:var(--gold-dark);flex-shrink:0}
   .nav-hamburger{display:flex}
@@ -1606,53 +1607,66 @@ input {
   flex-wrap:nowrap;
 }
 .hero-text-anim{flex:0 1 auto}
+
 .hero-commission-box{
   flex:0 0 auto;
-  background:rgba(255,255,255,0.07);
-  border:1.5px solid rgba(255,255,255,0.14);
-  border-radius:20px;
-  padding:1.1rem 1.4rem;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  display:flex;flex-direction:column;gap:10px;
-  min-width:220px;max-width:280px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.18);
+  border-top:1px solid rgba(255,255,255,0.28);
+  border-radius:22px;
+  padding:1.5rem 1.6rem;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;gap:14px;
+  min-width:230px;max-width:285px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .hero-commission-label{
-  font-size:0.62rem;font-weight:800;letter-spacing:1.2px;
-  text-transform:uppercase;color:rgba(255,255,255,0.5);
-  display:flex;align-items:center;gap:6px;
+  font-size:0.6rem;font-weight:800;letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:#6ee7b7;
+  display:flex;align-items:center;gap:7px;
 }
 .hero-commission-title{
-  font-size:0.88rem;font-weight:700;color:#fff;
-  line-height:1.35;
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.15rem;font-weight:700;color:#fff;
+  line-height:1.3;letter-spacing:-0.2px;
 }
 .hero-commission-pills{
-  display:flex;gap:8px;
+  display:flex;gap:10px;
 }
 .hero-commission-pill{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  border-radius:12px;padding:8px 10px;
+  border-radius:14px;padding:10px 8px;gap:3px;
 }
 .hero-commission-pill-rent{
-  background:rgba(58,158,114,0.18);border:1.5px solid rgba(58,158,114,0.4);
+  background:rgba(58,158,114,0.2);
+  border:1.5px solid rgba(110,231,183,0.35);
 }
 .hero-commission-pill-sale{
-  background:rgba(255,165,0,0.12);border:1.5px solid rgba(255,165,0,0.35);
+  background:rgba(251,191,36,0.12);
+  border:1.5px solid rgba(251,191,36,0.35);
 }
 .hero-commission-pill-lbl{
-  font-size:0.56rem;font-weight:800;letter-spacing:1px;
-  text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:2px;
+  font-size:0.55rem;font-weight:800;letter-spacing:1.1px;
+  text-transform:uppercase;color:rgba(255,255,255,0.4);
 }
 .hero-commission-pill-val{
   font-family:'Cormorant Garamond',serif;
-  font-size:1.25rem;font-weight:700;line-height:1;
+  font-size:1.55rem;font-weight:700;line-height:1;
 }
 .hero-commission-pill-rent .hero-commission-pill-val{color:#6ee7b7}
 .hero-commission-pill-sale .hero-commission-pill-val{color:#fbbf24}
 .hero-commission-pill-note{
-  font-size:0.58rem;color:rgba(255,255,255,0.4);margin-top:2px;text-align:center;
+  font-size:0.6rem;color:rgba(255,255,255,0.38);text-align:center;
+}
+.hero-commission-divider{
+  height:1px;background:rgba(255,255,255,0.08);margin:0 -1.6rem;
+}
+.hero-commission-footer{
+  font-size:0.67rem;color:rgba(255,255,255,0.32);
+  text-align:center;letter-spacing:0.3px;
 }
 
-/* Mobile: stack vertically, full width each */
 @media(max-width:640px){
   .hero-inner{
     flex-direction:column;
@@ -1663,14 +1677,17 @@ input {
     min-width:0;max-width:100%;
     flex-direction:row;
     align-items:center;
-    gap:12px;
-    padding:0.9rem 1rem;
+    gap:14px;
+    padding:1rem 1.2rem;
   }
-  .hero-commission-title{font-size:0.78rem}
+  .hero-commission-box .hero-commission-divider,
+  .hero-commission-box .hero-commission-footer{ display:none; }
+  .hero-commission-title{font-size:0.9rem}
   .hero-commission-pills{flex-shrink:0}
-  .hero-commission-pill{padding:6px 10px}
-  .hero-commission-pill-val{font-size:1rem}
+  .hero-commission-pill{padding:8px 10px}
+  .hero-commission-pill-val{font-size:1.2rem}
 }
+
 </style>
 
 <section class="hero" style="position:relative;overflow:hidden">
@@ -2556,7 +2573,7 @@ function renderProps(list){
             Call
           </button>
           <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">
-            View Details
+            View
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
@@ -6522,7 +6539,8 @@ nav.scrolled .nav-links a:hover { background: rgba(46,125,90,0.25); }
                 visibility 0s   linear 0s !important;
   }
   .nav-links a {
-    justify-content: flex-start !important;
+    justify-content: center !important;
+    text-align: center !important;
     white-space: nowrap !important;
     overflow: visible !important;
   }
