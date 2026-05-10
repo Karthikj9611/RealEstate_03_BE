@@ -6887,6 +6887,36 @@ function revealPage() {
     };
   }
 }
+
+async function pickContact(inputId) {
+  if (!('contacts' in navigator && 'ContactsManager' in window)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not Supported',
+      text: 'Contact picker is only supported on Android Chrome.',
+      timer: 2500,
+      showConfirmButton: false
+    });
+    return;
+  }
+  try {
+    const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+    if (contacts && contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+      const number = contacts[0].tel[0].replace(/\D/g, '').slice(-10);
+      const el = document.getElementById(inputId);
+      if (el) el.value = number;
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Could not open contacts',
+      text: err.message || 'Please enter the number manually.',
+      timer: 2500,
+      showConfirmButton: false
+    });
+  }
+}
+
 </script>
 </body>
 </html>
