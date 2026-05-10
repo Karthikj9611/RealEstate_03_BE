@@ -51,6 +51,8 @@ const PropertySchema = new mongoose.Schema({
   pgOccupancy: { type: String, default: null },
   pgNotice:    { type: String, default: null },
   pgBathroom:  { type: String, default: null },
+  ownerName:   { type: String, default: "" },
+ownerNumber: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now }
 });
 const Property = mongoose.model("Property", PropertySchema);
