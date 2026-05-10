@@ -6905,6 +6905,15 @@ async function pickContact(inputId) {
       const number = contacts[0].tel[0].replace(/\D/g, '').slice(-10);
       const el = document.getElementById(inputId);
       if (el) el.value = number;
+
+      // Auto-fill owner name from contact
+      const name = contacts[0].name?.[0] || '';
+      if (name) {
+        // Works for both l_ownerNumber → l_ownerName and ep_ownerNumber → ep_ownerName
+        const nameFieldId = inputId.replace('Number', 'Name');
+        const nameEl = document.getElementById(nameFieldId);
+        if (nameEl && !nameEl.value) nameEl.value = name;
+      }
     }
   } catch (err) {
     Swal.fire({
