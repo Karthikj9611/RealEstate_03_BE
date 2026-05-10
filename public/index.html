@@ -3847,6 +3847,7 @@ function openEditPropertyModal(localId) {
     ep_deposit:p.deposit||'',
     ep_amenities:Array.isArray(p.amenities)?p.amenities.join(', '):(p.amenities||''),
     ep_latitude: p.latitude || '', ep_longitude: p.longitude || '',
+	ep_fullAddress: p.fullAddress || '',
 	ep_ownerName: p.ownerName || '', ep_ownerNumber: p.ownerNumber || '',
     ep_pgOccupancy: p.pgOccupancy||'',
   };
@@ -3931,11 +3932,13 @@ async function captureLocationEdit() {
         const city     = addr.city||addr.town||addr.state_district||addr.state||'';
         const area     = addr.road||addr.pedestrian||'';
         const locVal   = [locality,area].filter(Boolean).join(', ')||data.display_name?.split(',')[0]||'';
-        if(locInp&&locVal) locInp.value=locVal;
-        if(cityInp&&city)  cityInp.value=city;
+        if(locInp && locVal && !locInp.value) locInp.value = locVal;
+        if(cityInp && city) cityInp.value = city;
+        const epFullAddr = document.getElementById('ep_fullAddress');
+        if(epFullAddr) epFullAddr.value = data.display_name || locVal || '';
         if(status) status.innerHTML=`<span style="color:var(--gold-dark)">✅ Location set: <strong>${locVal||'detected'}</strong></span>`;
       } catch {
-        if(locInp) locInp.value=`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        if(locInp && !locInp.value) locInp.value=`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
         if(status) status.innerHTML=`<span style="color:var(--gold-dark)">✅ Coordinates captured (address lookup failed)</span>`;
       }
       if(btnTxt) btnTxt.textContent='Live';
@@ -3981,6 +3984,7 @@ async function submitEditProperty() {
 
   const payload={
     title:get('ep_title'), loc:get('ep_loc'), city:get('ep_city')||'Bengaluru',
+    fullAddress: get('ep_fullAddress') || undefined,
     status, price:Number(price), displayPrice,
     bhk:get('ep_bhk')?parseInt(get('ep_bhk')):undefined,
     area:get('ep_area')||undefined,
@@ -4077,6 +4081,12 @@ async function submitEditProperty() {
           </div>
           <div id="l_locStatus" style="font-size:0.72rem;color:var(--ink3);min-height:14px;margin-top:2px"></div>
         </div>
+      </div>
+
+      <!-- Full Address (auto-filled by live location, editable) -->
+      <div class="listing-field" style="margin-top:8px">
+        <label>Full Address</label>
+        <textarea id="l_fullAddress" rows="2" placeholder="Auto-filled when you use Live location, or type manually" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.84rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none;transition:border 0.18s;resize:none;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
       </div>
 	  
 	  	  <!-- Section: Owner Details -->
@@ -4542,8 +4552,10 @@ async function submitListing(){
   const deposit = get('l_deposit');
   const latVal = document.getElementById('l_latitude')?.value;
   const lngVal = document.getElementById('l_longitude')?.value;
+  const fullAddress = get('l_fullAddress');
   const payload = {
     title, loc, city, status,
+    fullAddress: fullAddress || undefined,
     price: Number(price),
     displayPrice,
     bhk: bhk ? parseInt(bhk) : undefined,
@@ -4602,7 +4614,7 @@ async function submitListing(){
     setTimeout(loadPropertiesFromDB, 800);
 
     // Reset form
-    ['l_title','l_loc','l_city','l_price','l_deposit','l_area','l_floor','l_age','l_desc','l_amenities']
+    ['l_title','l_loc','l_city','l_price','l_deposit','l_area','l_floor','l_age','l_desc','l_amenities','l_fullAddress']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
@@ -4694,13 +4706,19 @@ async function captureLocation() {
         const area     = addr.road   || addr.pedestrian || '';
 
         const locVal = [locality, area].filter(Boolean).join(', ') || data.display_name?.split(',')[0] || '';
-        if (locInp && locVal)  locInp.value  = locVal;
-        if (cityInp && city)   cityInp.value = city;
+
+        // Location / Area: only auto-fill if user hasn't typed anything
+        if (locInp && locVal && !locInp.value) locInp.value = locVal;
+        if (cityInp && city) cityInp.value = city;
+
+        // Full Address: always filled from live location (separate field)
+        const fullAddrInp = document.getElementById('l_fullAddress');
+        if (fullAddrInp) fullAddrInp.value = data.display_name || locVal || '';
 
         status.innerHTML = `<span style="color:var(--gold-dark)">✅ Location set: <strong>${locVal || 'detected'}</strong></span>`;
       } catch (err) {
         // Coords captured but reverse geocode failed — fill coords as fallback
-        if (locInp) locInp.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        if (locInp && !locInp.value) locInp.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
         status.innerHTML = `<span style="color:var(--gold-dark)">✅ Coordinates captured (address lookup failed)</span>`;
       }
 
@@ -5242,6 +5260,12 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
           </div>
           <div id="ep_locStatus" style="font-size:0.72rem;color:var(--ink3);min-height:14px;margin-top:2px"></div>
         </div>
+      </div>
+
+      <!-- Full Address (auto-filled by live location, editable) -->
+      <div class="listing-field" style="margin-top:8px">
+        <label>Full Address</label>
+        <textarea id="ep_fullAddress" rows="2" placeholder="Auto-filled when you use Live location, or type manually" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.84rem;font-family:inherit;color:var(--ink);background:var(--bg);outline:none;transition:border 0.18s;resize:none;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
       </div>
 	  
 	  <!-- Section: Owner Details -->

@@ -56,6 +56,7 @@ const PropertySchema = new mongoose.Schema({
   // ── Owner Details ──
   ownerName:   { type: String, default: "" },
   ownerNumber: { type: String, default: "" },
+  fullAddress: { type: String, default: "" },
   remarks: { type: String, default: "" },
   createdAt:   { type: Date, default: Date.now }
 });
@@ -240,6 +241,7 @@ app.put("/api/properties/:id", async (req, res) => {
     const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: "Property not found" });
     // Recalculate displayPrice if price or status changed
+    if (req.body.fullAddress !== undefined) updated.fullAddress = req.body.fullAddress || "";
     if (req.body.price || req.body.status) {
       const num = updated.price;
       let display = '';
