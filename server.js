@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema({
   mobile:    { type: String, default: "" },
   password:  { type: String },
   role:      { type: String, default: "user", enum: ["user","admin"] },
+  remarks: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now }
 });
 const User = mongoose.model("User", UserSchema);
@@ -55,6 +56,7 @@ const PropertySchema = new mongoose.Schema({
   // ── Owner Details ──
   ownerName:   { type: String, default: "" },
   ownerNumber: { type: String, default: "" },
+  remarks: { type: String, default: "" },
   createdAt:   { type: Date, default: Date.now }
 });
 const Property = mongoose.model("Property", PropertySchema);
@@ -311,6 +313,40 @@ app.delete("/api/reviews/:id", async (req, res) => {
     res.status(500).json({ message: "Error deleting review: " + err.message });
   }
 });
+
+
+// ── After the users DELETE route ──
+app.patch("/api/users/mobile/:mobile/remarks", async (req, res) => {
+  try {
+    const updated = await User.findOneAndUpdate(
+      { mobile: req.params.mobile },
+      { remarks: req.body.remarks || "" },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "Remarks updated", remarks: updated.remarks });
+  } catch(err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── After the properties DELETE route ──
+app.patch("/api/properties/:id/remarks", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid property ID" });
+    const updated = await Property.findByIdAndUpdate(
+      req.params.id,
+      { remarks: req.body.remarks || "" },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: "Property not found" });
+    res.json({ message: "Remarks updated", remarks: updated.remarks });
+  } catch(err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));

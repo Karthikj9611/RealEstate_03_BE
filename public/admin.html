@@ -239,6 +239,54 @@ table.dataTable.no-footer{border-bottom:none!important}
 .btn-delete:hover{background:var(--red);color:#fff;box-shadow:0 4px 12px rgba(224,68,68,0.3)}
 .btn-delete i{font-size:0.72rem}
 
+/* ── REMARKS CELL ── */
+.remark-cell{
+  position:relative;min-width:130px;max-width:200px;
+  text-align:left!important;
+}
+.remark-display{
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  padding:5px 8px;border-radius:var(--radius-xs);
+  transition:background 0.15s;
+}
+.remark-display:hover{background:var(--gold-light)}
+.remark-display:hover .remark-edit-icon{opacity:1}
+.remark-text{
+  font-size:0.8rem;color:var(--ink2);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:150px;display:inline-block;
+}
+.remark-text.empty{color:var(--ink3);font-style:italic;font-weight:400}
+.remark-edit-icon{
+  font-size:0.65rem;color:var(--gold-dark);opacity:0;
+  transition:opacity 0.15s;flex-shrink:0;
+}
+.remark-input-wrap{display:none;align-items:center;gap:4px}
+.remark-input-wrap.active{display:flex}
+.remark-display.hidden{display:none}
+.remark-input{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:0.8rem;color:var(--ink);
+  border:1.5px solid var(--gold);border-radius:var(--radius-xs);
+  padding:4px 9px;outline:none;width:130px;
+  background:var(--surface);
+}
+.remark-save-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:none;background:var(--green);color:#fff;
+  font-size:0.7rem;transition:all 0.15s;flex-shrink:0;
+}
+.remark-save-btn:hover{background:var(--green-light);color:var(--green)}
+.remark-cancel-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:none;background:var(--surface2);color:var(--ink3);
+  font-size:0.7rem;transition:all 0.15s;flex-shrink:0;
+}
+.remark-cancel-btn:hover{background:var(--red-light);color:var(--red)}
+.remark-saving{opacity:0.5;pointer-events:none}
+
 /* ── PROPERTY TABLE ── */
 .prop-title{font-weight:600;font-size:0.88rem;color:var(--ink)}
 .prop-sub{font-size:0.72rem;color:var(--ink3);margin-top:2px}
@@ -430,11 +478,12 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
               <th>Phone</th>
               <th>Email</th>
               <th>Registered</th>
+              <th>Remarks</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="5" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
+            <tr><td colspan="6" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -461,11 +510,12 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
               <th>Owner Number</th>
               <th>Location</th>
               <th>Listed On</th>
+              <th>Remarks</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="8" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
+            <tr><td colspan="9" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -596,6 +646,86 @@ window.deleteProperty = async function(id){
   }
 };
 
+/* ── REMARKS ── */
+function remarkCellHtml(id, remark, type){
+  const text = (remark||'').trim();
+  const display = text ? escapeHtml(text) : 'Add remark…';
+  const cls = text ? '' : ' empty';
+  return `<div class="remark-cell" data-id="${id}" data-type="${type}">
+    <div class="remark-display">
+      <span class="remark-text${cls}">${display}</span>
+      <i class="fas fa-pen remark-edit-icon"></i>
+    </div>
+    <div class="remark-input-wrap">
+      <input class="remark-input" type="text" maxlength="200" value="${escapeHtml(text)}" placeholder="Type remark…"/>
+      <button class="remark-save-btn" title="Save"><i class="fas fa-check"></i></button>
+      <button class="remark-cancel-btn" title="Cancel"><i class="fas fa-times"></i></button>
+    </div>
+  </div>`;
+}
+
+async function saveRemark(cell, id, type){
+  const wrap    = cell.querySelector('.remark-input-wrap');
+  const input   = cell.querySelector('.remark-input');
+  const display = cell.querySelector('.remark-display');
+  const span    = cell.querySelector('.remark-text');
+  const newVal  = input.value.trim();
+
+  cell.classList.add('remark-saving');
+  try {
+    const url = type === 'customer'
+      ? `${BASE}/api/users/mobile/${id}/remarks`
+      : `${BASE}/api/properties/${id}/remarks`;
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ remarks: newVal })
+    });
+    if(!res.ok) throw new Error('Save failed');
+    span.textContent = newVal || 'Add remark…';
+    span.className   = 'remark-text' + (newVal ? '' : ' empty');
+    input.value = newVal;
+  } catch(e){
+    alert('Could not save remark. Please try again.');
+  }
+  cell.classList.remove('remark-saving');
+  wrap.classList.remove('active');
+  display.classList.remove('hidden');
+}
+
+$(document).on('click', '.remark-display', function(){
+  const cell  = this.closest('.remark-cell');
+  const wrap  = cell.querySelector('.remark-input-wrap');
+  const input = cell.querySelector('.remark-input');
+  this.classList.add('hidden');
+  wrap.classList.add('active');
+  input.focus();
+  input.select();
+});
+$(document).on('click', '.remark-cancel-btn', function(){
+  const cell    = this.closest('.remark-cell');
+  const wrap    = cell.querySelector('.remark-input-wrap');
+  const display = cell.querySelector('.remark-display');
+  const span    = cell.querySelector('.remark-text');
+  // restore input to current displayed value
+  cell.querySelector('.remark-input').value = span.classList.contains('empty') ? '' : span.textContent;
+  wrap.classList.remove('active');
+  display.classList.remove('hidden');
+});
+$(document).on('click', '.remark-save-btn', function(){
+  const cell = this.closest('.remark-cell');
+  saveRemark(cell, cell.dataset.id, cell.dataset.type);
+});
+$(document).on('keydown', '.remark-input', function(e){
+  if(e.key === 'Enter'){
+    const cell = this.closest('.remark-cell');
+    saveRemark(cell, cell.dataset.id, cell.dataset.type);
+  }
+  if(e.key === 'Escape'){
+    $(this).closest('.remark-cell').find('.remark-cancel-btn').trigger('click');
+  }
+});
+
 /* ── EXCEL HYPERLINK HELPER ── */
 function addExcelHyperlink(xlsx, sheet, cellRef, url){
   if(!xlsx.xl.worksheets._rels) xlsx.xl.worksheets._rels={};
@@ -646,6 +776,11 @@ $(document).ready(function(){
       { data:null, render:(d,t,row)=>{ if(t==='display') return renderPhone(row); return plainPhone(row); }},
       { data:null, render:(d,t,row)=>{ if(t==='display') return renderEmail(row); return plainEmail(row); }},
       { data:'createdAt', render:(d,t)=> t==='display' ? formatDateTime(d) : (d||'—') },
+      /* 4 – Remarks */
+      { data:'remarks', orderable:false, render:(d,t,row)=>{
+          if(t==='display') return remarkCellHtml(row.mobile||row._id, d, 'customer');
+          return d||'';
+      }},
       { data:null, orderable:false, render:(d,t,row)=>`<button class="btn-delete" onclick="deleteBooking('${row.mobile}')"><i class="fas fa-trash-alt"></i> Delete</button>` }
     ],
     order:[[3,'desc']],
@@ -663,26 +798,28 @@ $(document).ready(function(){
     buttons:[
       {
         extend:'csv', text:'<i class="fas fa-file-csv"></i> CSV', title:'KR Real-Estate Leads',
-        exportOptions:{ columns:[0,1,2,3],
+        exportOptions:{ columns:[0,1,2,3,4],
           format:{ body:function(data,row,col){
             var rd=dataTable.row(row).data(); if(!rd) return data;
             if(col===0) return ((rd.firstName||'')+' '+(rd.lastName||'')).trim()||'—';
             if(col===1){ var ph=plainPhone(rd); return ph?'=HYPERLINK("tel:'+ph+'","'+ph+'")':'—'; }
             if(col===2){ var em=plainEmail(rd); return em?'=HYPERLINK("mailto:'+em+'","'+em+'")':'—'; }
             if(col===3){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+            if(col===4) return rd.remarks||'';
             return data;
           }}
         }
       },
       {
         extend:'excel', text:'<i class="fas fa-file-excel"></i> Excel', title:'KR Real-Estate Leads',
-        exportOptions:{ columns:[0,1,2,3],
+        exportOptions:{ columns:[0,1,2,3,4],
           format:{ body:function(data,row,col){
             var rd=dataTable.row(row).data(); if(!rd) return data;
             if(col===0) return ((rd.firstName||'')+' '+(rd.lastName||'')).trim()||'—';
             if(col===1) return rd.mobile||'—';
             if(col===2) return rd.email||'—';
             if(col===3){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+            if(col===4) return rd.remarks||'';
             return data;
           }}
         }
@@ -690,7 +827,7 @@ $(document).ready(function(){
       {
         extend:'pdf', text:'<i class="fas fa-file-pdf"></i> PDF',
         orientation:'landscape', pageSize:'A4', title:'KR Real-Estate — Customer Leads',
-        exportOptions:{columns:[0,1,2,3]},
+        exportOptions:{columns:[0,1,2,3,4]},
         customize:function(doc){
           doc.styles.tableHeader={fillColor:'#0c0d10',color:'white',bold:true,fontSize:10,alignment:'center'};
           doc.defaultStyle={fontSize:9,color:'#0c0d10'};
@@ -707,7 +844,7 @@ $(document).ready(function(){
       },
       {
         extend:'print', text:'<i class="fas fa-print"></i> Print', title:'KR Real-Estate Leads',
-        exportOptions:{columns:[0,1,2,3]},
+        exportOptions:{columns:[0,1,2,3,4]},
         customize:function(win){
           $(win.document.head).append('<style>table td a{color:inherit;text-decoration:underline}table td a.ph{color:#1a7a5e}table td a.em{color:#8a6820}</style>');
           $(win.document.body).find('table tbody tr').each(function(){
@@ -757,7 +894,12 @@ $(document).ready(function(){
       { data:'loc', render:(d)=> escapeHtml(d||'—') },
       /* 6 – Listed On */
       { data:'createdAt', render:(d,t)=> t==='display' ? formatDateTime(d) : (d||'—') },
-      /* 7 – Action */
+      /* 7 – Remarks */
+      { data:'remarks', orderable:false, render:(d,t,row)=>{
+          if(t==='display') return remarkCellHtml(row._id, d, 'property');
+          return d||'';
+      }},
+      /* 8 – Action */
       { data:null, orderable:false, render:(d,t,row)=>`<button class="btn-delete" onclick="deleteProperty('${row._id}')"><i class="fas fa-trash-alt"></i> Delete</button>` }
     ],
     order:[[6,'desc']],
@@ -775,7 +917,7 @@ $(document).ready(function(){
     buttons:[
       {
         extend:'csv', text:'<i class="fas fa-file-csv"></i> CSV', title:'KR Properties',
-        exportOptions:{ columns:[0,1,2,3,4,5,6],
+        exportOptions:{ columns:[0,1,2,3,4,5,6,7],
           format:{ body:function(data,row,col){
             var rd=propTable.row(row).data(); if(!rd) return data;
             if(col===0) return (rd.title||'').trim()||'—';
@@ -785,13 +927,14 @@ $(document).ready(function(){
             if(col===4){ var ph=rd.ownerNumber||''; return ph?'=HYPERLINK("tel:'+ph+'","'+ph+'")':'—'; }
             if(col===5) return rd.loc||'—';
             if(col===6){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+            if(col===7) return rd.remarks||'';
             return data;
           }}
         }
       },
       {
         extend:'excel', text:'<i class="fas fa-file-excel"></i> Excel', title:'KR Properties',
-        exportOptions:{ columns:[0,1,2,3,4,5,6],
+        exportOptions:{ columns:[0,1,2,3,4,5,6,7],
           format:{ body:function(data,row,col){
             var rd=propTable.row(row).data(); if(!rd) return data;
             if(col===0) return (rd.title||'').trim()||'—';
@@ -801,6 +944,7 @@ $(document).ready(function(){
             if(col===4) return rd.ownerNumber||'—';
             if(col===5) return rd.loc||'—';
             if(col===6){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+            if(col===7) return rd.remarks||'';
             return data;
           }}
         }
@@ -808,7 +952,7 @@ $(document).ready(function(){
       {
         extend:'pdf', text:'<i class="fas fa-file-pdf"></i> PDF',
         orientation:'landscape', pageSize:'A4', title:'KR Real-Estate — Properties',
-        exportOptions:{columns:[0,1,2,3,4,5,6]},
+        exportOptions:{columns:[0,1,2,3,4,5,6,7]},
         customize:function(doc){
           doc.styles.tableHeader={fillColor:'#0c0d10',color:'white',bold:true,fontSize:9,alignment:'center'};
           doc.defaultStyle={fontSize:8,color:'#0c0d10'};
@@ -824,7 +968,7 @@ $(document).ready(function(){
       },
       {
         extend:'print', text:'<i class="fas fa-print"></i> Print', title:'KR Properties',
-        exportOptions:{columns:[0,1,2,3,4,5,6]},
+        exportOptions:{columns:[0,1,2,3,4,5,6,7]},
         customize:function(win){
           $(win.document.head).append('<style>table td a{color:#1a7a5e;text-decoration:underline}</style>');
           $(win.document.body).find('table tbody tr').each(function(){
