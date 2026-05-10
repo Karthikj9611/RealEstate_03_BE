@@ -85,10 +85,10 @@ body{
 
 /* ── STATS ── */
 .stats-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
+  display:grid;grid-template-columns:repeat(4,1fr);
   gap:16px;margin-bottom:28px;
 }
-@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;gap:12px}}
+@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr);gap:12px}}
 @media(max-width:360px){.stats-grid{grid-template-columns:1fr}}
 
 .stat-card{
@@ -104,6 +104,7 @@ body{
 .stat-card:nth-child(1)::after{background:var(--gold)}
 .stat-card:nth-child(2)::after{background:var(--green)}
 .stat-card:nth-child(3)::after{background:#5b7be8}
+.stat-card:nth-child(4)::after{background:#e67e22}
 .stat-icon{
   width:38px;height:38px;border-radius:10px;
   display:flex;align-items:center;justify-content:center;
@@ -112,11 +113,51 @@ body{
 .stat-card:nth-child(1) .stat-icon{background:var(--gold-light);color:var(--gold)}
 .stat-card:nth-child(2) .stat-icon{background:var(--green-light);color:var(--green)}
 .stat-card:nth-child(3) .stat-icon{background:#eef1fc;color:#5b7be8}
+.stat-card:nth-child(4) .stat-icon{background:#fff3e0;color:#e67e22}
 .stat-number{
   font-family:'Cormorant Garamond',serif;
   font-size:2.2rem;font-weight:700;color:var(--ink);line-height:1;
 }
 .stat-label{font-size:0.75rem;color:var(--ink3);margin-top:5px;font-weight:600;letter-spacing:0.3px}
+
+/* ── TAB BAR ── */
+.tab-bar{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:6px;
+  box-shadow:var(--shadow);margin-bottom:24px;
+  width:fit-content;
+}
+.tab-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 20px;border-radius:calc(var(--radius) - 4px);
+  border:none;background:transparent;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:0.85rem;font-weight:600;color:var(--ink3);
+  transition:all 0.2s;white-space:nowrap;
+}
+.tab-btn i{font-size:0.85rem;transition:color 0.2s}
+.tab-btn:hover{color:var(--ink);background:var(--surface2)}
+.tab-btn.active{
+  background:var(--ink);color:#fff;
+  box-shadow:0 4px 14px rgba(12,13,16,0.18);
+}
+.tab-btn.active i{color:var(--gold2)}
+.tab-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:22px;height:20px;padding:0 6px;
+  border-radius:99px;font-size:0.68rem;font-weight:700;
+  background:rgba(255,255,255,0.15);color:inherit;
+  transition:all 0.2s;
+}
+.tab-btn:not(.active) .tab-count{
+  background:var(--gold-light);color:var(--gold-dark);
+}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── MAIN CARD ── */
 .card{
@@ -141,31 +182,24 @@ table.dataTable thead th{
   font-weight:700;font-size:0.72rem;letter-spacing:0.8px;
   text-transform:uppercase;padding:13px 14px;
   border-bottom:1px solid var(--border)!important;border-top:none!important;
-  white-space:nowrap;
+  white-space:nowrap;text-align:center!important;
 }
 table.dataTable thead th:first-child{border-radius:var(--radius-xs) 0 0 var(--radius-xs)}
 table.dataTable thead th:last-child{border-radius:0 var(--radius-xs) var(--radius-xs) 0}
 table.dataTable tbody td{
   padding:13px 14px;border-bottom:1px solid #f5f2ee!important;
-  font-size:0.84rem;vertical-align:middle;
+  font-size:0.84rem;vertical-align:middle;text-align:center!important;
 }
 table.dataTable tbody tr:last-child td{border-bottom:none!important}
 table.dataTable tbody tr:hover td{background:#fdfaf6}
 table.dataTable.no-footer{border-bottom:none!important}
 
 /* ── CUSTOMER NAME ── */
-.customer-name{display:flex;align-items:center;gap:9px}
-.customer-avatar{
-  width:34px;height:34px;border-radius:50%;
-  background:var(--gold-light);color:var(--gold);
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.78rem;font-weight:700;flex-shrink:0;border:2px solid rgba(184,144,60,0.2);
-}
+.customer-name{display:flex;align-items:center;justify-content:center;gap:9px}
 .customer-text-name{font-weight:600;font-size:0.88rem;color:var(--ink)}
-.customer-text-id{font-size:0.68rem;color:var(--ink3);margin-top:1px}
 
 /* ── PHONE / EMAIL LINKS ── */
-.contact-col{display:flex;flex-direction:column;gap:6px}
+.contact-col{display:flex;flex-direction:column;align-items:center;gap:6px}
 .phone-link{
   display:inline-flex;align-items:center;gap:6px;
   background:var(--green-light);color:var(--green);
@@ -187,7 +221,7 @@ table.dataTable.no-footer{border-bottom:none!important}
 .no-contact{font-size:0.78rem;color:var(--ink3);font-style:italic}
 
 /* ── DATE CELL ── */
-.date-cell{display:flex;flex-direction:column;gap:3px}
+.date-cell{display:flex;flex-direction:column;align-items:center;gap:3px}
 .date-main{font-size:0.82rem;font-weight:600;color:var(--ink)}
 .date-time{
   display:inline-block;font-size:0.7rem;color:var(--gold-dark);
@@ -200,10 +234,24 @@ table.dataTable.no-footer{border-bottom:none!important}
   background:var(--red-light);color:var(--red);
   border:1px solid rgba(224,68,68,0.2);padding:6px 14px;
   border-radius:99px;cursor:pointer;font-size:0.76rem;
-  font-weight:600;transition:all 0.18s;font-family:inherit;
+  font-weight:600;transition:all 0.18s;font-family:inherit;margin:0 auto;
 }
 .btn-delete:hover{background:var(--red);color:#fff;box-shadow:0 4px 12px rgba(224,68,68,0.3)}
 .btn-delete i{font-size:0.72rem}
+
+/* ── PROPERTY TABLE ── */
+.prop-title{font-weight:600;font-size:0.88rem;color:var(--ink)}
+.prop-sub{font-size:0.72rem;color:var(--ink3);margin-top:2px}
+.status-badge{
+  display:inline-block;padding:4px 11px;border-radius:99px;
+  font-size:0.72rem;font-weight:700;letter-spacing:0.3px;
+}
+.status-sale  {background:#eef1fc;color:#5b7be8}
+.status-rent  {background:var(--green-light);color:var(--green)}
+.status-launch{background:var(--gold-light);color:var(--gold-dark)}
+.status-sold  {background:#f5f5f5;color:#999}
+.status-lease {background:#fff3e0;color:#e67e22}
+.status-pg    {background:#fce4ec;color:#c2185b}
 
 /* ── DATATABLES CONTROLS ── */
 .dataTables_wrapper .dataTables_filter{margin-bottom:16px}
@@ -283,9 +331,18 @@ footer i{color:var(--gold)}
   .table-wrapper{padding:12px 14px 16px}
   .dataTables_wrapper .dataTables_filter input{width:160px;font-size:0.78rem}
   .dt-button{padding:6px 12px!important;font-size:0.72rem!important}
+  .tab-btn{padding:8px 14px;font-size:0.8rem}
+}
+@media(max-width:600px){
+  .stats-grid{
+    display:flex;flex-direction:row;gap:10px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  .stat-card{min-width:140px;flex:0 0 auto}
+  .tab-bar{width:100%}
+  .tab-btn{flex:1;justify-content:center}
 }
 @media(max-width:480px){
-  .stats-grid{gap:10px}
   .stat-card{padding:16px 16px}
   .dataTables_wrapper .dataTables_filter{text-align:left}
   .dataTables_wrapper .dataTables_filter label{flex-direction:column;align-items:flex-start;gap:6px}
@@ -293,88 +350,13 @@ footer i{color:var(--gold)}
   .header-badge{display:none}
 }
 
-/* hide DT sorting arrows for cleaner look */
+/* hide DT sorting arrows */
 table.dataTable thead th.sorting::after,
 table.dataTable thead th.sorting_asc::after,
-table.dataTable thead th.sorting_desc::after{
-  font-size:0.65rem;opacity:0.5;
-}
+table.dataTable thead th.sorting_desc::after{font-size:0.65rem;opacity:0.5}
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
-table.dataTable thead .sorting_desc{
-  background-image:none!important;
-  padding-right:14px!important;
-}
-
-/* Center align all table content */
-#bookingTable th,
-#bookingTable td {
-  text-align: center !important;
-  vertical-align: middle !important;
-}
-
-/* Keep special layouts centered */
-.customer-name,
-.contact-col,
-.date-cell {
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-
-.customer-name {
-  display: flex;
-  align-items: center;
-  justify-content: center; /* ADD THIS */
-  gap: 9px;
-}
-
-.btn-delete {
-  margin: 0 auto;
-}
-
-/* Center ALL table content (header + body) */
-#bookingTable th,
-#bookingTable td {
-  text-align: center !important;
-  vertical-align: middle !important;
-}
-
-/* Force DataTables header alignment */
-table.dataTable thead th {
-  text-align: center !important;
-}
-
-/* Center flex-based cells */
-.customer-name,
-.contact-col,
-.date-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-/* Center action button */
-.btn-delete {
-  margin: 0 auto;
-}
-
-@media(max-width:600px){
-  .stats-grid{
-    display:flex;
-    flex-direction:row;
-    gap:10px;
-    overflow-x:auto;   /* allows scroll if needed */
-    -webkit-overflow-scrolling:touch;
-  }
-
-  .stat-card{
-    min-width:140px;   /* keeps cards readable */
-    flex:0 0 auto;     /* prevent shrinking */
-  }
-}
+table.dataTable thead .sorting_desc{background-image:none!important;padding-right:14px!important}
 </style>
 </head>
 <body>
@@ -387,7 +369,7 @@ table.dataTable thead th {
       <div class="header-logo"><span><em>K</em>R</span></div>
       <div class="header-title">
         <h1>Admin Dashboard</h1>
-        <p><i class="fas fa-shield-halved"></i> Registered customer details</p>
+        <p><i class="fas fa-shield-halved"></i> Registered customer &amp; property details</p>
       </div>
     </div>
     <div class="header-badge"><i class="fas fa-circle-dot"></i> Live</div>
@@ -410,31 +392,83 @@ table.dataTable thead th {
       <div class="stat-number" id="phoneCount">—</div>
       <div class="stat-label">With Mobile</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-building"></i></div>
+      <div class="stat-number" id="propCount">—</div>
+      <div class="stat-label">Total Properties</div>
+    </div>
   </div>
 
-  <!-- TABLE CARD -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Customer Registrations</div>
-        <div class="card-sub">Tap phone numbers to call · Tap email to compose</div>
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-customers" onclick="switchTab('customers')">
+      <i class="fas fa-users"></i>
+      Customers
+      <span class="tab-count" id="tab-customers-count">—</span>
+    </button>
+    <button class="tab-btn" id="tab-properties" onclick="switchTab('properties')">
+      <i class="fas fa-building"></i>
+      Properties
+      <span class="tab-count" id="tab-properties-count">—</span>
+    </button>
+  </div>
+
+  <!-- ══ CUSTOMERS PANEL ══ -->
+  <div class="tab-panel active" id="panel-customers">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Customer Registrations</div>
+          <div class="card-sub">Tap phone numbers to call · Tap email to compose</div>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="bookingTable" class="display nowrap" style="width:100%">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Registered</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="table-wrapper">
-      <table id="bookingTable" class="display nowrap" style="width:100%">
-        <thead>
-          <tr>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Registered</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="5" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
-        </tbody>
-      </table>
+  </div>
+
+  <!-- ══ PROPERTIES PANEL ══ -->
+  <div class="tab-panel" id="panel-properties">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Property Listings</div>
+          <div class="card-sub">All listed properties · Owner contact details included</div>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="propertyTable" class="display nowrap" style="width:100%">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Status</th>
+              <th>Price</th>
+              <th>Owner Name</th>
+              <th>Owner Number</th>
+              <th>Location</th>
+              <th>Listed On</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="8" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -445,98 +479,125 @@ table.dataTable thead th {
 </div>
 
 <script>
-let dataTable;
+let dataTable, propTable;
+
+const BASE = 'https://kr-realestate.onrender.com';
+
+/* ── TAB SWITCHING ── */
+function switchTab(tab){
+  // Update buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+
+  // Update panels
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+
+  // Adjust DataTable columns when switching to properties (fixes column widths)
+  if(tab === 'properties' && propTable){
+    setTimeout(()=>{ propTable.columns.adjust().draw(false); }, 50);
+  }
+  if(tab === 'customers' && dataTable){
+    setTimeout(()=>{ dataTable.columns.adjust().draw(false); }, 50);
+  }
+}
 
 function escapeHtml(str){
   if(!str) return '—';
   return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-
-
+/* ── USERS RENDERERS ── */
 function renderName(row){
-  const full = escapeHtml((row.firstName || '') + " " + (row.lastName || '')).trim() || 'Unknown';
-
-  return `<div class="customer-name">
-    <div>
-      <div class="customer-text-name">${full}</div>
-    </div>
-  </div>`;
+  const full = escapeHtml((row.firstName||'') + ' ' + (row.lastName||'')).trim() || 'Unknown';
+  return `<div class="customer-name"><div><div class="customer-text-name">${full}</div></div></div>`;
 }
 function renderPhone(row){
-  if(row.mobile){
-    return `<a href="tel:${row.mobile}" class="phone-link">
-      <i class="fas fa-phone-flip"></i>${escapeHtml(row.mobile)}
-    </a>`;
-  }
+  if(row.mobile) return `<a href="tel:${row.mobile}" class="phone-link"><i class="fas fa-phone-flip"></i>${escapeHtml(row.mobile)}</a>`;
   return `<span class="no-contact">—</span>`;
 }
-
 function renderEmail(row){
-  if(row.email){
-    return `<a href="mailto:${row.email}" class="email-link" title="${escapeHtml(row.email)}">
-      <i class="fas fa-envelope"></i>${escapeHtml(row.email)}
-    </a>`;
-  }
+  if(row.email) return `<a href="mailto:${row.email}" class="email-link" title="${escapeHtml(row.email)}"><i class="fas fa-envelope"></i>${escapeHtml(row.email)}</a>`;
   return `<span class="no-contact">—</span>`;
 }
-
-/* Export text — plain values used by customize callbacks below */
 function plainPhone(row){ return row.mobile||''; }
 function plainEmail(row){ return row.email||''; }
 
 function formatDateTime(createdAt){
   if(!createdAt) return '—';
-  const d=new Date(createdAt);
-  const date=d.toLocaleDateString('en-GB');
-  const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  const d = new Date(createdAt);
+  const date = d.toLocaleDateString('en-GB');
+  const time = d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
   return `<div class="date-cell">
     <div class="date-main"><i class="far fa-calendar-alt" style="color:var(--gold);margin-right:5px"></i>${date}</div>
     <span class="date-time">${time}</span>
   </div>`;
 }
 
+/* ── PROPERTY RENDERERS ── */
+function statusBadge(s){
+  const map = {
+    'For Sale':'status-sale','For Rent':'status-rent',
+    'New Launch':'status-launch','Sold':'status-sold',
+    'Lease':'status-lease','PG':'status-pg'
+  };
+  return `<span class="status-badge ${map[s]||'status-sale'}">${escapeHtml(s)||'—'}</span>`;
+}
+function renderOwnerPhone(row){
+  if(row.ownerNumber) return `<a href="tel:${row.ownerNumber}" class="phone-link"><i class="fas fa-phone-flip"></i>${escapeHtml(row.ownerNumber)}</a>`;
+  return `<span class="no-contact">—</span>`;
+}
+
+/* ── STATS ── */
+function updateStats(data){
+  const today = new Date().toISOString().split('T')[0];
+  let total=data.length, todayCount=0, mobileCount=0;
+  data.forEach(r=>{
+    if(r.createdAt && r.createdAt.startsWith(today)) todayCount++;
+    if(r.mobile) mobileCount++;
+  });
+  document.getElementById('totalCount').innerText = total;
+  document.getElementById('todayCount').innerText = todayCount;
+  document.getElementById('phoneCount').innerText = mobileCount;
+  document.getElementById('tab-customers-count').innerText = total;
+}
+
+/* ── DELETE HANDLERS ── */
 window.deleteBooking = async function(mobile){
-
-const res = await fetch(
-  // Local development
-  // `http://localhost:5000/api/users/mobile/${mobile}`,
-
-  // Production
-  `https://kr-realestate.onrender.com/api/users/mobile/${mobile}`,
-  { method: "DELETE" }
-);
-
+  if(!confirm('Delete this customer?')) return;
+  const res = await fetch(`${BASE}/api/users/mobile/${mobile}`, { method:'DELETE' });
   const data = await res.json().catch(()=>({}));
-
-  console.log("STATUS:", res.status);
-  console.log("RESPONSE:", data);
-
   if(res.ok){
     dataTable.ajax.reload(null,false);
+    // Update tab count after reload
+    setTimeout(()=>{
+      const total = dataTable.data().count();
+      document.getElementById('tab-customers-count').innerText = total;
+      document.getElementById('totalCount').innerText = total;
+    }, 600);
   } else {
-    alert(data.message || "Delete failed");
+    alert(data.message || 'Delete failed');
   }
 };
 
-function updateStats(data){
-  const today=new Date().toISOString().split('T')[0];
-  let total=data.length,todayCount=0,mobileCount=0;
-  data.forEach(r=>{
-    if(r.createdAt&&r.createdAt.startsWith(today)) todayCount++;
-    if(r.mobile) mobileCount++;
-  });
-  document.getElementById('totalCount').innerText=total;
-  document.getElementById('todayCount').innerText=todayCount;
-  document.getElementById('phoneCount').innerText=mobileCount;
-}
+window.deleteProperty = async function(id){
+  if(!confirm('Delete this property?')) return;
+  const res = await fetch(`${BASE}/api/properties/${id}`, { method:'DELETE' });
+  const data = await res.json().catch(()=>({}));
+  if(res.ok){
+    propTable.ajax.reload(null,false);
+    setTimeout(()=>{
+      const total = propTable.data().count();
+      document.getElementById('tab-properties-count').innerText = total;
+      document.getElementById('propCount').innerText = total;
+    }, 600);
+  } else {
+    alert(data.message || 'Delete failed');
+  }
+};
 
-/* ── Excel hyperlink helper ──────────────────────────────────────────────
-   Adds a proper relationship + <hyperlinks> entry so the cell becomes a
-   real clickable hyperlink in the downloaded .xlsx file.                 */
-function addExcelHyperlink(xlsx, sheet, cellRef, url, display){
-  /* 1. Add relationship to the sheet's .rels file */
-  var relsPath = 'xl/worksheets/_rels/sheet1.xml.rels';
+/* ── EXCEL HYPERLINK HELPER ── */
+function addExcelHyperlink(xlsx, sheet, cellRef, url){
   if(!xlsx.xl.worksheets._rels) xlsx.xl.worksheets._rels={};
   if(!xlsx.xl.worksheets._rels['sheet1.xml.rels']){
     xlsx.xl.worksheets._rels['sheet1.xml.rels']=
@@ -550,286 +611,233 @@ function addExcelHyperlink(xlsx, sheet, cellRef, url, display){
     'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" '+
     'Target="'+url+'" TargetMode="External"/>'
   );
-
-  /* 2. Add <hyperlink> element to worksheet */
   var $sheet=$(sheet);
   var hyperlinks=$sheet.find('hyperlinks');
   if(!hyperlinks.length){
-    /* Insert before <pageMargins> or at end of <worksheet> */
     var pm=$sheet.find('pageMargins');
-    var hlNode=$(sheet.createElementNS(
-      'http://schemas.openxmlformats.org/spreadsheetml/2006/main','hyperlinks'));
+    var hlNode=$(sheet.createElementNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main','hyperlinks'));
     if(pm.length) pm.before(hlNode); else $sheet.find('worksheet').append(hlNode);
     hyperlinks=$sheet.find('hyperlinks');
   }
-  var hl=sheet.createElementNS(
-    'http://schemas.openxmlformats.org/spreadsheetml/2006/main','hyperlink');
+  var hl=sheet.createElementNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main','hyperlink');
   hl.setAttribute('ref', cellRef);
-  hl.setAttributeNS(
-    'http://schemas.openxmlformats.org/officeDocument/2006/relationships','r:id',rId);
+  hl.setAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','r:id',rId);
   hyperlinks[0].appendChild(hl);
-
-  /* 3. Apply hyperlink cell style (index 4 in default DT xlsx = blue underline) */
   var cell=$sheet.find('c[r="'+cellRef+'"]');
-  cell.attr('s','4'); // style 4 = hyperlink style in DataTables default xlsx
+  cell.attr('s','4');
 }
 
 $(document).ready(function(){
-  dataTable=$('#bookingTable').DataTable({
+
+  /* ════════════════════════════════════
+     CUSTOMERS TABLE
+  ════════════════════════════════════ */
+  dataTable = $('#bookingTable').DataTable({
     ajax:{
-//	url: "http://localhost:5000/api/users",
-    url:'https://kr-realestate.onrender.com/api/users',
-      dataSrc:function(res){
+      url: BASE+'/api/users',
+      dataSrc: function(res){
         if(!Array.isArray(res)) return [];
         updateStats(res);
         return res;
       }
     },
-
     columns:[
-      /* 0 – Customer name (display) */
       { data:null, render:(d,t,row)=> t==='display' ? renderName(row) : ((row.firstName||'')+' '+(row.lastName||'')).trim() },
-      /* 1 – Phone (display = pill link, export = plain number) */
-      { data:null, render:(d,t,row)=>{
-          if(t==='display') return renderPhone(row);
-          return plainPhone(row);  // ← plain text for CSV/Excel/PDF/Print
-        }
-      },
-      /* 2 – Email (display = pill link, export = plain email) */
-      { data:null, render:(d,t,row)=>{
-          if(t==='display') return renderEmail(row);
-          return plainEmail(row);  // ← plain text for CSV/Excel/PDF/Print
-        }
-      },
-      /* 3 – Date */
+      { data:null, render:(d,t,row)=>{ if(t==='display') return renderPhone(row); return plainPhone(row); }},
+      { data:null, render:(d,t,row)=>{ if(t==='display') return renderEmail(row); return plainEmail(row); }},
       { data:'createdAt', render:(d,t)=> t==='display' ? formatDateTime(d) : (d||'—') },
-      /* 4 – Action (excluded from exports) */
-      {
-  data: null,
-  orderable: false,
-  render: function (data, type, row) {
-    return `
-      <button class="btn-delete"
-        onclick="deleteBooking('${row.mobile}')">
-        <i class="fas fa-trash-alt"></i> Delete
-      </button>
-    `;
-  }
-}
+      { data:null, orderable:false, render:(d,t,row)=>`<button class="btn-delete" onclick="deleteBooking('${row.mobile}')"><i class="fas fa-trash-alt"></i> Delete</button>` }
     ],
-
     order:[[3,'desc']],
     pageLength:10,
     scrollX:true,
     language:{
       emptyTable:'<div class="empty-state"><i class="fas fa-inbox"></i>No customers yet</div>',
       zeroRecords:'<div class="empty-state"><i class="fas fa-magnifying-glass"></i>No matching records</div>',
-      search:'',
-      searchPlaceholder:'Search customers…',
+      search:'', searchPlaceholder:'Search customers…',
       lengthMenu:'Show _MENU_ entries',
       info:'Showing _START_–_END_ of _TOTAL_ leads',
       paginate:{previous:'‹ Prev',next:'Next ›'}
     },
-
     dom:'<"top-controls"Bf>rt<"bottom-controls"ip>',
-
     buttons:[
-
-      /* ── CSV — Excel HYPERLINK() formula so the cell is a clickable link ── */
       {
-        extend:'csv',
-        text:'<i class="fas fa-file-csv"></i> CSV',
-        title:'KR Real-Estate Leads',
-        exportOptions:{
-          columns:[0,1,2,3],
-          /* For phone col (1) and email col (2) emit the HYPERLINK formula */
-          format:{
-		  body:function(data, row, col, node){
-			var rowData = dataTable.row(row).data();
-			if(!rowData) return data;
-
-			// ✅ Customer (remove HTML)
-			if(col===0){
-			  return ((rowData.firstName||'') + ' ' + (rowData.lastName||'')).trim() || '—';
-			}
-
-			// ✅ Phone (with hyperlink)
-			if(col===1){
-			  var ph = plainPhone(rowData);
-			  return ph ? '=HYPERLINK("tel:'+ph+'","'+ph+'")' : '—';
-			}
-
-			// ✅ Email (with hyperlink)
-			if(col===2){
-			  var em = plainEmail(rowData);
-			  return em ? '=HYPERLINK("mailto:'+em+'","'+em+'")' : '—';
-			}
-
-			// ✅ Date (remove HTML)
-			if(col===3){
-			  if(!rowData.createdAt) return '—';
-			  const d = new Date(rowData.createdAt);
-			  const date = d.toLocaleDateString('en-GB');
-			  const time = d.toLocaleTimeString('en-US',{
-				hour:'2-digit',
-				minute:'2-digit',
-				hour12:true
-			  });
-			  return `${date} ${time}`;
-			}
-
-			return data;
-		  }
-		}
+        extend:'csv', text:'<i class="fas fa-file-csv"></i> CSV', title:'KR Real-Estate Leads',
+        exportOptions:{ columns:[0,1,2,3],
+          format:{ body:function(data,row,col){
+            var rd=dataTable.row(row).data(); if(!rd) return data;
+            if(col===0) return ((rd.firstName||'')+' '+(rd.lastName||'')).trim()||'—';
+            if(col===1){ var ph=plainPhone(rd); return ph?'=HYPERLINK("tel:'+ph+'","'+ph+'")':'—'; }
+            if(col===2){ var em=plainEmail(rd); return em?'=HYPERLINK("mailto:'+em+'","'+em+'")':'—'; }
+            if(col===3){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+            return data;
+          }}
         }
       },
-
-      /* ── Excel — inject real hyperlink relationships into the xlsx ── */
-     {
-  extend:'excel',
-  text:'<i class="fas fa-file-excel"></i> Excel',
-  title:'KR Real-Estate Leads',
-
-  exportOptions:{
-    columns:[0,1,2,3],
-    format:{
-      body:function(data, row, col){
-        var rowData = dataTable.row(row).data();
-        if(!rowData) return data;
-
-        // Customer
-        if(col===0){
-          return ((rowData.firstName||'') + ' ' + (rowData.lastName||'')).trim() || '—';
-        }
-
-        // Phone (plain text)
-        if(col===1){
-          return rowData.mobile || '—';
-        }
-
-        // Email (plain text)
-        if(col===2){
-          return rowData.email || '—';
-        }
-
-        // Date + Time (AM/PM)
-        if(col===3){
-          if(!rowData.createdAt) return '—';
-
-          const d = new Date(rowData.createdAt);
-
-          return d.toLocaleString('en-GB',{
-            day:'2-digit',
-            month:'2-digit',
-            year:'numeric',
-            hour:'2-digit',
-            minute:'2-digit',
-            hour12:true
-          });
-        }
-
-        return data;
-      }
-    }
-  }
-},
-
-      /* ── PDF — pdfmake link property makes cells clickable ── */
       {
-        extend:'pdf',
-        text:'<i class="fas fa-file-pdf"></i> PDF',
-        orientation:'landscape',
-        pageSize:'A4',
-        title:'KR Real-Estate — Customer Leads',
+        extend:'excel', text:'<i class="fas fa-file-excel"></i> Excel', title:'KR Real-Estate Leads',
+        exportOptions:{ columns:[0,1,2,3],
+          format:{ body:function(data,row,col){
+            var rd=dataTable.row(row).data(); if(!rd) return data;
+            if(col===0) return ((rd.firstName||'')+' '+(rd.lastName||'')).trim()||'—';
+            if(col===1) return rd.mobile||'—';
+            if(col===2) return rd.email||'—';
+            if(col===3){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+            return data;
+          }}
+        }
+      },
+      {
+        extend:'pdf', text:'<i class="fas fa-file-pdf"></i> PDF',
+        orientation:'landscape', pageSize:'A4', title:'KR Real-Estate — Customer Leads',
         exportOptions:{columns:[0,1,2,3]},
         customize:function(doc){
-          /* Style header */
-          doc.styles.tableHeader={
-            fillColor:'#0c0d10', color:'white',
-            bold:true, fontSize:10, alignment:'center'
-          };
-          doc.defaultStyle={fontSize:9, color:'#0c0d10'};
-
-          /* Walk every body row and patch phone + email cells with links */
-          var rows = dataTable.rows({search:'applied'}).data().toArray();
-
-          /* doc.content[0]=title, doc.content[1]=table */
-          var tableBody = doc.content[1] && doc.content[1].table
-                          ? doc.content[1].table.body
-                          : null;
+          doc.styles.tableHeader={fillColor:'#0c0d10',color:'white',bold:true,fontSize:10,alignment:'center'};
+          doc.defaultStyle={fontSize:9,color:'#0c0d10'};
+          var rows=dataTable.rows({search:'applied'}).data().toArray();
+          var tableBody=doc.content[1]&&doc.content[1].table?doc.content[1].table.body:null;
           if(!tableBody) return;
-
-          /* tableBody[0] = header row, tableBody[1..] = data rows */
-          rows.forEach(function(rowData, i){
-            var pdfRow = tableBody[i+1]; // +1 to skip header
-            if(!pdfRow) return;
-
-            var phone = plainPhone(rowData);
-            var email = plainEmail(rowData);
-
-            /* col 1 = phone */
-            if(phone && pdfRow[1]){
-              pdfRow[1] = {
-                text: phone,
-                link: 'tel:'+phone,
-                color: '#1a7a5e',
-                decoration: 'underline',
-                fontSize: 9
-              };
-            }
-            /* col 2 = email */
-            if(email && pdfRow[2]){
-              pdfRow[2] = {
-                text: email,
-                link: 'mailto:'+email,
-                color: '#8a6820',
-                decoration: 'underline',
-                fontSize: 9
-              };
-            }
+          rows.forEach(function(rd,i){
+            var pdfRow=tableBody[i+1]; if(!pdfRow) return;
+            var phone=plainPhone(rd); var email=plainEmail(rd);
+            if(phone&&pdfRow[1]) pdfRow[1]={text:phone,link:'tel:'+phone,color:'#1a7a5e',decoration:'underline',fontSize:9};
+            if(email&&pdfRow[2]) pdfRow[2]={text:email,link:'mailto:'+email,color:'#8a6820',decoration:'underline',fontSize:9};
           });
         }
       },
-
-      /* ── Print — inject <a href> tags into the printed window ── */
       {
-        extend:'print',
-        text:'<i class="fas fa-print"></i> Print',
-        title:'KR Real-Estate Leads',
+        extend:'print', text:'<i class="fas fa-print"></i> Print', title:'KR Real-Estate Leads',
         exportOptions:{columns:[0,1,2,3]},
         customize:function(win){
-          /* Add link styles */
-          $(win.document.head).append(
-            '<style>'+
-            'table td a{color:inherit;text-decoration:underline}'+
-            'table td a.ph{color:#1a7a5e}'+
-            'table td a.em{color:#8a6820}'+
-            '</style>'
-          );
-
-          /* Replace plain text in phone (col 2) and email (col 3) with <a> tags */
+          $(win.document.head).append('<style>table td a{color:inherit;text-decoration:underline}table td a.ph{color:#1a7a5e}table td a.em{color:#8a6820}</style>');
           $(win.document.body).find('table tbody tr').each(function(){
-            var cells = $(this).find('td');
-            /* phone — col index 1 */
-            var phCell = cells.eq(1);
-            var phText = phCell.text().trim();
-            if(phText && phText!=='—'){
-              phCell.html('<a class="ph" href="tel:'+phText+'">'+phText+'</a>');
-            }
-            /* email — col index 2 */
-            var emCell = cells.eq(2);
-            var emText = emCell.text().trim();
-            if(emText && emText!=='—'){
-              emCell.html('<a class="em" href="mailto:'+emText+'">'+emText+'</a>');
-            }
+            var cells=$(this).find('td');
+            var phText=cells.eq(1).text().trim(); if(phText&&phText!=='—') cells.eq(1).html('<a class="ph" href="tel:'+phText+'">'+phText+'</a>');
+            var emText=cells.eq(2).text().trim(); if(emText&&emText!=='—') cells.eq(2).html('<a class="em" href="mailto:'+emText+'">'+emText+'</a>');
           });
         }
       }
-
     ],
-
-    drawCallback:function(){ /* nothing extra needed */ }
+    drawCallback:function(){}
   });
+
+  /* ════════════════════════════════════
+     PROPERTIES TABLE
+  ════════════════════════════════════ */
+  propTable = $('#propertyTable').DataTable({
+    ajax:{
+      url: BASE+'/api/properties',
+      dataSrc: function(res){
+        if(!Array.isArray(res)) return [];
+        document.getElementById('propCount').innerText = res.length;
+        document.getElementById('tab-properties-count').innerText = res.length;
+        return res;
+      }
+    },
+    columns:[
+      /* 0 – Property title + city */
+      { data:null, render:(d,t,row)=>{
+          const title = escapeHtml(row.title||'Untitled');
+          const city  = escapeHtml(row.city||'');
+          if(t==='display') return `<div><div class="prop-title">${title}</div><div class="prop-sub">${city}</div></div>`;
+          return (row.title||'').trim();
+      }},
+      /* 1 – Status */
+      { data:'status', render:(d,t)=> t==='display' ? statusBadge(d) : (d||'—') },
+      /* 2 – Price */
+      { data:'displayPrice', render:(d)=> escapeHtml(d||'—') },
+      /* 3 – Owner Name */
+      { data:'ownerName', render:(d)=> escapeHtml(d||'—') },
+      /* 4 – Owner Number (clickable) */
+      { data:null, render:(d,t,row)=>{
+          if(t==='display') return renderOwnerPhone(row);
+          return row.ownerNumber||'—';
+      }},
+      /* 5 – Location */
+      { data:'loc', render:(d)=> escapeHtml(d||'—') },
+      /* 6 – Listed On */
+      { data:'createdAt', render:(d,t)=> t==='display' ? formatDateTime(d) : (d||'—') },
+      /* 7 – Action */
+      { data:null, orderable:false, render:(d,t,row)=>`<button class="btn-delete" onclick="deleteProperty('${row._id}')"><i class="fas fa-trash-alt"></i> Delete</button>` }
+    ],
+    order:[[6,'desc']],
+    pageLength:10,
+    scrollX:true,
+    language:{
+      emptyTable:'<div class="empty-state"><i class="fas fa-building"></i>No properties yet</div>',
+      zeroRecords:'<div class="empty-state"><i class="fas fa-magnifying-glass"></i>No matching records</div>',
+      search:'', searchPlaceholder:'Search properties…',
+      lengthMenu:'Show _MENU_ entries',
+      info:'Showing _START_–_END_ of _TOTAL_ properties',
+      paginate:{previous:'‹ Prev',next:'Next ›'}
+    },
+    dom:'<"top-controls"Bf>rt<"bottom-controls"ip>',
+    buttons:[
+      {
+        extend:'csv', text:'<i class="fas fa-file-csv"></i> CSV', title:'KR Properties',
+        exportOptions:{ columns:[0,1,2,3,4,5,6],
+          format:{ body:function(data,row,col){
+            var rd=propTable.row(row).data(); if(!rd) return data;
+            if(col===0) return (rd.title||'').trim()||'—';
+            if(col===1) return rd.status||'—';
+            if(col===2) return rd.displayPrice||'—';
+            if(col===3) return rd.ownerName||'—';
+            if(col===4){ var ph=rd.ownerNumber||''; return ph?'=HYPERLINK("tel:'+ph+'","'+ph+'")':'—'; }
+            if(col===5) return rd.loc||'—';
+            if(col===6){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+            return data;
+          }}
+        }
+      },
+      {
+        extend:'excel', text:'<i class="fas fa-file-excel"></i> Excel', title:'KR Properties',
+        exportOptions:{ columns:[0,1,2,3,4,5,6],
+          format:{ body:function(data,row,col){
+            var rd=propTable.row(row).data(); if(!rd) return data;
+            if(col===0) return (rd.title||'').trim()||'—';
+            if(col===1) return rd.status||'—';
+            if(col===2) return rd.displayPrice||'—';
+            if(col===3) return rd.ownerName||'—';
+            if(col===4) return rd.ownerNumber||'—';
+            if(col===5) return rd.loc||'—';
+            if(col===6){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+            return data;
+          }}
+        }
+      },
+      {
+        extend:'pdf', text:'<i class="fas fa-file-pdf"></i> PDF',
+        orientation:'landscape', pageSize:'A4', title:'KR Real-Estate — Properties',
+        exportOptions:{columns:[0,1,2,3,4,5,6]},
+        customize:function(doc){
+          doc.styles.tableHeader={fillColor:'#0c0d10',color:'white',bold:true,fontSize:9,alignment:'center'};
+          doc.defaultStyle={fontSize:8,color:'#0c0d10'};
+          var rows=propTable.rows({search:'applied'}).data().toArray();
+          var tableBody=doc.content[1]&&doc.content[1].table?doc.content[1].table.body:null;
+          if(!tableBody) return;
+          rows.forEach(function(rd,i){
+            var pdfRow=tableBody[i+1]; if(!pdfRow) return;
+            var ph=rd.ownerNumber||'';
+            if(ph&&pdfRow[4]) pdfRow[4]={text:ph,link:'tel:'+ph,color:'#1a7a5e',decoration:'underline',fontSize:8};
+          });
+        }
+      },
+      {
+        extend:'print', text:'<i class="fas fa-print"></i> Print', title:'KR Properties',
+        exportOptions:{columns:[0,1,2,3,4,5,6]},
+        customize:function(win){
+          $(win.document.head).append('<style>table td a{color:#1a7a5e;text-decoration:underline}</style>');
+          $(win.document.body).find('table tbody tr').each(function(){
+            var cells=$(this).find('td');
+            var phText=cells.eq(4).text().trim();
+            if(phText&&phText!=='—') cells.eq(4).html('<a href="tel:'+phText+'">'+phText+'</a>');
+          });
+        }
+      }
+    ],
+    drawCallback:function(){}
+  });
+
 });
 </script>
 

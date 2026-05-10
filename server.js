@@ -31,29 +31,31 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model("User", UserSchema);
 
 const PropertySchema = new mongoose.Schema({
-  title:       { type: String, required: true },
-  loc:         { type: String, required: true },
-  city:        { type: String, default: "Bengaluru" },
-  price:       { type: Number, required: true },
-  displayPrice:{ type: String, required: true },
-  bhk:         { type: Number, required: true },
-  area:        String, status: { type: String, enum:["For Sale","For Rent","New Launch","Sold","Lease","PG"], default:"For Sale" },
-  furnishing:  { type: String, default: "Unfurnished" },
+  title:        { type: String, required: true },
+  loc:          { type: String, required: true },
+  city:         { type: String, default: "Bengaluru" },
+  price:        { type: Number, required: true },
+  displayPrice: { type: String, required: true },
+  bhk:          { type: Number, required: true },
+  area:         String,
+  status:       { type: String, enum: ["For Sale","For Rent","New Launch","Sold","Lease","PG"], default: "For Sale" },
+  furnishing:   { type: String, default: "Unfurnished" },
   floor: String, floorLevel: String, age: String, facing: String,
   carparking: String, bikeparking: String, toilet: String,
   amenities: [String], images: [String], desc: String, color: String, icon: String,
-  deposit: { type: Number, default: null },
-  latitude:  { type: Number, default: null },
-  longitude: { type: Number, default: null },
+  deposit:    { type: Number, default: null },
+  latitude:   { type: Number, default: null },
+  longitude:  { type: Number, default: null },
   pgGender:    { type: String, default: null },
   pgRoomType:  { type: String, default: null },
   pgMeals:     { type: String, default: null },
   pgOccupancy: { type: String, default: null },
   pgNotice:    { type: String, default: null },
   pgBathroom:  { type: String, default: null },
+  // ── Owner Details ──
   ownerName:   { type: String, default: "" },
-ownerNumber: { type: String, default: "" },
-  createdAt: { type: Date, default: Date.now }
+  ownerNumber: { type: String, default: "" },
+  createdAt:   { type: Date, default: Date.now }
 });
 const Property = mongoose.model("Property", PropertySchema);
 
@@ -70,18 +72,15 @@ const otpStore = {};
 
 // ── EMAIL ──
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const BREVO_SENDER_EMAIL = "karthik.j@enhancesys.com"; // Your verified sender email
+const BREVO_SENDER_EMAIL = "karthik.j@enhancesys.com";
 const BREVO_SENDER_NAME = "KR Real Estate";
-// ── BREVO EMAIL FUNCTION ──
+
 async function sendEmailWithBrevo(to, subject, htmlContent) {
   try {
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
-        sender: {
-          email: BREVO_SENDER_EMAIL,
-          name: BREVO_SENDER_NAME
-        },
+        sender: { email: BREVO_SENDER_EMAIL, name: BREVO_SENDER_NAME },
         to: [{ email: to, name: to.split('@')[0] }],
         subject: subject,
         htmlContent: htmlContent
@@ -120,10 +119,10 @@ async function seedAdmin() {
 app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success:false, message:"Email required" });
-  
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[email] = { otp, expiresAt: Date.now() + 5*60*1000 };
-  
+
   const emailHtml = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e0e0e0">
     <div style="background:linear-gradient(135deg,#1b3a2d,#2e7d5a);padding:22px 24px;text-align:center">
       <h2 style="margin:0;color:#fff;font-size:1.4rem">KR Real Estate</h2>
@@ -138,9 +137,8 @@ app.post("/send-otp", async (req, res) => {
       © ${new Date().getFullYear()} KR Real Estate
     </div>
   </div>`;
-  
+
   const result = await sendEmailWithBrevo(email, "Your OTP — KR Real Estate", emailHtml);
-  
   if (result.success) {
     res.json({ success: true });
   } else {
@@ -169,7 +167,14 @@ app.post("/submit", async (req, res) => {
     const exists = await User.findOne({ email: email.trim().toLowerCase() });
     if (exists) return res.status(400).json({ message:"An account with this email already exists. Please sign in." });
     const hashed = await bcrypt.hash(password, 10);
-    const user = await new User({ firstName:firstName.trim(), lastName:lastName.trim(), email:email.trim().toLowerCase(), mobile:mobile.trim(), password:hashed, role:"user" }).save();
+    const user = await new User({
+      firstName: firstName.trim(),
+      lastName:  lastName.trim(),
+      email:     email.trim().toLowerCase(),
+      mobile:    mobile.trim(),
+      password:  hashed,
+      role:      "user"
+    }).save();
     res.json({ message:"Account created! Welcome to KR Real-Estate.", firstName:user.firstName, lastName:user.lastName });
   } catch(err) {
     console.error("Register error:", err);
@@ -183,7 +188,6 @@ app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message:"Email and password are required." });
     const emailLower = email.trim().toLowerCase();
-    // Hardcoded admin fallback
     if (emailLower === "admin" && password === "admin") {
       return res.json({ firstName:"Admin", lastName:"", isAdmin:true, role:"admin" });
     }
@@ -217,6 +221,7 @@ app.get("/api/properties", async (req, res) => {
   try { res.json(await Property.find().sort({createdAt:-1})); }
   catch(err) { res.status(500).json([]); }
 });
+
 app.post("/api/properties", async (req, res) => {
   try {
     const prop = new Property(req.body);
@@ -227,6 +232,7 @@ app.post("/api/properties", async (req, res) => {
     res.status(500).json({ message:"Error saving property: " + err.message });
   }
 });
+
 app.put("/api/properties/:id", async (req, res) => {
   try {
     const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -249,10 +255,9 @@ app.put("/api/properties/:id", async (req, res) => {
   }
 });
 
-
 app.delete("/api/properties/:id", async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res.status(400).json({ message: "Invalid property ID" });
     const deleted = await Property.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Property not found" });
@@ -273,7 +278,6 @@ app.post("/api/reviews", async (req, res) => {
     const { name, role, comment, rating, email } = req.body;
     if (!rating || rating < 1 || rating > 5) return res.status(400).json({ message:"Rating must be 1–5" });
     if (!comment || !comment.trim()) return res.status(400).json({ message:"Review comment required" });
-    // Check if this email has already submitted a review
     if (email && email.trim()) {
       const existing = await Review.findOne({ email: email.trim().toLowerCase() });
       if (existing) return res.status(400).json({ message:"You have already submitted a review." });
@@ -286,8 +290,6 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
-
-// CHECK IF USER ALREADY REVIEWED
 app.get("/api/reviews/check/:email", async (req, res) => {
   try {
     const existing = await Review.findOne({ email: decodeURIComponent(req.params.email).toLowerCase() });
