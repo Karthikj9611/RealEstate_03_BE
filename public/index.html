@@ -3932,13 +3932,12 @@ async function captureLocationEdit() {
         const city     = addr.city||addr.town||addr.state_district||addr.state||'';
         const area     = addr.road||addr.pedestrian||'';
         const locVal   = [locality,area].filter(Boolean).join(', ')||data.display_name?.split(',')[0]||'';
-        if(locInp && locVal && !locInp.value) locInp.value = locVal;
         if(cityInp && city) cityInp.value = city;
         const epFullAddr = document.getElementById('ep_fullAddress');
         if(epFullAddr) epFullAddr.value = data.display_name || locVal || '';
         if(status) status.innerHTML=`<span style="color:var(--gold-dark)">✅ Location set: <strong>${locVal||'detected'}</strong></span>`;
       } catch {
-        if(locInp && !locInp.value) locInp.value=`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        // loc field left for manual entry
         if(status) status.innerHTML=`<span style="color:var(--gold-dark)">✅ Coordinates captured (address lookup failed)</span>`;
       }
       if(btnTxt) btnTxt.textContent='Live';
@@ -4708,7 +4707,6 @@ async function captureLocation() {
         const locVal = [locality, area].filter(Boolean).join(', ') || data.display_name?.split(',')[0] || '';
 
         // Location / Area: only auto-fill if user hasn't typed anything
-        if (locInp && locVal && !locInp.value) locInp.value = locVal;
         if (cityInp && city) cityInp.value = city;
 
         // Full Address: always filled from live location (separate field)
@@ -4718,7 +4716,7 @@ async function captureLocation() {
         status.innerHTML = `<span style="color:var(--gold-dark)">✅ Location set: <strong>${locVal || 'detected'}</strong></span>`;
       } catch (err) {
         // Coords captured but reverse geocode failed — fill coords as fallback
-        if (locInp && !locInp.value) locInp.value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        // loc field left for manual entry
         status.innerHTML = `<span style="color:var(--gold-dark)">✅ Coordinates captured (address lookup failed)</span>`;
       }
 
