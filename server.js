@@ -70,7 +70,8 @@ const PropertySchema = new mongoose.Schema({
     date: { type: Date, default: Date.now }
   }
 ],
-  createdAt:   { type: Date, default: Date.now }
+  createdAt:   { type: Date, default: Date.now },
+  promoted: { type: Boolean, default: false }
 });
 const Property = mongoose.model("Property", PropertySchema);
 
@@ -436,6 +437,21 @@ app.patch("/api/properties/:id/remarks", async (req, res) => {
   }
 });
 
+
+// ── Toggle promoted status ──
+app.patch("/api/properties/:id/promote", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid property ID" });
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ message: "Property not found" });
+    property.promoted = !property.promoted;
+    await property.save();
+    res.json({ message: "Promoted status updated", promoted: property.promoted });
+  } catch(err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 // ══════════════════════════════════════════════
 // PAYMENT ROUTES (Razorpay)
