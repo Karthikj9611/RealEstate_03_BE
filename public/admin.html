@@ -752,20 +752,60 @@ window.deleteProperty = async function(id){
 
 /* ── REMARKS ── */
 function remarkCellHtml(id, remark, type){
-  const text = (remark||'').trim();
-  const display = text ? escapeHtml(text) : 'Add remark…';
+
+  let text = '';
+
+  // new array structure
+  if(Array.isArray(remark) && remark.length){
+    text = remark[remark.length - 1].remark || '';
+  }
+
+  // old string structure support
+  else if(typeof remark === 'string'){
+    text = remark;
+  }
+
+  text = text.trim();
+
+  const display = text
+    ? escapeHtml(text)
+    : 'Add remark…';
+
   const cls = text ? '' : ' empty';
-  return `<div class="remark-cell" data-id="${id}" data-type="${type}">
-    <div class="remark-display">
-      <span class="remark-text${cls}">${display}</span>
-      <i class="fas fa-pen remark-edit-icon"></i>
+
+  return `
+    <div class="remark-cell" data-id="${id}" data-type="${type}">
+
+      <div class="remark-display">
+        <span class="remark-text${cls}">
+          ${display}
+        </span>
+
+        <i class="fas fa-pen remark-edit-icon"></i>
+      </div>
+
+      <div class="remark-input-wrap">
+
+        <input
+          class="remark-input"
+          type="text"
+          maxlength="200"
+          value="${escapeHtml(text)}"
+          placeholder="Type remark…"
+        />
+
+        <button class="remark-save-btn" title="Save">
+          <i class="fas fa-check"></i>
+        </button>
+
+        <button class="remark-cancel-btn" title="Cancel">
+          <i class="fas fa-times"></i>
+        </button>
+
+      </div>
+
     </div>
-    <div class="remark-input-wrap">
-      <input class="remark-input" type="text" maxlength="200" value="${escapeHtml(text)}" placeholder="Type remark…"/>
-      <button class="remark-save-btn" title="Save"><i class="fas fa-check"></i></button>
-      <button class="remark-cancel-btn" title="Cancel"><i class="fas fa-times"></i></button>
-    </div>
-  </div>`;
+  `;
 }
 
 async function saveRemark(cell, id, type){
