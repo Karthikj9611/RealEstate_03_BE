@@ -15,8 +15,8 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // ── MongoDB ──
-//mongoose.connect("mongodb://127.0.0.1:27017/kr_realestate")
-mongoose.connect("mongodb+srv://karthikj:karthikj@cluster0.hkz6yzz.mongodb.net/kr_realestate?retryWrites=true&w=majority")
+mongoose.connect("mongodb://127.0.0.1:27017/kr_realestate")
+//mongoose.connect("mongodb+srv://karthikj:karthikj@cluster0.hkz6yzz.mongodb.net/kr_realestate?retryWrites=true&w=majority")
   .then(async () => { console.log("✅ MongoDB Connected"); await seedAdmin(); })
   .catch(err => console.log("❌ MongoDB error:", err));
 
@@ -71,7 +71,9 @@ const PropertySchema = new mongoose.Schema({
   }
 ],
   createdAt:   { type: Date, default: Date.now },
-  promoted: { type: Boolean, default: false }
+  promoted: { type: Boolean, default: false },
+  promotedPos: { type: String, default: 'top-right' },
+  promotedPriority: { type: Number, default: 3 }
 });
 const Property = mongoose.model("Property", PropertySchema);
 
@@ -439,6 +441,7 @@ app.patch("/api/properties/:id/remarks", async (req, res) => {
 
 
 // ── Toggle promoted status ──
+// ── Toggle promoted status ──
 app.patch("/api/properties/:id/promote", async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
@@ -446,8 +449,18 @@ app.patch("/api/properties/:id/promote", async (req, res) => {
     const property = await Property.findById(req.params.id);
     if (!property) return res.status(404).json({ message: "Property not found" });
     property.promoted = !property.promoted;
+    if (property.promoted) {
+      const validPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+      const pos = req.body && req.body.promotedPos;
+      const priority = req.body && req.body.promotedPriority;
+      property.promotedPos = validPositions.includes(pos) ? pos : 'top-right';
+      property.promotedPriority = [1,2,3].includes(Number(priority)) ? Number(priority) : 3;
+    } else {
+      property.promotedPos = 'top-right';
+      property.promotedPriority = 3;
+    }
     await property.save();
-    res.json({ message: "Promoted status updated", promoted: property.promoted });
+    res.json({ message: "Promoted status updated", promoted: property.promoted, promotedPos: property.promotedPos, promotedPriority: property.promotedPriority });
   } catch(err) {
     res.status(500).json({ message: "Server error" });
   }

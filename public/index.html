@@ -1865,6 +1865,11 @@ input {
   pointer-events: none;
 }
 
+.badge-promoted.pos-top-left     { top:0; left:0; right:auto; bottom:auto; border-radius:0 0 12px 0; }
+.badge-promoted.pos-top-right    { top:0; right:0; left:auto; bottom:auto; border-radius:0 0 0 12px; }
+.badge-promoted.pos-bottom-left  { bottom:14px; left:12px; top:auto; right:auto; border-radius:99px; }
+.badge-promoted.pos-bottom-right { bottom:14px; right:12px; top:auto; left:auto; border-radius:99px; }
+
 </style>
 <!-- ALL LISTINGS -->
 <section class="section" id="listings" style="background:var(--surface2);position:relative;overflow:hidden">
@@ -2576,7 +2581,13 @@ function slideGallery(uid, idx){
 function renderProps(list){
   const grid=document.getElementById('propertyGrid');
   // Sort: promoted properties first
-  list = [...list].sort((a, b) => (b.promoted ? 1 : 0) - (a.promoted ? 1 : 0));
+  // Sort: promoted properties first, then by priority
+  list = [...list].sort((a, b) => {
+    if (b.promoted && !a.promoted) return 1;
+    if (!b.promoted && a.promoted) return -1;
+    if (a.promoted && b.promoted) return (a.promotedPriority || 3) - (b.promotedPriority || 3);
+    return 0;
+  });
   document.getElementById('propCount').textContent=list.length+' properties';
   if(!list.length){
     grid.innerHTML='<p style="color:var(--ink3);padding:2rem 0;grid-column:1/-1">No properties match your filters.</p>';
@@ -2590,7 +2601,7 @@ function renderProps(list){
         <div class="prop-img-color-stripe"></div>
         <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
 <!--        <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button> -->
-        ${p.promoted ? `<div class="badge-promoted">Promoted⭐</div>` : ''}
+        ${p.promoted ? `<div class="badge-promoted pos-${p.promotedPos || 'top-right'}">P${p.promotedPriority || 3} ⭐</div>` : ''}
         <div class="prop-price-overlay">
           <div class="prop-price">${p.displayPrice}</div>
         </div>
@@ -7509,21 +7520,108 @@ window.deletePayment = async function(id) {
 async function togglePromote(mongoId, localId) {
   if(!isAdmin){ Swal.fire({icon:'warning',title:'Admin Only',text:'Only admins can promote properties.',timer:2000,showConfirmButton:false}); return; }
   const p = PROPERTIES.find(x => x.id === localId);
-  const action = p && p.promoted ? 'Remove from Promoted' : 'Mark as Promoted';
-  const result = await Swal.fire({
-    icon: 'question',
-    title: action + '?',
-    text: p ? p.title : '',
+
+  // If already promoted — just remove it
+  if (p && p.promoted) {
+    const result = await Swal.fire({
+      icon: 'question',
+      title: 'Remove Promoted?',
+      text: p ? p.title : '',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'Cancel',
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const res = await fetch(BASE_URL + '/api/properties/' + mongoId + '/promote', { method: 'PATCH' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed');
+      Swal.fire({ icon: 'success', title: 'Removed from Promoted', timer: 1800, showConfirmButton: false });
+      await loadPropertiesFromDB();
+    } catch(err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not update.' });
+    }
+    return;
+  }
+
+  // If not promoted — show position picker
+window._promoPos = null;
+  window._promoPriority = null;
+  const pos = await Swal.fire({
+    title: '⭐ Promote Property',
+    html: `
+      <p style="font-size:0.8rem;color:#888;margin-bottom:14px">${p ? p.title : ''}</p>
+
+      <p style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Badge Position</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+        <button class="pos-btn" data-pos="top-left"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pos-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#f59e0b';this.style.background='#fef3c7';window._promoPos=this.dataset.pos">
+          ↖ Top Left
+        </button>
+        <button class="pos-btn" data-pos="top-right"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pos-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#f59e0b';this.style.background='#fef3c7';window._promoPos=this.dataset.pos">
+          ↗ Top Right
+        </button>
+        <button class="pos-btn" data-pos="bottom-left"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pos-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#f59e0b';this.style.background='#fef3c7';window._promoPos=this.dataset.pos">
+          ↙ Bottom Left
+        </button>
+        <button class="pos-btn" data-pos="bottom-right"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pos-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#f59e0b';this.style.background='#fef3c7';window._promoPos=this.dataset.pos">
+          ↘ Bottom Right
+        </button>
+      </div>
+
+      <p style="font-size:0.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Priority</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button class="pri-btn" data-pri="1"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pri-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#2e7d5a';this.style.background='#e4f5ed';window._promoPriority=this.dataset.pri">
+          🥇 Priority 1
+        </button>
+        <button class="pri-btn" data-pri="2"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pri-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#2e7d5a';this.style.background='#e4f5ed';window._promoPriority=this.dataset.pri">
+          🥈 Priority 2
+        </button>
+        <button class="pri-btn" data-pri="3"
+          style="padding:14px 10px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;transition:all 0.18s"
+          onclick="document.querySelectorAll('.pri-btn').forEach(b=>{b.style.borderColor='#e5e7eb';b.style.background='#fff'});this.style.borderColor='#2e7d5a';this.style.background='#e4f5ed';window._promoPriority=this.dataset.pri">
+          🥉 Priority 3
+        </button>
+      </div>`,
     showCancelButton: true,
-    confirmButtonText: 'Yes',
+    confirmButtonText: 'Apply ⭐',
     cancelButtonText: 'Cancel',
+    preConfirm: () => {
+      if (!window._promoPos) {
+        Swal.showValidationMessage('Please select a badge position');
+        return false;
+      }
+      if (!window._promoPriority) {
+        Swal.showValidationMessage('Please select a priority');
+        return false;
+      }
+      return { pos: window._promoPos, priority: window._promoPriority };
+    }
   });
-  if (!result.isConfirmed) return;
+
+  window._promoPos = null;
+  window._promoPriority = null;
+  if (!pos.isConfirmed) return;
   try {
-    const res = await fetch(BASE_URL + '/api/properties/' + mongoId + '/promote', { method: 'PATCH' });
+    const res = await fetch(BASE_URL + '/api/properties/' + mongoId + '/promote', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ promotedPos: pos.value.pos, promotedPriority: pos.value.priority })
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Failed');
-    Swal.fire({ icon: 'success', title: data.promoted ? 'Promoted! ⭐' : 'Removed from Promoted', timer: 1800, showConfirmButton: false });
+    Swal.fire({ icon: 'success', title: 'Promoted! ⭐', text: 'Priority ' + pos.value.priority + ' · ' + pos.value.pos.replace('-', ' '), timer: 1800, showConfirmButton: false });
     await loadPropertiesFromDB();
   } catch(err) {
     Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not update.' });
