@@ -2589,8 +2589,8 @@ function renderProps(list){
         <div class="img-overlay-gradient"></div>
         <div class="prop-img-color-stripe"></div>
         <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
-        <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button>
-        ${p.promoted ? `<div class="badge-promoted">⭐ Promoted</div>` : ''}
+<!--        <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button> -->
+        ${p.promoted ? `<div class="badge-promoted">Promoted⭐</div>` : ''}
         <div class="prop-price-overlay">
           <div class="prop-price">${p.displayPrice}</div>
         </div>
@@ -2628,9 +2628,9 @@ function renderProps(list){
           </button>
         </div>
         ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
-          <button onclick="event.stopPropagation();openEditPropertyModal(${p.id})" ...>✏️ Edit</button>
-          <button onclick="event.stopPropagation();deleteProperty('${String(p._id)}',${p.id})" ...> 🗑️ Delete</button>
-          <button onclick="event.stopPropagation();togglePromote('${String(p._id)}',${p.id})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #b45309;background:${p.promoted?'#fef3c7':'#fff7ed'};color:#b45309;font-size:0.76rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;justify-content:center;gap:5px" onmouseover="this.style.background='#f59e0b';this.style.color='#fff'" onmouseout="this.style.background='${p.promoted?'#fef3c7':'#fff7ed'}';this.style.color='#b45309'">${p.promoted ? '★ Unlist' : '⭐ Promote'}</button>
+          <button onclick="event.stopPropagation();openEditPropertyModal(${p.id})" ...>✏️</button>
+          <button onclick="event.stopPropagation();deleteProperty('${String(p._id)}',${p.id})" ...>🗑️</button>
+          <button onclick="event.stopPropagation();togglePromote('${String(p._id)}',${p.id})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #b45309;background:${p.promoted?'#fef3c7':'#fff7ed'};color:#b45309;font-size:0.76rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;justify-content:center;gap:5px" onmouseover="this.style.background='#f59e0b';this.style.color='#fff'" onmouseout="this.style.background='${p.promoted?'#fef3c7':'#fff7ed'}';this.style.color='#b45309'">${p.promoted ? '★' : '⭐'}</button>
         </div>` : ''}
       </div>
     </div>
