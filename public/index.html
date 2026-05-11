@@ -1539,6 +1539,8 @@ input {
   <symbol id="ic-percent" viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
   <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
   <symbol id="ic-area" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></symbol>
+  <symbol id="ic-credit-card" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></symbol>
+  <symbol id="ic-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="11" y2="16"/></symbol>
 </svg>
 <!-- NAV -->
 <nav>
@@ -1554,6 +1556,7 @@ input {
       <span style="position:absolute;top:-5px;right:-8px;background:var(--red);color:#fff;font-size:0.5rem;font-weight:800;padding:2px 5px;border-radius:99px;letter-spacing:0.5px;text-transform:uppercase;line-height:1;pointer-events:none">HOT</span>
       <span class="icon"><svg><use href="#ic-tag"/></svg></span>Offers
     </a>
+    <a href="javascript:void(0)" onclick="openPaymentModal();closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-credit-card"/></svg></span>Payments</a>
     <a href="#" id="navLoginLink" onclick="event.preventDefault();openAuthModal('login');closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-user"/></svg></span>Sign In</a>
 
     <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
@@ -1584,6 +1587,9 @@ input {
       <div id="userMenuName" style="padding:13px 16px 10px;font-size:0.78rem;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border)"></div>
       <button onclick="event.stopPropagation();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-plus"/></svg></span> List Property
+      </button>
+      <button onclick="event.stopPropagation();openAdminPaymentsModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
+        <span class="icon"><svg><use href="#ic-receipt"/></svg></span> View Payments
       </button>
       <button onclick="event.stopPropagation();logoutUser()" style="width:100%;padding:11px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-log-out"/></svg></span> Logout
@@ -2493,6 +2499,36 @@ function closeAboutModal(){
 </div>
 
 <script>
+/* ══════════════════════════════════════════════
+   HOISTED — applyCardTilt must be declared before
+   the IIFE below calls it (original definition is
+   later in the file; this copy ensures availability)
+══════════════════════════════════════════════ */
+function applyCardTilt() {
+  document.querySelectorAll('.prop-card').forEach(card => {
+    if (card._tiltApplied) return;
+    card._tiltApplied = true;
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width  - 0.5;
+      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      if (typeof gsap !== 'undefined') {
+        gsap.to(card, {
+          rotateY: x * 8, rotateX: -y * 8,
+          transformPerspective: 900, duration: 0.3, ease: 'power2.out'
+        });
+      }
+      card.style.setProperty('--mx', (x + 0.5) * 100 + '%');
+      card.style.setProperty('--my', (y + 0.5) * 100 + '%');
+    });
+    card.addEventListener('mouseleave', () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.to(card, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1,0.5)' });
+      }
+    });
+  });
+}
+
 const PROPERTIES=[];
 
 let activeFilter='all';
@@ -5859,7 +5895,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
   /* ── FLOATING ENERGY RINGS ── */
   const rings = [];
-  [[−6, 16, −3], [7, 20, −5], [−14, 14, −2], [13, 13, −4]].forEach(([x, y, z], i) => {
+  [[-6, 16, -3], [7, 20, -5], [-14, 14, -2], [13, 13, -4]].forEach(([x, y, z], i) => {
     const geo = new THREE.TorusGeometry(0.7, 0.06, 8, 32);
     const mat = new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x3a9e72 : 0x1a8aaa, transparent: true, opacity: 0.6, wireframe: false });
     const ring = new THREE.Mesh(geo, mat);
@@ -6926,6 +6962,533 @@ async function pickContact(inputId) {
   }
 }
 
+</script>
+
+<!-- ══════════════════════════════════════════
+     RAZORPAY SDK
+════════════════════════════════════════════ -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<style>
+/* ── PAYMENT MODAL ── */
+#paymentModalWrap{
+  display:none;position:fixed;inset:0;z-index:700;
+  background:rgba(12,13,16,0.72);
+  align-items:center;justify-content:center;
+  padding:1rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+#paymentModalWrap.open{display:flex}
+.pay-modal{
+  background:var(--surface);border-radius:26px;
+  width:100%;max-width:520px;max-height:92vh;overflow-y:auto;
+  box-shadow:0 40px 100px rgba(0,0,0,0.45);position:relative;
+}
+.pay-modal-header{
+  background:linear-gradient(135deg,var(--accent),var(--gold-dark));
+  padding:1.4rem 1.8rem 1.2rem;border-radius:26px 26px 0 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pay-modal-header-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:700;color:#fff;
+  display:flex;align-items:center;gap:10px;
+}
+.pay-modal-header-title svg{width:1.1em;height:1.1em;stroke:#fff;fill:none;stroke-width:2}
+.pay-modal-close{
+  background:rgba(255,255,255,0.15);border:none;color:#fff;
+  width:32px;height:32px;border-radius:50%;font-size:1rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background 0.18s;flex-shrink:0;
+}
+.pay-modal-close:hover{background:rgba(255,255,255,0.3)}
+.pay-modal-body{padding:1.6rem 1.8rem 2rem}
+@media(max-width:540px){.pay-modal-body{padding:1.2rem 1.1rem 1.6rem}}
+
+/* Payment type selector */
+.pay-type-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.4rem;
+}
+.pay-type-card{
+  border:2px solid var(--border);border-radius:14px;
+  padding:12px 14px;cursor:pointer;transition:all 0.2s;
+  background:var(--bg);text-align:left;
+  font-family:inherit;
+}
+.pay-type-card:hover{border-color:var(--gold);background:var(--gold-light)}
+.pay-type-card.selected{
+  border-color:var(--gold);background:var(--gold-light);
+  box-shadow:0 0 0 3px rgba(46,125,90,0.15);
+}
+.pay-type-icon{font-size:1.3rem;margin-bottom:5px}
+.pay-type-label{font-size:0.8rem;font-weight:700;color:var(--ink);line-height:1.2}
+.pay-type-amount{font-size:0.72rem;color:var(--gold-dark);font-weight:600;margin-top:3px}
+
+/* Form fields */
+.pay-field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.pay-field label{font-size:0.68rem;font-weight:800;color:var(--ink2);letter-spacing:0.7px;text-transform:uppercase}
+.pay-field input,.pay-field select,.pay-field textarea{
+  border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 13px;font-size:0.88rem;font-family:inherit;
+  color:var(--ink);background:var(--bg);outline:none;
+  transition:border-color 0.18s;width:100%;
+}
+.pay-field input:focus,.pay-field select:focus,.pay-field textarea:focus{
+  border-color:var(--gold);background:var(--surface);
+}
+.pay-field textarea{min-height:72px;resize:none}
+.pay-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:400px){.pay-row-2{grid-template-columns:1fr}}
+
+.pay-summary-box{
+  background:var(--gold-light);border:1.5px solid var(--gold);
+  border-radius:12px;padding:12px 16px;margin-bottom:1.2rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.pay-summary-label{font-size:0.78rem;color:var(--gold-dark);font-weight:600}
+.pay-summary-amount{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:700;color:var(--accent);
+}
+
+.pay-submit-btn{
+  width:100%;padding:14px;border:none;border-radius:12px;
+  background:var(--accent);color:#fff;
+  font-size:0.92rem;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:all 0.22s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 18px rgba(27,58,45,0.28);letter-spacing:0.2px;
+}
+.pay-submit-btn:hover{background:var(--gold);color:var(--ink);transform:translateY(-1.5px);box-shadow:0 8px 28px rgba(46,125,90,0.35)}
+.pay-submit-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none}
+
+.pay-secure-note{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:0.72rem;color:var(--ink3);margin-top:10px;
+}
+.pay-secure-note svg{width:13px;height:13px;stroke:var(--gold);fill:none;stroke-width:2}
+
+/* Admin payments table */
+.pay-admin-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.pay-admin-table th{
+  background:var(--surface2);padding:9px 12px;text-align:left;
+  font-size:0.68rem;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink3);
+  border-bottom:2px solid var(--border);
+}
+.pay-admin-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:middle}
+.pay-admin-table tr:last-child td{border-bottom:none}
+.pay-admin-table tr:hover td{background:var(--surface2)}
+.pay-status-paid{background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:700}
+.pay-status-created{background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:700}
+.pay-status-failed{background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:700}
+.pay-table-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
+</style>
+
+<!-- ══════════════════════════════════════════
+     ADMIN PAYMENTS MODAL
+════════════════════════════════════════════ -->
+<div id="adminPaymentsModalWrap" onclick="if(event.target===this)closeAdminPaymentsModal()"
+  style="display:none;position:fixed;inset:0;z-index:700;background:rgba(12,13,16,0.72);align-items:flex-start;justify-content:center;padding:1.5rem 1rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow-y:auto">
+  <div style="background:var(--surface);border-radius:22px;width:100%;max-width:860px;box-shadow:0 40px 100px rgba(0,0,0,0.4);margin:auto">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,var(--accent),var(--gold-dark));padding:1.2rem 1.8rem;border-radius:22px 22px 0 0;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:9px">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="11" y2="16"/></svg>
+        Payment Transactions
+      </div>
+      <button onclick="closeAdminPaymentsModal()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <!-- Stats bar -->
+    <div id="adminPayStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)">
+      <div style="background:var(--surface);padding:14px 18px;text-align:center">
+        <div id="aps_total" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--ink)">—</div>
+        <div style="font-size:0.68rem;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Total</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 18px;text-align:center">
+        <div id="aps_paid" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:#065f46">—</div>
+        <div style="font-size:0.68rem;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Paid</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 18px;text-align:center">
+        <div id="aps_revenue" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--gold-dark)">—</div>
+        <div style="font-size:0.68rem;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Revenue</div>
+      </div>
+      <div style="background:var(--surface);padding:14px 18px;text-align:center">
+        <div id="aps_failed" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:#991b1b">—</div>
+        <div style="font-size:0.68rem;color:var(--ink3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Failed</div>
+      </div>
+    </div>
+    <!-- Table -->
+    <div style="padding:1.2rem 1.4rem 1.6rem">
+      <div id="adminPayTableWrap" class="pay-table-wrap">
+        <table class="pay-admin-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Name</th><th>Type</th><th>Amount</th><th>Status</th><th>Payment ID</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="adminPayTableBody">
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAYMENT MODAL HTML
+════════════════════════════════════════════ -->
+<div id="paymentModalWrap" onclick="if(event.target===this)closePaymentModal()">
+  <div class="pay-modal" id="paymentModal">
+    <div class="pay-modal-header">
+      <div class="pay-modal-header-title">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Online Payment
+      </div>
+      <button class="pay-modal-close" onclick="closePaymentModal()">✕</button>
+    </div>
+    <div class="pay-modal-body">
+
+      <!-- Step 1: Choose payment type -->
+      <div id="payStep1">
+        <p style="font-size:0.84rem;color:var(--ink3);margin-bottom:1rem">Select what you'd like to pay for:</p>
+        <div class="pay-type-grid">
+          <button class="pay-type-card" data-type="listing" onclick="selectPayType(this,'listing')">
+            <div class="pay-type-icon">🏠</div>
+            <div class="pay-type-label">Property Listing Fee</div>
+            <div class="pay-type-amount">₹499</div>
+          </button>
+          <button class="pay-type-card" data-type="token" onclick="selectPayType(this,'token')">
+            <div class="pay-type-icon">🔑</div>
+            <div class="pay-type-label">Token Booking Amount</div>
+            <div class="pay-type-amount">Custom (min ₹1,000)</div>
+          </button>
+          <button class="pay-type-card" data-type="membership" onclick="selectPayType(this,'membership')">
+            <div class="pay-type-icon">⭐</div>
+            <div class="pay-type-label">Premium Membership</div>
+            <div class="pay-type-amount">₹1,999 / year</div>
+          </button>
+          <button class="pay-type-card" data-type="consultation" onclick="selectPayType(this,'consultation')">
+            <div class="pay-type-icon">📋</div>
+            <div class="pay-type-label">Consultation Fee</div>
+            <div class="pay-type-amount">₹999</div>
+          </button>
+        </div>
+        <button onclick="goPayStep2()" class="pay-submit-btn" style="margin-top:4px" id="payStep1Btn" disabled>
+          Continue →
+        </button>
+      </div>
+
+      <!-- Step 2: Fill details + pay -->
+      <div id="payStep2" style="display:none">
+        <button onclick="goPayStep1Back()" style="background:none;border:none;color:var(--gold-dark);font-size:0.82rem;font-weight:600;cursor:pointer;margin-bottom:1rem;padding:0;font-family:inherit;display:flex;align-items:center;gap:4px">
+          ← Back
+        </button>
+
+        <div class="pay-row-2">
+          <div class="pay-field">
+            <label>Your Name *</label>
+            <input type="text" id="payName" placeholder="Full name" />
+          </div>
+          <div class="pay-field">
+            <label>Email *</label>
+            <input type="email" id="payEmail" placeholder="you@email.com" />
+          </div>
+        </div>
+        <div class="pay-field">
+          <label>Mobile</label>
+          <input type="tel" id="payMobile" placeholder="10-digit mobile number" maxlength="10" />
+        </div>
+
+        <!-- Token: property + custom amount -->
+        <div id="payTokenFields" style="display:none">
+          <div class="pay-field">
+            <label>Property Title / Address</label>
+            <input type="text" id="payPropertyTitle" placeholder="e.g. 3BHK Flat in Koramangala" />
+          </div>
+          <div class="pay-field">
+            <label>Token Amount (₹) *</label>
+            <input type="number" id="payTokenAmount" placeholder="Minimum ₹1,000" min="1000" />
+          </div>
+        </div>
+
+        <!-- Membership: plan -->
+        <div id="payMembershipFields" style="display:none">
+          <div class="pay-field">
+            <label>Membership Plan</label>
+            <select id="payMemberPlan">
+              <option value="premium_yearly">Premium — ₹1,999 / year</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Consultation: notes -->
+        <div id="payConsultFields" style="display:none">
+          <div class="pay-field">
+            <label>What do you need help with?</label>
+            <textarea id="payConsultNotes" placeholder="Briefly describe your requirement..."></textarea>
+          </div>
+        </div>
+
+        <div class="pay-summary-box" id="paySummaryBox">
+          <span class="pay-summary-label" id="paySummaryLabel">Amount to Pay</span>
+          <span class="pay-summary-amount" id="paySummaryAmount">₹0</span>
+        </div>
+
+        <button class="pay-submit-btn" onclick="initiatePayment()" id="payNowBtn">
+          <svg viewBox="0 0 24 24" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Pay Securely with Razorpay
+        </button>
+        <div class="pay-secure-note">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          256-bit SSL secured · Powered by Razorpay
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   PAYMENT MODAL JS
+══════════════════════════════════════════ */
+(function(){
+
+  var _payType = null;
+
+  window.openPaymentModal = function() {
+    document.getElementById('paymentModalWrap').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    goPayStep1Back();   // always start fresh at step 1
+  };
+
+  window.closePaymentModal = function() {
+    document.getElementById('paymentModalWrap').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.selectPayType = function(el, type) {
+    document.querySelectorAll('.pay-type-card').forEach(function(c){ c.classList.remove('selected'); });
+    el.classList.add('selected');
+    _payType = type;
+    document.getElementById('payStep1Btn').disabled = false;
+    updateSummary();
+  };
+
+  window.goPayStep2 = function() {
+    if (!_payType) return;
+    document.getElementById('payStep1').style.display = 'none';
+    document.getElementById('payStep2').style.display = 'block';
+
+    // show/hide contextual fields
+    document.getElementById('payTokenFields').style.display   = _payType === 'token'        ? 'block' : 'none';
+    document.getElementById('payMembershipFields').style.display = _payType === 'membership' ? 'block' : 'none';
+    document.getElementById('payConsultFields').style.display  = _payType === 'consultation' ? 'block' : 'none';
+
+    updateSummary();
+  };
+
+  window.goPayStep1Back = function() {
+    document.getElementById('payStep1').style.display = 'block';
+    document.getElementById('payStep2').style.display = 'none';
+    _payType = null;
+    document.getElementById('payStep1Btn').disabled = true;
+    document.querySelectorAll('.pay-type-card').forEach(function(c){ c.classList.remove('selected'); });
+  };
+
+  var AMOUNTS = { listing: 499, token: 0, membership: 1999, consultation: 999 };
+  var LABELS  = { listing: 'Property Listing Fee', token: 'Token Booking Amount', membership: 'Premium Membership', consultation: 'Consultation Fee' };
+
+  function updateSummary() {
+    var amount = AMOUNTS[_payType] || 0;
+    if (_payType === 'token') {
+      var v = parseInt(document.getElementById('payTokenAmount') && document.getElementById('payTokenAmount').value) || 0;
+      amount = v;
+    }
+    document.getElementById('paySummaryLabel').textContent = LABELS[_payType] || 'Amount to Pay';
+    document.getElementById('paySummaryAmount').textContent = '₹' + (amount ? amount.toLocaleString('en-IN') : '—');
+  }
+
+  // live update token amount
+  document.addEventListener('input', function(e) {
+    if (e.target && e.target.id === 'payTokenAmount') updateSummary();
+  });
+
+  window.initiatePayment = function() {
+    var name    = (document.getElementById('payName').value  || '').trim();
+    var email   = (document.getElementById('payEmail').value || '').trim();
+    var mobile  = (document.getElementById('payMobile').value|| '').trim();
+
+    if (!name || !email) {
+      Swal.fire({ icon:'warning', title:'Missing Details', text:'Please enter your name and email.', timer:2200, showConfirmButton:false }); return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      Swal.fire({ icon:'warning', title:'Invalid Email', text:'Please enter a valid email address.', timer:2200, showConfirmButton:false }); return;
+    }
+
+    var body = { type: _payType, name, email, mobile };
+
+    if (_payType === 'token') {
+      var ta = parseInt(document.getElementById('payTokenAmount').value);
+      if (!ta || ta < 1000) {
+        Swal.fire({ icon:'warning', title:'Invalid Amount', text:'Minimum token amount is ₹1,000.', timer:2200, showConfirmButton:false }); return;
+      }
+      body.customAmount = ta;
+      body.propertyTitle = document.getElementById('payPropertyTitle').value.trim();
+    }
+    if (_payType === 'membership') {
+      body.plan = document.getElementById('payMemberPlan').value;
+    }
+    if (_payType === 'consultation') {
+      body.notes = document.getElementById('payConsultNotes').value.trim();
+    }
+
+    var btn = document.getElementById('payNowBtn');
+    btn.disabled = true;
+    btn.textContent = 'Creating order…';
+
+    fetch('/api/payment/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Securely with Razorpay';
+
+      if (!data.success) {
+        Swal.fire({ icon:'error', title:'Order Error', text: data.message || 'Could not create order.', timer:2800, showConfirmButton:false }); return;
+      }
+
+      var options = {
+        key:         data.keyId,
+        amount:      data.amount,
+        currency:    data.currency,
+        name:        'KR Real Estate',
+        description: data.description,
+        order_id:    data.orderId,
+        prefill:     { name: data.name, email: data.email, contact: data.mobile },
+        theme:       { color: '#1b3a2d' },
+        handler: function(resp) {
+          // verify on server
+          fetch('/api/payment/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id:   resp.razorpay_order_id,
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_signature:  resp.razorpay_signature
+            })
+          })
+          .then(function(r){ return r.json(); })
+          .then(function(v) {
+            closePaymentModal();
+            if (v.success) {
+              Swal.fire({
+                icon:'success', title:'Payment Successful! 🎉',
+                html:'<p style="font-size:0.9rem;color:#555">Your payment has been received.<br>Payment ID: <strong>' + resp.razorpay_payment_id + '</strong></p>',
+                confirmButtonText:'Done'
+              });
+            } else {
+              Swal.fire({ icon:'error', title:'Verification Failed', text: v.message, confirmButtonText:'OK' });
+            }
+          });
+        },
+        modal: {
+          ondismiss: function() {
+            fetch('/api/payment/failed', {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ orderId: data.orderId })
+            });
+          }
+        }
+      };
+
+      var rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(resp) {
+        fetch('/api/payment/failed', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ orderId: data.orderId })
+        });
+        Swal.fire({ icon:'error', title:'Payment Failed', text: resp.error.description || 'Please try again.', timer:3000, showConfirmButton:false });
+      });
+      rzp.open();
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay Securely with Razorpay';
+      Swal.fire({ icon:'error', title:'Network Error', text:'Could not connect. Please try again.', timer:2500, showConfirmButton:false });
+    });
+  };
+
+})();
+
+/* ══════════════════════════════════════════
+   ADMIN PAYMENTS MODAL JS
+══════════════════════════════════════════ */
+window.openAdminPaymentsModal = function() {
+  document.getElementById('adminPaymentsModalWrap').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  loadAdminPayments();
+};
+window.closeAdminPaymentsModal = function() {
+  document.getElementById('adminPaymentsModalWrap').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+var TYPE_LABELS = { listing:'Listing Fee', token:'Token Booking', membership:'Premium Member', consultation:'Consultation' };
+
+async function loadAdminPayments() {
+  var tbody = document.getElementById('adminPayTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">Loading…</td></tr>';
+  try {
+    var res  = await fetch('/api/payments');
+    var data = await res.json();
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">No payments yet.</td></tr>';
+      document.getElementById('aps_total').textContent = '0';
+      document.getElementById('aps_paid').textContent  = '0';
+      document.getElementById('aps_revenue').textContent = '₹0';
+      document.getElementById('aps_failed').textContent = '0';
+      return;
+    }
+    var paid    = data.filter(function(p){ return p.status === 'paid'; });
+    var failed  = data.filter(function(p){ return p.status === 'failed'; });
+    var revenue = paid.reduce(function(s,p){ return s + (p.amount/100); }, 0);
+    document.getElementById('aps_total').textContent   = data.length;
+    document.getElementById('aps_paid').textContent    = paid.length;
+    document.getElementById('aps_revenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+    document.getElementById('aps_failed').textContent  = failed.length;
+    tbody.innerHTML = data.map(function(p) {
+      var date  = new Date(p.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
+      var amt   = '₹' + (p.amount/100).toLocaleString('en-IN');
+      var type  = TYPE_LABELS[p.type] || p.type;
+      var badge = p.status === 'paid' ? 'pay-status-paid' : p.status === 'failed' ? 'pay-status-failed' : 'pay-status-created';
+      var pid   = p.paymentId ? '<span style="font-size:0.72rem;font-family:monospace">' + p.paymentId + '</span>' : '<span style="color:var(--ink3)">—</span>';
+      return '<tr><td>' + date + '</td>' +
+        '<td><div style="font-weight:600;color:var(--ink)">' + escapeHtml(p.name) + '</div><div style="font-size:0.72rem;color:var(--ink3)">' + escapeHtml(p.email) + '</div></td>' +
+        '<td>' + type + (p.propertyTitle ? '<div style="font-size:0.7rem;color:var(--ink3)">' + escapeHtml(p.propertyTitle) + '</div>' : '') + '</td>' +
+        '<td style="font-weight:700;color:var(--ink)">' + amt + '</td>' +
+        '<td><span class="' + badge + '">' + p.status + '</span></td>' +
+        '<td>' + pid + '</td>' +
+        '<td><button onclick="deletePayment(\'' + p._id + '\')" style="background:var(--red-light);border:1.5px solid var(--red);color:var(--red);border-radius:8px;padding:5px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.18s" onmouseover="this.style.background=\'var(--red)\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'var(--red-light)\';this.style.color=\'var(--red)\'">Delete</button></td></tr>';
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--red)">Failed to load payments.</td></tr>';
+  }
+}
+
+window.deletePayment = async function(id) {
+  var conf = await Swal.fire({ icon:'warning', title:'Delete this payment record?', text:'This cannot be undone.', showCancelButton:true, confirmButtonText:'Delete', confirmButtonColor:'#c03040' });
+  if (!conf.isConfirmed) return;
+  try {
+    var res  = await fetch('/api/payments/' + id, { method: 'DELETE' });
+    var d    = await res.json();
+    if (res.ok) { Swal.fire({ icon:'success', title:'Deleted', timer:1500, showConfirmButton:false }); loadAdminPayments(); }
+    else Swal.fire({ icon:'error', title:'Error', text: d.message || 'Could not delete.', timer:2500, showConfirmButton:false });
+  } catch(e) { Swal.fire({ icon:'error', title:'Network Error', timer:2000, showConfirmButton:false }); }
+};
 </script>
 </body>
 </html>

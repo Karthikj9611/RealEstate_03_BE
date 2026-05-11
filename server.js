@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const axios = require("axios");
 const path = require("path");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
 
 const app = express();
 app.use(cors());
@@ -69,6 +71,32 @@ const ReviewSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 const Review = mongoose.model("Review", ReviewSchema);
+
+// ── RAZORPAY ──
+const razorpay = new Razorpay({
+  key_id:     process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+// ── PAYMENT SCHEMA ──
+const PaymentSchema = new mongoose.Schema({
+  orderId:        { type: String, required: true, unique: true },
+  paymentId:      { type: String, default: "" },
+  signature:      { type: String, default: "" },
+  type:           { type: String, enum: ["listing","token","membership","consultation"], required: true },
+  amount:         { type: Number, required: true },   // in paise
+  currency:       { type: String, default: "INR" },
+  status:         { type: String, enum: ["created","paid","failed"], default: "created" },
+  name:           { type: String, default: "" },
+  email:          { type: String, default: "" },
+  mobile:         { type: String, default: "" },
+  propertyId:     { type: String, default: "" },
+  propertyTitle:  { type: String, default: "" },
+  plan:           { type: String, default: "" },
+  notes:          { type: String, default: "" },
+  createdAt:      { type: Date, default: Date.now }
+});
+const Payment = mongoose.model("Payment", PaymentSchema);
 
 // ── OTP STORE (in-memory) ──
 const otpStore = {};
@@ -349,6 +377,116 @@ app.patch("/api/properties/:id/remarks", async (req, res) => {
   }
 });
 
+
+// ══════════════════════════════════════════════
+// PAYMENT ROUTES (Razorpay)
+// ══════════════════════════════════════════════
+
+// Payment type config
+const PAYMENT_CONFIG = {
+  listing:      { label: "Property Listing Fee",      amount: 49900  },  // ₹499
+  token:        { label: "Token Booking Amount",       amount: 500000 },  // ₹5,000
+  membership:   { label: "Premium Membership",         amount: 199900 },  // ₹1,999
+  consultation: { label: "Service / Consultation Fee", amount: 99900  }   // ₹999
+};
+
+// CREATE ORDER
+app.post("/api/payment/create-order", async (req, res) => {
+  try {
+    const { type, name, email, mobile, propertyId, propertyTitle, plan, notes, customAmount } = req.body;
+    if (!type || !PAYMENT_CONFIG[type]) return res.status(400).json({ message: "Invalid payment type." });
+    if (!name || !email) return res.status(400).json({ message: "Name and email are required." });
+
+    // For token bookings, allow a custom amount (min ₹1,000)
+    let amount = PAYMENT_CONFIG[type].amount;
+    if (type === "token" && customAmount) {
+      const parsed = parseInt(customAmount) * 100;
+      if (parsed < 100000) return res.status(400).json({ message: "Minimum token amount is ₹1,000." });
+      amount = parsed;
+    }
+
+    const options = {
+      amount,
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+      notes: { name, email, mobile: mobile || "", type, propertyTitle: propertyTitle || "" }
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    await new Payment({
+      orderId: order.id, type, amount, name, email,
+      mobile: mobile || "", propertyId: propertyId || "",
+      propertyTitle: propertyTitle || "", plan: plan || "",
+      notes: notes || "", status: "created"
+    }).save();
+
+    res.json({
+      success: true,
+      orderId: order.id,
+      amount:  order.amount,
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
+      name, email, mobile: mobile || "",
+      description: PAYMENT_CONFIG[type].label
+    });
+  } catch (err) {
+    console.error("Create order error:", err);
+    res.status(500).json({ message: "Could not create payment order. Please try again." });
+  }
+});
+
+// VERIFY PAYMENT
+app.post("/api/payment/verify", async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature)
+      return res.status(400).json({ success: false, message: "Missing payment details." });
+
+    const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const digest = hmac.digest("hex");
+
+    if (digest !== razorpay_signature)
+      return res.status(400).json({ success: false, message: "Payment verification failed." });
+
+    await Payment.findOneAndUpdate(
+      { orderId: razorpay_order_id },
+      { paymentId: razorpay_payment_id, signature: razorpay_signature, status: "paid" }
+    );
+
+    res.json({ success: true, message: "Payment verified successfully!" });
+  } catch (err) {
+    console.error("Verify payment error:", err);
+    res.status(500).json({ success: false, message: "Verification error." });
+  }
+});
+
+// MARK FAILED
+app.post("/api/payment/failed", async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (orderId) await Payment.findOneAndUpdate({ orderId }, { status: "failed" });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// LIST PAYMENTS (admin)
+app.get("/api/payments", async (req, res) => {
+  try { res.json(await Payment.find().sort({ createdAt: -1 })); }
+  catch (err) { res.status(500).json([]); }
+});
+
+// DELETE PAYMENT (admin)
+app.delete("/api/payments/:id", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid payment ID" });
+    const deleted = await Payment.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Payment not found" });
+    res.json({ message: "Payment deleted successfully" });
+  } catch (err) { res.status(500).json({ message: "Server error" }); }
+});
 
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
