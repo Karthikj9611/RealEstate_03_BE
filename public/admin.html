@@ -241,25 +241,42 @@ table.dataTable.no-footer{border-bottom:none!important}
 
 /* ── REMARKS CELL ── */
 .remark-cell{
-  position:relative;min-width:130px;max-width:200px;
+  position:relative;min-width:180px;max-width:240px;
   text-align:left!important;
 }
 .remark-display{
-  display:flex;align-items:center;gap:6px;cursor:pointer;
+  display:flex;align-items:flex-start;gap:6px;cursor:pointer;
   padding:5px 8px;border-radius:var(--radius-xs);
   transition:background 0.15s;
 }
 .remark-display:hover{background:var(--gold-light)}
-.remark-display:hover .remark-edit-icon{opacity:1}
-.remark-text{
-  font-size:0.8rem;color:var(--ink2);font-weight:500;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  max-width:150px;display:inline-block;
-}
-.remark-text.empty{color:var(--ink3);font-style:italic;font-weight:400}
 .remark-edit-icon{
   font-size:0.65rem;color:var(--gold-dark);opacity:0;
   transition:opacity 0.15s;flex-shrink:0;
+}
+.remark-display:hover .remark-edit-icon{opacity:1}
+/* Numbered list of remarks */
+.remark-list{
+  display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;
+}
+.remark-item{
+  display:flex;align-items:baseline;gap:5px;
+  font-size:0.78rem;line-height:1.4;
+}
+.remark-sl{
+  flex-shrink:0;min-width:16px;
+  font-size:0.65rem;font-weight:800;
+  color:var(--gold-dark);background:var(--gold-light);
+  border-radius:99px;padding:1px 5px;
+  text-align:center;line-height:1.6;
+}
+.remark-item-text{
+  color:var(--ink2);font-weight:500;
+  white-space:normal;word-break:break-word;
+}
+.remark-item-date{
+  font-size:0.62rem;color:var(--ink3);
+  white-space:nowrap;margin-left:2px;
 }
 .remark-input-wrap{display:none;align-items:center;gap:4px}
 .remark-input-wrap.active{display:flex}
@@ -380,78 +397,174 @@ footer i{color:var(--gold)}
 .btn-view:hover{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(26,122,94,0.3)}
 .btn-view i{font-size:0.72rem}
 
+/* ── FILTER DROPDOWNS ── */
+.prop-filters{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+}
+.prop-filter-select{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:0.78rem;font-weight:600;color:var(--ink2);
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:99px;padding:6px 30px 6px 13px;
+  outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8fa0'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+  transition:border-color 0.18s,background-color 0.18s;min-width:120px;
+}
+.prop-filter-select:focus,.prop-filter-select:hover{
+  border-color:var(--gold);background-color:var(--surface);
+}
+.prop-filter-select.active-filter{
+  border-color:var(--green);background-color:var(--green-light);color:var(--green);
+}
+.filter-clear-btn{
+  display:none;align-items:center;gap:5px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.74rem;font-weight:700;
+  background:var(--red-light);color:var(--red);border:1px solid rgba(224,68,68,0.2);
+  border-radius:99px;padding:6px 12px;cursor:pointer;transition:all 0.18s;
+}
+.filter-clear-btn:hover{background:var(--red);color:#fff}
+.filter-clear-btn.visible{display:inline-flex}
+
 /* ── PROPERTY DETAIL MODAL ── */
 .prop-modal-wrap{
   display:none;position:fixed;inset:0;
-  background:rgba(12,13,16,0.65);z-index:900;
+  background:rgba(12,13,16,0.68);z-index:900;
   align-items:center;justify-content:center;
-  padding:1rem;backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
+  padding:1rem;backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
 }
 .prop-modal-wrap.open{display:flex}
 .prop-modal{
-  background:#fff;border-radius:20px;
-  max-width:560px;width:100%;
+  background:#fff;border-radius:22px;
+  max-width:580px;width:100%;
   max-height:92vh;overflow-y:auto;
   position:relative;
-  box-shadow:0 32px 80px rgba(0,0,0,0.35);
+  box-shadow:0 32px 90px rgba(0,0,0,0.38);
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 }
+.prop-modal::-webkit-scrollbar{width:5px}
+.prop-modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
 @media(max-width:600px){
   .prop-modal-wrap{padding:0;align-items:flex-end}
-  .prop-modal{border-radius:22px 22px 0 0;max-height:94vh}
+  .prop-modal{border-radius:24px 24px 0 0;max-height:94vh}
 }
 .prop-modal-close-row{
   position:sticky;top:0;display:flex;justify-content:flex-end;
-  padding:13px 14px 0;background:#fff;z-index:2;
+  padding:14px 16px 0;background:#fff;z-index:2;
 }
 .prop-modal-close-btn{
-  width:32px;height:32px;border-radius:50%;border:none;
-  background:#f0f0f0;cursor:pointer;font-size:0.95rem;
+  width:34px;height:34px;border-radius:50%;border:none;
+  background:#f0f0f0;cursor:pointer;font-size:1rem;
   display:flex;align-items:center;justify-content:center;
-  transition:background 0.15s;color:#555;
+  transition:background 0.15s,transform 0.15s;color:#555;
 }
-.prop-modal-close-btn:hover{background:#e0e0e0}
-.prop-modal-body{padding:0 1.5rem 2rem}
-.prop-modal-img-wrap{width:100%;height:320px;border-radius:14px;overflow:hidden;margin-bottom:1.2rem;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#aaa}
+.prop-modal-close-btn:hover{background:#e0e0e0;transform:scale(1.08)}
+.prop-modal-body{padding:0 1.4rem 2rem}
+/* Gallery */
+.prop-modal-img-wrap{
+  width:100%;height:260px;border-radius:14px;overflow:hidden;
+  margin-bottom:1.2rem;background:#f0f0f0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;color:#ccc;
+}
 .prop-modal-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-.prop-modal-gallery{position:relative;width:100%;height:320px;border-radius:14px;overflow:hidden;margin-bottom:1.2rem}
-.prop-modal-gallery .gallery-track{display:flex;height:100%;transition:transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)}
-.prop-modal-gallery .gallery-slide{min-width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center}
-.prop-modal-gallery .gallery-slide img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.prop-modal-gallery{
+  position:relative;width:100%;height:260px;
+  border-radius:14px;overflow:hidden;margin-bottom:1.2rem;
+  background:#111;
+}
+.prop-modal-gallery .gallery-track{
+  display:flex;height:100%;
+  transition:transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change:transform;
+}
+.prop-modal-gallery .gallery-slide{
+  min-width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.prop-modal-gallery .gallery-slide img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  cursor:zoom-in;transition:transform 0.3s;
+}
+.prop-modal-gallery .gallery-slide img:hover{transform:scale(1.03)}
+.gallery-counter{
+  position:absolute;top:10px;right:12px;
+  background:rgba(0,0,0,0.55);color:#fff;
+  font-size:0.72rem;font-weight:700;
+  padding:3px 9px;border-radius:99px;z-index:3;
+  backdrop-filter:blur(4px);
+}
 .gallery-prev,.gallery-next{
   position:absolute;top:50%;transform:translateY(-50%);
-  width:32px;height:32px;border-radius:50%;border:none;
-  background:rgba(0,0,0,0.45);color:#fff;cursor:pointer;
-  font-size:1rem;display:flex;align-items:center;justify-content:center;
-  z-index:3;transition:background 0.15s;
+  width:36px;height:36px;border-radius:50%;border:none;
+  background:rgba(255,255,255,0.18);color:#fff;cursor:pointer;
+  font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  z-index:3;transition:background 0.18s,transform 0.18s;
+  backdrop-filter:blur(4px);
 }
 .gallery-prev{left:10px}
 .gallery-next{right:10px}
-.gallery-prev:hover,.gallery-next:hover{background:rgba(0,0,0,0.72)}
-.gallery-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3}
+.gallery-prev:hover,.gallery-next:hover{background:rgba(255,255,255,0.38);transform:translateY(-50%) scale(1.1)}
+.gallery-dots{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:3;
+}
 .gallery-dot{
   width:6px;height:6px;border-radius:99px;border:none;
-  background:rgba(255,255,255,0.55);cursor:pointer;transition:all 0.2s;padding:0;
+  background:rgba(255,255,255,0.45);cursor:pointer;
+  transition:all 0.22s;padding:0;
 }
-.gallery-dot.active{width:18px;background:#fff}
-.prop-modal-price{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:#111;margin-bottom:4px}
-.prop-modal-title{font-size:1rem;font-weight:600;color:#111;margin-bottom:4px}
-.prop-modal-loc{font-size:0.8rem;color:#8a8fa0;margin-bottom:1rem;display:flex;align-items:center;gap:5px}
-.prop-modal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:1.2rem}
+.gallery-dot.active{width:20px;background:#fff}
+/* Modal content */
+.prop-modal-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.8rem;font-weight:700;color:#111;
+  margin-bottom:6px;line-height:1.1;
+}
+.prop-modal-title{font-size:1.05rem;font-weight:700;color:#111;margin-bottom:5px}
+.prop-modal-loc{
+  font-size:0.8rem;color:#8a8fa0;margin-bottom:1.1rem;
+  display:flex;align-items:center;gap:5px;
+}
+.prop-modal-section-label{
+  font-size:0.68rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:0.9px;color:var(--ink3);
+  margin:1.2rem 0 8px;padding-bottom:5px;
+  border-bottom:1px solid var(--border);
+}
+.prop-modal-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:0.5rem;
+}
 @media(max-width:420px){.prop-modal-grid{grid-template-columns:1fr}}
-.prop-modal-detail{background:#f8f5f0;border-radius:8px;padding:10px 13px}
-.prop-modal-detail-label{font-size:0.68rem;color:#8a8fa0;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
-.prop-modal-detail-val{font-size:0.9rem;font-weight:600;color:#0c0d10;margin-top:2px}
-.prop-modal-desc{font-size:0.84rem;color:#3a3d4a;line-height:1.75;margin-bottom:1.2rem}
+.prop-modal-detail{
+  background:var(--surface2);border-radius:10px;padding:10px 13px;
+  border:1px solid var(--border);
+}
+.prop-modal-detail-label{
+  font-size:0.67rem;color:var(--ink3);font-weight:700;
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+.prop-modal-detail-val{
+  font-size:0.88rem;font-weight:600;color:var(--ink);margin-top:3px;
+  word-break:break-word;
+}
+.prop-modal-desc-box{
+  background:var(--surface2);border-radius:10px;
+  padding:12px 14px;font-size:0.83rem;color:var(--ink2);
+  line-height:1.8;border:1px solid var(--border);margin-bottom:0.5rem;
+}
 .prop-modal-status{
-  display:inline-block;padding:4px 11px;border-radius:99px;
-  font-size:0.72rem;font-weight:700;letter-spacing:0.3px;
+  display:inline-block;padding:4px 12px;border-radius:99px;
+  font-size:0.7rem;font-weight:700;letter-spacing:0.3px;
   margin-left:10px;vertical-align:middle;
 }
 .prop-modal-chip{
   display:inline-flex;align-items:center;gap:4px;
-  background:#f0f0f0;border-radius:99px;
-  font-size:0.76rem;padding:4px 11px;font-weight:500;color:#3a3d4a;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:99px;font-size:0.75rem;
+  padding:4px 11px;font-weight:600;color:var(--ink2);
 }
 
 /* ── MOBILE ── */
@@ -583,6 +696,21 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
           <div class="card-title">Property Listings</div>
           <div class="card-sub">All listed properties · Owner contact details included</div>
         </div>
+        <!-- Dynamic filter dropdowns -->
+        <div class="prop-filters" id="propFilters">
+          <select class="prop-filter-select" id="filterStatus" onchange="applyPropFilters()">
+            <option value="">All Status</option>
+          </select>
+          <select class="prop-filter-select" id="filterCity" onchange="applyPropFilters()">
+            <option value="">All Cities</option>
+          </select>
+          <select class="prop-filter-select" id="filterBhk" onchange="applyPropFilters()">
+            <option value="">All BHK</option>
+          </select>
+          <button class="filter-clear-btn" id="filterClearBtn" onclick="clearPropFilters()">
+            <i class="fas fa-times"></i> Clear
+          </button>
+        </div>
       </div>
       <div class="table-wrapper">
         <table id="propertyTable" class="display nowrap" style="width:100%">
@@ -624,9 +752,7 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
       <div class="prop-modal-price" id="adminModalPrice"></div>
       <div class="prop-modal-title" id="adminModalTitle"></div>
       <div class="prop-modal-loc" id="adminModalLoc"></div>
-      <div class="prop-modal-grid" id="adminModalDetails"></div>
-      <div class="prop-modal-desc" id="adminModalDesc"></div>
-      <!-- Google Maps navigate button slot -->
+      <div id="adminModalSections"></div>
       <div id="adminModalNavSlot"></div>
     </div>
   </div>
@@ -753,55 +879,58 @@ window.deleteProperty = async function(id){
 /* ── REMARKS ── */
 function remarkCellHtml(id, remark, type){
 
-  let text = '';
+  /* Build ordered array of {text, date} entries */
+  let entries = [];
 
-  // new array structure
   if(Array.isArray(remark) && remark.length){
-    text = remark[remark.length - 1].remark || '';
+    entries = remark
+      .filter(r => r && (r.remark||'').trim())
+      .map(r => ({
+        text: r.remark.trim(),
+        date: r.date || r.createdAt || r.timestamp || ''
+      }));
+  } else if(typeof remark === 'string' && remark.trim()){
+    entries = [{ text: remark.trim(), date: '' }];
   }
 
-  // old string structure support
-  else if(typeof remark === 'string'){
-    text = remark;
+  /* Latest text for the input */
+  const latestText = entries.length ? entries[entries.length-1].text : '';
+
+  /* Build the numbered list display */
+  let listHtml = '';
+  if(entries.length){
+    listHtml = entries.map((e, i) => {
+      const dateStr = e.date
+        ? `<span class="remark-item-date">${new Date(e.date).toLocaleDateString('en-GB')}</span>`
+        : '';
+      return `<div class="remark-item">
+        <span class="remark-sl">${i+1}</span>
+        <span class="remark-item-text">${escapeHtml(e.text)}</span>
+        ${dateStr}
+      </div>`;
+    }).join('');
+  } else {
+    listHtml = `<span style="font-size:0.78rem;color:var(--ink3);font-style:italic">Add remark…</span>`;
   }
-
-  text = text.trim();
-
-  const display = text
-    ? escapeHtml(text)
-    : 'Add remark…';
-
-  const cls = text ? '' : ' empty';
 
   return `
     <div class="remark-cell" data-id="${id}" data-type="${type}">
 
       <div class="remark-display">
-        <span class="remark-text${cls}">
-          ${display}
-        </span>
-
-        <i class="fas fa-pen remark-edit-icon"></i>
+        <div class="remark-list">${listHtml}</div>
+        <i class="fas fa-pen remark-edit-icon" style="flex-shrink:0;margin-top:3px"></i>
       </div>
 
       <div class="remark-input-wrap">
-
         <input
           class="remark-input"
           type="text"
           maxlength="200"
-          value="${escapeHtml(text)}"
+          value="${escapeHtml(latestText)}"
           placeholder="Type remark…"
         />
-
-        <button class="remark-save-btn" title="Save">
-          <i class="fas fa-check"></i>
-        </button>
-
-        <button class="remark-cancel-btn" title="Cancel">
-          <i class="fas fa-times"></i>
-        </button>
-
+        <button class="remark-save-btn" title="Save"><i class="fas fa-check"></i></button>
+        <button class="remark-cancel-btn" title="Cancel"><i class="fas fa-times"></i></button>
       </div>
 
     </div>
@@ -812,7 +941,6 @@ async function saveRemark(cell, id, type){
   const wrap    = cell.querySelector('.remark-input-wrap');
   const input   = cell.querySelector('.remark-input');
   const display = cell.querySelector('.remark-display');
-  const span    = cell.querySelector('.remark-text');
   const newVal  = input.value.trim();
 
   cell.classList.add('remark-saving');
@@ -826,24 +954,17 @@ async function saveRemark(cell, id, type){
       body: JSON.stringify({ remarks: newVal })
     });
     if(!res.ok) throw new Error('Save failed');
-    span.textContent = newVal || 'Add remark…';
-	span.className   = 'remark-text' + (newVal ? '' : ' empty');
-	input.value = newVal;
 
-	/* auto refresh table */
-	if(type === 'customer' && dataTable){
-	  dataTable.ajax.reload(null,false);
-	}
+    /* Reload table so the numbered list refreshes with the new entry */
+    if(type === 'customer' && dataTable) dataTable.ajax.reload(null, false);
+    if(type === 'property'  && propTable)  propTable.ajax.reload(null, false);
 
-	if(type === 'property' && propTable){
-	  propTable.ajax.reload(null,false);
-	}
   } catch(e){
     alert('Could not save remark. Please try again.');
+    wrap.classList.remove('active');
+    display.classList.remove('hidden');
   }
   cell.classList.remove('remark-saving');
-  wrap.classList.remove('active');
-  display.classList.remove('hidden');
 }
 
 $(document).on('click', '.remark-display', function(){
@@ -859,9 +980,6 @@ $(document).on('click', '.remark-cancel-btn', function(){
   const cell    = this.closest('.remark-cell');
   const wrap    = cell.querySelector('.remark-input-wrap');
   const display = cell.querySelector('.remark-display');
-  const span    = cell.querySelector('.remark-text');
-  // restore input to current displayed value
-  cell.querySelector('.remark-input').value = span.classList.contains('empty') ? '' : span.textContent;
   wrap.classList.remove('active');
   display.classList.remove('hidden');
 });
@@ -908,6 +1026,13 @@ function addExcelHyperlink(xlsx, sheet, cellRef, url){
   hyperlinks[0].appendChild(hl);
   var cell=$sheet.find('c[r="'+cellRef+'"]');
   cell.attr('s','4');
+}
+
+function flattenRemarks(r){
+  if(Array.isArray(r) && r.length)
+    return r.filter(x=>x&&(x.remark||'').trim()).map((x,i)=>`${i+1}. ${x.remark.trim()}`).join(' | ');
+  if(typeof r === 'string' && r.trim()) return r.trim();
+  return '';
 }
 
 $(document).ready(function(){
@@ -979,7 +1104,7 @@ $(document).ready(function(){
             if(col===1){ var ph=plainPhone(rd); return ph?'=HYPERLINK("tel:'+ph+'","'+ph+'")':'—'; }
             if(col===2){ var em=plainEmail(rd); return em?'=HYPERLINK("mailto:'+em+'","'+em+'")':'—'; }
             if(col===3){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
-            if(col===4) return rd.remarks||'';
+            if(col===4) return flattenRemarks(rd.remarks);
             return data;
           }}
         }
@@ -993,7 +1118,7 @@ $(document).ready(function(){
             if(col===1) return rd.mobile||'—';
             if(col===2) return rd.email||'—';
             if(col===3){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
-            if(col===4) return rd.remarks||'';
+            if(col===4) return flattenRemarks(rd.remarks);
             return data;
           }}
         }
@@ -1042,6 +1167,7 @@ $(document).ready(function(){
         if(!Array.isArray(res)) return [];
         document.getElementById('propCount').innerText = res.length;
         document.getElementById('tab-properties-count').innerText = res.length;
+        buildPropFilters(res);
         return res;
       }
     },
@@ -1107,7 +1233,7 @@ $(document).ready(function(){
             if(col===4){ var ph=rd.ownerNumber||''; return ph?'=HYPERLINK("tel:'+ph+'","'+ph+'")':'—'; }
             if(col===5) return rd.loc||'—';
             if(col===6){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
-            if(col===7) return rd.remarks||'';
+            if(col===7) return flattenRemarks(rd.remarks);
             return data;
           }}
         }
@@ -1124,7 +1250,7 @@ $(document).ready(function(){
             if(col===4) return rd.ownerNumber||'—';
             if(col===5) return rd.loc||'—';
             if(col===6){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
-            if(col===7) return rd.remarks||'';
+            if(col===7) return flattenRemarks(rd.remarks);
             return data;
           }}
         }
@@ -1169,26 +1295,72 @@ $(document).ready(function(){
 ════════════════════════════════════ */
 const _adminPropCache = {};
 const _customerCache = {};
-const ADMIN_MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
-const ADMIN_MODAL_LABELS = {
-  title:'Building Name', loc:'Area', bhk:'BHK', area:'Area (sqft)',
-  furnishing:'Furnishing', floor:'Floor', parking:'Parking',
-  carparking:'Car Parking', bikeparking:'Bike Parking',
-  toilet:'Bathrooms', toilet_type:'Toilet Type',
-  price:'Price (₹)', city:'City', facing:'Facing', age:'Property Age',
-  status:'Listing Type', desc:'Description', deposit:'Security Deposit (₹)',
-  pgGender:'Gender Preference', pgRoomType:'Room Type', pgMeals:'Meals Included',
-  pgOccupancy:'Occupancy Available', pgNotice:'Notice Period', pgBathroom:'Attached Bathroom',
-  ownerName:'Owner Name', ownerNumber:'Owner Number', remarks:'Remarks',
-};
+
+/* Fields to show in the modal — ordered, with human labels */
+const MODAL_FIELD_GROUPS = [
+  {
+    label: 'Basic Info',
+    fields: [
+      ['title',      'Building / Project Name'],
+      ['status',     'Listing Type'],
+      ['price',      'Price (₹)'],
+      ['displayPrice','Display Price'],
+      ['city',       'City'],
+      ['loc',        'Area / Location'],
+      ['facing',     'Facing'],
+      ['age',        'Property Age'],
+    ]
+  },
+  {
+    label: 'Property Details',
+    fields: [
+      ['bhk',        'BHK'],
+      ['area',       'Area (sqft)'],
+      ['floor',      'Floor'],
+      ['floorLevel', 'Floor Level'],
+      ['furnishing', 'Furnishing'],
+      ['parking',    'Parking'],
+      ['carparking', 'Car Parking'],
+      ['bikeparking','Bike Parking'],
+      ['toilet',     'Bathrooms'],
+      ['toilet_type','Toilet Type'],
+      ['deposit',    'Security Deposit (₹)'],
+    ]
+  },
+  {
+    label: 'PG Details',
+    fields: [
+      ['pgGender',   'Gender Preference'],
+      ['pgRoomType', 'Room Type'],
+      ['pgMeals',    'Meals Included'],
+      ['pgOccupancy','Occupancy Available'],
+      ['pgNotice',   'Notice Period'],
+      ['pgBathroom', 'Attached Bathroom'],
+    ]
+  },
+  {
+    label: 'Owner Info',
+    fields: [
+      ['ownerName',  'Owner Name'],
+      ['ownerNumber','Owner Number'],
+    ]
+  },
+  {
+    label: 'Admin',
+    fields: [
+      ['remarks',    'Remarks'],
+      ['createdAt',  'Listed On'],
+    ]
+  }
+];
 
 const STATUS_COLOR_MAP = {
-  'For Sale':'#eef1fc;color:#5b7be8',
-  'For Rent':'#e8f7f3;color:#1a7a5e',
-  'New Launch':'#faf3e0;color:#8a6820',
-  'Sold':'#f5f5f5;color:#999',
-  'Lease':'#fff3e0;color:#e67e22',
-  'PG':'#fce4ec;color:#c2185b',
+  'For Sale' : 'background:#eef1fc;color:#5b7be8',
+  'For Rent' : 'background:#e8f7f3;color:#1a7a5e',
+  'New Launch': 'background:#faf3e0;color:#8a6820',
+  'Sold'     : 'background:#f5f5f5;color:#999',
+  'Lease'    : 'background:#fff3e0;color:#e67e22',
+  'PG'       : 'background:#fce4ec;color:#c2185b',
 };
 
 function _adminModalEsc(str){
@@ -1196,9 +1368,8 @@ function _adminModalEsc(str){
   return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/* Gallery helpers */
-let _adminGalIdx = 0;
-let _adminGalTotal = 0;
+/* ── Gallery ── */
+let _adminGalIdx = 0, _adminGalTotal = 0;
 
 function _adminStepGal(dir){
   _adminGalIdx = (_adminGalIdx + dir + _adminGalTotal) % _adminGalTotal;
@@ -1207,95 +1378,172 @@ function _adminStepGal(dir){
 function _adminSlideGal(idx){
   _adminGalIdx = idx;
   const track = document.getElementById('adminGalTrack');
+  const counter = document.getElementById('adminGalCounter');
   if(track) track.style.transform = `translateX(-${idx*100}%)`;
-  document.querySelectorAll('.gallery-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+  if(counter) counter.textContent = `${idx+1} / ${_adminGalTotal}`;
+  document.querySelectorAll('#adminModalImgSlot .gallery-dot')
+    .forEach((d,i) => d.classList.toggle('active', i===idx));
+}
+
+/* ── Touch / swipe ── */
+let _galTouchX = null;
+function _galTouchStart(e){ _galTouchX = e.touches[0].clientX; }
+function _galTouchEnd(e){
+  if(_galTouchX === null) return;
+  const dx = e.changedTouches[0].clientX - _galTouchX;
+  _galTouchX = null;
+  if(Math.abs(dx) > 40) _adminStepGal(dx < 0 ? 1 : -1);
 }
 
 function openAdminPropModal(id){
   const p = _adminPropCache[id];
   if(!p) return;
 
-  /* ── Image gallery or placeholder ── */
+  /* ── Gallery ── */
   const imgs = Array.isArray(p.images) && p.images.length ? p.images : [];
   const imgSlot = document.getElementById('adminModalImgSlot');
-  if(imgs.length){
-    _adminGalIdx = 0;
-    _adminGalTotal = imgs.length;
-    const slides = imgs.map((src,i) =>
-      `<div class="gallery-slide"><img src="${src}" data-idx="${i}" style="cursor:zoom-in" onclick="this.requestFullscreen&&this.requestFullscreen()"/></div>`
+
+  if(imgs.length > 1){
+    _adminGalIdx = 0; _adminGalTotal = imgs.length;
+    const slides = imgs.map(src =>
+      `<div class="gallery-slide"><img src="${src}" loading="lazy"/></div>`
     ).join('');
     const dots = imgs.map((_,i) =>
-      `<button class="gallery-dot ${i===0?'active':''}" onclick="_adminSlideGal(${i})"></button>`
+      `<button class="gallery-dot${i===0?' active':''}" onclick="_adminSlideGal(${i})"></button>`
     ).join('');
     imgSlot.innerHTML = `
-      <div class="prop-modal-gallery">
+      <div class="prop-modal-gallery"
+        ontouchstart="_galTouchStart(event)" ontouchend="_galTouchEnd(event)">
         <div class="gallery-track" id="adminGalTrack">${slides}</div>
-        <button class="gallery-prev" onclick="_adminStepGal(-1)">‹</button>
-        <button class="gallery-next" onclick="_adminStepGal(1)">›</button>
+        <span class="gallery-counter" id="adminGalCounter">1 / ${imgs.length}</span>
+        <button class="gallery-prev" onclick="_adminStepGal(-1)">&#8249;</button>
+        <button class="gallery-next" onclick="_adminStepGal(1)">&#8250;</button>
         <div class="gallery-dots">${dots}</div>
+      </div>`;
+  } else if(imgs.length === 1){
+    imgSlot.innerHTML = `
+      <div class="prop-modal-gallery">
+        <div class="gallery-track" id="adminGalTrack">
+          <div class="gallery-slide"><img src="${imgs[0]}" loading="lazy"/></div>
+        </div>
       </div>`;
   } else {
     imgSlot.innerHTML = `<div class="prop-modal-img-wrap">🏠</div>`;
   }
 
-  /* ── Price + status ── */
-  const statusStyle = STATUS_COLOR_MAP[p.status] || '#eef1fc;color:#5b7be8';
+  /* ── Price + status badge ── */
+  const sStyle = STATUS_COLOR_MAP[p.status] || 'background:#eef1fc;color:#5b7be8';
   document.getElementById('adminModalPrice').innerHTML =
-    `${_adminModalEsc(p.displayPrice||p.price||'—')}
-     <span class="prop-modal-status" style="background:${statusStyle.split(';')[0]};${statusStyle.split(';')[1]||''}">${_adminModalEsc(p.status)}</span>`;
+    `${_adminModalEsc(p.displayPrice || p.price || '—')}
+     <span class="prop-modal-status" style="${sStyle}">${_adminModalEsc(p.status||'')}</span>`;
 
   document.getElementById('adminModalTitle').textContent = p.title || 'Untitled';
   document.getElementById('adminModalLoc').innerHTML =
-    `<i class="fas fa-location-dot" style="color:var(--gold)"></i> ${_adminModalEsc(p.loc||p.city||'—')}`;
+    `<i class="fas fa-location-dot" style="color:var(--gold)"></i>&nbsp;${_adminModalEsc(p.loc || p.city || '—')}`;
 
-  /* ── Dynamic details grid ── */
-  const detailRows = Object.entries(p)
-    .filter(([k,v]) => !ADMIN_MODAL_SKIP.has(k) && v!=null && v!=='')
+  /* ── Sections ── */
+  let sectionsHtml = '';
+
+  MODAL_FIELD_GROUPS.forEach(group => {
+    const rows = group.fields
+      .filter(([k]) => {
+        const v = p[k];
+        return v != null && v !== '' && !(Array.isArray(v) && !v.length);
+      })
+      .map(([k, label]) => {
+        let val = p[k];
+        if(k === 'bhk') val = val + ' BHK';
+        if(k === 'createdAt') val = new Date(val).toLocaleString('en-GB');
+        if(k === 'remarks'){
+          // Render remarks as numbered list inside the modal card
+          let entries = [];
+          if(Array.isArray(val) && val.length)
+            entries = val.filter(r=>r&&(r.remark||'').trim()).map(r=>r.remark.trim());
+          else if(typeof val === 'string' && val.trim())
+            entries = [val.trim()];
+          if(!entries.length) return ''; // skip if empty
+          const listHtml = entries.map((t,i)=>`<div style="display:flex;gap:6px;align-items:baseline;margin-bottom:4px"><span style="min-width:18px;background:var(--gold-light);color:var(--gold-dark);border-radius:99px;font-size:0.62rem;font-weight:800;text-align:center;padding:1px 5px;">${i+1}</span><span style="font-size:0.84rem;word-break:break-word">${_adminModalEsc(t)}</span></div>`).join('');
+          return `<div class="prop-modal-detail" style="grid-column:1/-1">
+            <div class="prop-modal-detail-label">${_adminModalEsc(label)}</div>
+            <div style="margin-top:6px">${listHtml}</div>
+          </div>`;
+        }
+        if(Array.isArray(val)) val = val.join(', ');
+        return `<div class="prop-modal-detail">
+          <div class="prop-modal-detail-label">${_adminModalEsc(label)}</div>
+          <div class="prop-modal-detail-val">${_adminModalEsc(String(val))}</div>
+        </div>`;
+      }).join('');
+
+    if(!rows) return; // skip empty sections
+    sectionsHtml += `<div class="prop-modal-section-label">${group.label}</div>
+      <div class="prop-modal-grid">${rows}</div>`;
+  });
+
+  /* ── Description ── */
+  if(p.desc && p.desc.trim()){
+    sectionsHtml += `<div class="prop-modal-section-label">Description</div>
+      <div class="prop-modal-desc-box">${_adminModalEsc(p.desc)}</div>`;
+  }
+
+  /* ── Amenities ── */
+  let amenArr = [];
+  if(Array.isArray(p.amenities) && p.amenities.length) amenArr = p.amenities;
+  else if(typeof p.amenities === 'string' && p.amenities.trim())
+    amenArr = p.amenities.split(',').map(s=>s.trim()).filter(Boolean);
+
+  if(amenArr.length){
+    sectionsHtml += `<div class="prop-modal-section-label">Amenities</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:0.5rem">
+        ${amenArr.map(a=>`<span class="prop-modal-chip">${_adminModalEsc(a)}</span>`).join('')}
+      </div>`;
+  }
+
+  /* ── Any extra fields not in our groups ── */
+  const coveredKeys = new Set([
+    '_id','__v','images','color','icon',
+    ...MODAL_FIELD_GROUPS.flatMap(g=>g.fields.map(f=>f[0])),
+    'amenities','desc','latitude','longitude'
+  ]);
+  const extraRows = Object.entries(p)
+    .filter(([k,v]) => !coveredKeys.has(k) && v!=null && v!=='' && !(Array.isArray(v)&&!v.length))
     .map(([k,v]) => {
-      const label = ADMIN_MODAL_LABELS[k] || (k.charAt(0).toUpperCase()+k.slice(1).replace(/([A-Z])/g,' $1'));
-      const val = k === 'bhk' ? v+' BHK' : v;
+      const label = k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g,' $1');
+      const val = Array.isArray(v) ? v.join(', ') : String(v);
       return `<div class="prop-modal-detail">
         <div class="prop-modal-detail-label">${_adminModalEsc(label)}</div>
-        <div class="prop-modal-detail-val">${_adminModalEsc(String(val))}</div>
+        <div class="prop-modal-detail-val">${_adminModalEsc(val)}</div>
       </div>`;
     }).join('');
-  document.getElementById('adminModalDetails').innerHTML =
-    detailRows || '<div style="color:#8a8fa0;font-size:0.85rem">No details available.</div>';
-
-  /* ── Amenities + description ── */
-  let amenitiesHtml = '';
-  if(Array.isArray(p.amenities) && p.amenities.length){
-    amenitiesHtml = `<div style="margin-bottom:1.2rem">
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8a8fa0;margin-bottom:8px">Amenities</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">${
-        p.amenities.map(a=>`<span class="prop-modal-chip">${_adminModalEsc(a)}</span>`).join('')
-      }</div></div>`;
-  } else if(typeof p.amenities==='string' && p.amenities.trim()){
-    amenitiesHtml = `<div style="margin-bottom:1.2rem">
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8a8fa0;margin-bottom:8px">Amenities</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">${
-        p.amenities.split(',').map(a=>a.trim()).filter(Boolean)
-          .map(a=>`<span class="prop-modal-chip">${_adminModalEsc(a)}</span>`).join('')
-      }</div></div>`;
+  if(extraRows){
+    sectionsHtml += `<div class="prop-modal-section-label">More Details</div>
+      <div class="prop-modal-grid">${extraRows}</div>`;
   }
-  document.getElementById('adminModalDesc').innerHTML =
-    (p.desc ? `<p style="margin-bottom:${amenitiesHtml?'1rem':'0'}">${_adminModalEsc(p.desc)}</p>` : '') + amenitiesHtml;
 
-  /* ── Navigate button (if coordinates exist) ── */
+  document.getElementById('adminModalSections').innerHTML = sectionsHtml || '<p style="color:var(--ink3);font-size:0.85rem">No details available.</p>';
+
+  /* ── Navigate ── */
   const navSlot = document.getElementById('adminModalNavSlot');
   if(p.latitude && p.longitude){
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;
     navSlot.innerHTML = `
-      <a href="${mapsUrl}" target="_blank" rel="noopener"
-        style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:11px;border-radius:8px;background:#1a73e8;color:#fff;font-size:0.86rem;font-weight:700;text-decoration:none;margin-top:10px;transition:background 0.18s;font-family:inherit;"
+      <a href="${url}" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;
+          width:100%;padding:12px;border-radius:10px;background:#1a73e8;color:#fff;
+          font-size:0.86rem;font-weight:700;text-decoration:none;margin-top:14px;
+          transition:background 0.18s;font-family:inherit;"
         onmouseover="this.style.background='#1558c0'" onmouseout="this.style.background='#1a73e8'">
-        <i class="fas fa-location-arrow"></i> Navigate to Property (Google Maps)
+        <i class="fas fa-location-arrow"></i> Navigate on Google Maps
       </a>`;
   } else {
-    navSlot.innerHTML = `<div style="margin-top:10px;padding:9px 12px;border-radius:8px;background:#f8f5f0;border:1px dashed #d4cec5;font-size:0.76rem;color:#8a8fa0;text-align:center">📍 No coordinates saved for this property</div>`;
+    navSlot.innerHTML = `
+      <div style="margin-top:12px;padding:9px 12px;border-radius:10px;
+        background:var(--surface2);border:1px dashed var(--border2);
+        font-size:0.75rem;color:var(--ink3);text-align:center;">
+        📍 No coordinates saved for this property
+      </div>`;
   }
 
-  /* ── Open modal ── */
   document.getElementById('adminPropModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1304,6 +1552,74 @@ function closeAdminPropModal(){
   document.getElementById('adminPropModal').classList.remove('open');
   document.body.style.overflow = '';
 }
+
+/* ════════════════════════════════════
+   DYNAMIC PROPERTY FILTERS
+════════════════════════════════════ */
+function buildPropFilters(data){
+  const statuses = [...new Set(data.map(r=>r.status).filter(Boolean))].sort();
+  const cities   = [...new Set(data.map(r=>r.city||r.loc).filter(Boolean))].sort();
+  const bhks     = [...new Set(data.map(r=>r.bhk).filter(v=>v!=null&&v!==''))].sort((a,b)=>Number(a)-Number(b));
+
+  function populate(id, values, prefix=''){
+    const sel = document.getElementById(id);
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">${sel.options[0].text}</option>` +
+      values.map(v=>`<option value="${_adminModalEsc(v)}" ${cur===String(v)?'selected':''}>${prefix}${_adminModalEsc(String(v))}</option>`).join('');
+  }
+
+  populate('filterStatus', statuses);
+  populate('filterCity',   cities);
+  populate('filterBhk',    bhks, 'BHK ');
+}
+
+function applyPropFilters(){
+  const status = document.getElementById('filterStatus').value;
+  const city   = document.getElementById('filterCity').value;
+  const bhk    = document.getElementById('filterBhk').value;
+
+  // Mark active
+  ['filterStatus','filterCity','filterBhk'].forEach(id=>{
+    document.getElementById(id).classList.toggle('active-filter', !!document.getElementById(id).value);
+  });
+
+  const anyActive = !!(status||city||bhk);
+  document.getElementById('filterClearBtn').classList.toggle('visible', anyActive);
+
+  /* Custom DataTables search using $.fn.dataTable.ext.search */
+  // We use a single filter function registered once, driven by closure variables
+  _propFilterState.status = status;
+  _propFilterState.city   = city;
+  _propFilterState.bhk    = bhk;
+
+  if(propTable) propTable.draw();
+}
+
+function clearPropFilters(){
+  ['filterStatus','filterCity','filterBhk'].forEach(id=>{
+    document.getElementById(id).value='';
+    document.getElementById(id).classList.remove('active-filter');
+  });
+  document.getElementById('filterClearBtn').classList.remove('visible');
+  _propFilterState.status = '';
+  _propFilterState.city   = '';
+  _propFilterState.bhk    = '';
+  if(propTable) propTable.draw();
+}
+
+const _propFilterState = {status:'', city:'', bhk:''};
+
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+  if(settings.nTable.id !== 'propertyTable') return true;
+  const row = propTable ? propTable.row(dataIndex).data() : null;
+  if(!row) return true;
+  const {status, city, bhk} = _propFilterState;
+  if(status && (row.status||'') !== status) return false;
+  const rowCity = row.city || row.loc || '';
+  if(city && rowCity !== city) return false;
+  if(bhk && String(row.bhk||'') !== String(bhk)) return false;
+  return true;
+});
 
 
 /* ═════════ CUSTOMER MODAL ═════════ */
@@ -1337,7 +1653,13 @@ function openCustomerModal(id){
     },
     {
       label:'Remarks',
-      value:c.remarks || '—'
+      value:(()=>{
+        const r = c.remarks;
+        if(Array.isArray(r) && r.length)
+          return r.filter(x=>x&&(x.remark||'').trim()).map((x,i)=>`${i+1}. ${x.remark.trim()}`).join('\n') || '—';
+        if(typeof r === 'string' && r.trim()) return r.trim();
+        return '—';
+      })()
     },
     {
       label:'Registered On',
@@ -1372,8 +1694,6 @@ function closeCustomerModal(){
 }
 
 </script>
-
-</body>
 
 <!-- ═════════ CUSTOMER DETAIL MODAL ═════════ -->
 <div class="prop-modal-wrap" id="customerModal" onclick="if(event.target===this)closeCustomerModal()">
@@ -1421,6 +1741,5 @@ function closeCustomerModal(){
 
   </div>
 
-</div>
-
+</body>
 </html>
