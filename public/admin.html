@@ -787,8 +787,17 @@ async function saveRemark(cell, id, type){
     });
     if(!res.ok) throw new Error('Save failed');
     span.textContent = newVal || 'Add remark…';
-    span.className   = 'remark-text' + (newVal ? '' : ' empty');
-    input.value = newVal;
+	span.className   = 'remark-text' + (newVal ? '' : ' empty');
+	input.value = newVal;
+
+	/* auto refresh table */
+	if(type === 'customer' && dataTable){
+	  dataTable.ajax.reload(null,false);
+	}
+
+	if(type === 'property' && propTable){
+	  propTable.ajax.reload(null,false);
+	}
   } catch(e){
     alert('Could not save remark. Please try again.');
   }
@@ -885,7 +894,28 @@ $(document).ready(function(){
           if(t==='display') return remarkCellHtml(row.mobile||row._id, d, 'customer');
           return d||'';
       }},
-      { data:null, orderable:false, render:(d,t,row)=>`<button class="btn-delete" onclick="deleteBooking('${row.mobile}')"><i class="fas fa-trash-alt"></i> Delete</button>` }
+      { 
+		  data:null, 
+		  orderable:false, 
+		  render:(d,t,row)=>{
+
+			_customerCache[row.mobile || row._id] = row;
+
+			return `
+			  <div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:center">
+
+				<button class="btn-view" onclick="openCustomerModal('${row.mobile || row._id}')">
+				  <i class="fas fa-eye"></i> View
+				</button>
+
+				<button class="btn-delete" onclick="deleteBooking('${row.mobile}')">
+				  <i class="fas fa-trash-alt"></i> Delete
+				</button>
+
+			  </div>
+			`;
+		  }
+		}
     ],
     order:[[3,'desc']],
     pageLength:10,
@@ -1098,6 +1128,7 @@ $(document).ready(function(){
    ADMIN PROPERTY DETAIL MODAL
 ════════════════════════════════════ */
 const _adminPropCache = {};
+const _customerCache = {};
 const ADMIN_MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
 const ADMIN_MODAL_LABELS = {
   title:'Building Name', loc:'Area', bhk:'BHK', area:'Area (sqft)',
@@ -1233,7 +1264,123 @@ function closeAdminPropModal(){
   document.getElementById('adminPropModal').classList.remove('open');
   document.body.style.overflow = '';
 }
+
+
+/* ═════════ CUSTOMER MODAL ═════════ */
+function openCustomerModal(id){
+
+  const c = _customerCache[id];
+  if(!c) return;
+
+  const fullName =
+    `${c.firstName || ''} ${c.lastName || ''}`.trim();
+
+  document.getElementById('customerModalName').innerHTML =
+    _adminModalEsc(fullName || 'Customer');
+
+  const details = [
+    {
+      label:'First Name',
+      value:c.firstName || '—'
+    },
+    {
+      label:'Last Name',
+      value:c.lastName || '—'
+    },
+    {
+      label:'Mobile Number',
+      value:c.mobile || '—'
+    },
+    {
+      label:'Email Address',
+      value:c.email || '—'
+    },
+    {
+      label:'Remarks',
+      value:c.remarks || '—'
+    },
+    {
+      label:'Registered On',
+      value:c.createdAt
+        ? new Date(c.createdAt).toLocaleString('en-GB')
+        : '—'
+    }
+  ];
+
+  document.getElementById('customerModalDetails').innerHTML =
+    details.map(d => `
+      <div class="prop-modal-detail">
+
+        <div class="prop-modal-detail-label">
+          ${_adminModalEsc(d.label)}
+        </div>
+
+        <div class="prop-modal-detail-val">
+          ${_adminModalEsc(d.value)}
+        </div>
+
+      </div>
+    `).join('');
+
+  document.getElementById('customerModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCustomerModal(){
+  document.getElementById('customerModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 </script>
 
 </body>
+
+<!-- ═════════ CUSTOMER DETAIL MODAL ═════════ -->
+<div class="prop-modal-wrap" id="customerModal" onclick="if(event.target===this)closeCustomerModal()">
+
+  <div class="prop-modal">
+
+    <div class="prop-modal-close-row">
+      <button class="prop-modal-close-btn" onclick="closeCustomerModal()">✕</button>
+    </div>
+
+    <div class="prop-modal-body">
+
+      <!-- Avatar -->
+      <div style="display:flex;justify-content:center;margin-bottom:20px">
+        <div style="
+          width:90px;
+          height:90px;
+          border-radius:50%;
+          background:var(--gold-light);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:2rem;
+          color:var(--gold-dark);
+        ">
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div id="customerModalName"
+        style="
+          text-align:center;
+          font-size:1.4rem;
+          font-weight:700;
+          margin-bottom:20px;
+          color:var(--ink);
+        ">
+      </div>
+
+      <!-- Details -->
+      <div class="prop-modal-grid" id="customerModalDetails"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
 </html>
