@@ -3021,7 +3021,7 @@ let isLoggedIn = false;
 let isAdmin = false;
 
 // ── BASE URL ──
-const BASE_URL = location.hostname === 'localhost'
+var BASE_URL = location.hostname === 'localhost'
   ? 'http://localhost:5000'
   : 'https://kr-realestate.onrender.com';
 
@@ -7373,7 +7373,7 @@ async function pickContact(inputId) {
     btn.disabled = true;
     btn.textContent = 'Creating order…';
 
-    fetch('/api/payment/create-order', {
+    fetch(BASE_URL + '/api/payment/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -7398,7 +7398,7 @@ async function pickContact(inputId) {
         theme:       { color: '#1b3a2d' },
         handler: function(resp) {
           // verify on server
-          fetch('/api/payment/verify', {
+          fetch(BASE_URL + '/api/payment/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -7423,7 +7423,7 @@ async function pickContact(inputId) {
         },
         modal: {
           ondismiss: function() {
-            fetch('/api/payment/failed', {
+            fetch(BASE_URL + '/api/payment/failed', {
               method:'POST', headers:{'Content-Type':'application/json'},
               body: JSON.stringify({ orderId: data.orderId })
             });
@@ -7433,7 +7433,7 @@ async function pickContact(inputId) {
 
       var rzp = new Razorpay(options);
       rzp.on('payment.failed', function(resp) {
-        fetch('/api/payment/failed', {
+        fetch(BASE_URL + '/api/payment/failed', {
           method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ orderId: data.orderId })
         });
@@ -7469,7 +7469,7 @@ async function loadAdminPayments() {
   var tbody = document.getElementById('adminPayTableBody');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">Loading…</td></tr>';
   try {
-    var res  = await fetch('/api/payments');
+    var res  = await fetch(BASE_URL + '/api/payments');
     var data = await res.json();
     if (!data.length) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">No payments yet.</td></tr>';
@@ -7509,7 +7509,7 @@ window.deletePayment = async function(id) {
   var conf = await Swal.fire({ icon:'warning', title:'Delete this payment record?', text:'This cannot be undone.', showCancelButton:true, confirmButtonText:'Delete', confirmButtonColor:'#c03040' });
   if (!conf.isConfirmed) return;
   try {
-    var res  = await fetch('/api/payments/' + id, { method: 'DELETE' });
+    var res  = await fetch(BASE_URL + '/api/payments/' + id, { method: 'DELETE' });
     var d    = await res.json();
     if (res.ok) { Swal.fire({ icon:'success', title:'Deleted', timer:1500, showConfirmButton:false }); loadAdminPayments(); }
     else Swal.fire({ icon:'error', title:'Error', text: d.message || 'Could not delete.', timer:2500, showConfirmButton:false });
