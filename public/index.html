@@ -2633,7 +2633,7 @@ function renderProps(list){
           ${p.bikeparking?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>${p.bikeparking} Bike</span>`:''}
           `}
         </div>
-       <div class="prop-footer">
+		<div class="prop-footer">
 		  <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
 			Call
@@ -2641,6 +2641,10 @@ function renderProps(list){
 		  <button class="prop-btn prop-btn-outline" id="cmp-btn-${p.id}" onclick="event.stopPropagation();toggleCompare(${p.id})">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
 			Compare
+		  </button>
+		  <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();shareProperty(${p.id})">
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+			Share
 		  </button>
 		  <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">
 			View
@@ -8113,6 +8117,193 @@ function closeCompareModal() {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCompareModal(); });
+</script>
+
+<!-- ── SHARE FEATURE ── -->
+<style>
+#shareModal {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(10,15,12,0.7);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+#shareModal.open { display: flex; }
+.share-box {
+  background: var(--surface); border-radius: 22px;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 40px 90px rgba(0,0,0,0.4);
+  animation: shareSlideIn 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  overflow: hidden;
+}
+@keyframes shareSlideIn {
+  from { opacity:0; transform: scale(0.92) translateY(16px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.share-header {
+  background: linear-gradient(135deg, var(--accent), var(--gold-dark));
+  padding: 1.2rem 1.6rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.share-header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 8px;
+}
+.share-close {
+  background: rgba(255,255,255,0.15); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%; font-size: 1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s;
+}
+.share-close:hover { background: rgba(255,255,255,0.3); }
+.share-body { padding: 1.4rem 1.6rem; display: flex; flex-direction: column; gap: 14px; }
+.share-preview {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 10px 12px;
+}
+.share-preview-img {
+  width: 56px; height: 56px; object-fit: cover;
+  border-radius: 8px; flex-shrink: 0; background: var(--surface2);
+}
+.share-preview-title { font-size: 0.86rem; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.share-preview-price { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; color: var(--gold-dark); margin: 2px 0; }
+.share-preview-loc { font-size: 0.72rem; color: var(--ink3); }
+.share-url-row { display: flex; gap: 8px; align-items: center; }
+.share-url-input {
+  flex: 1; border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 9px 12px; font-size: 0.76rem; font-family: inherit;
+  color: var(--ink2); background: var(--bg); outline: none; min-width: 0;
+}
+.share-copy-btn {
+  flex-shrink: 0; padding: 9px 16px; border-radius: 9px;
+  background: var(--accent); color: #fff;
+  font-size: 0.8rem; font-weight: 700; font-family: inherit;
+  border: none; cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.share-copy-btn:hover { background: var(--gold); color: var(--ink); }
+.share-copy-btn.copied { background: #059669; }
+.share-wa-btn {
+  width: 100%; padding: 12px; border: none; border-radius: 10px;
+  background: #25d366; color: #fff;
+  font-size: 0.88rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: all 0.18s;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+}
+.share-wa-btn:hover { background: #1ebe5d; transform: translateY(-1px); }
+.share-wa-btn svg { fill: #fff; flex-shrink: 0; }
+</style>
+
+<div id="shareModal" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-box">
+    <div class="share-header">
+      <div class="share-header-title">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share Property
+      </div>
+      <button class="share-close" onclick="closeShareModal()">✕</button>
+    </div>
+    <div class="share-body">
+      <div class="share-preview" id="sharePreview"></div>
+      <div class="share-url-row">
+        <input class="share-url-input" id="shareUrlInput" readonly />
+        <button class="share-copy-btn" id="shareCopyBtn" onclick="copyShareUrl()">Copy</button>
+      </div>
+      <button class="share-wa-btn" id="shareWaBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26C3.102 6.334 7.538 1.9 12.99 1.9a9.9 9.9 0 016.988 2.898 9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg>
+        Share on WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.shareProperty = function(localId) {
+  const p = PROPERTIES.find(x => x.id === localId);
+  if (!p) return;
+
+  // Build deep-link URL using MongoDB _id
+  const url = window.location.origin + window.location.pathname + '?p=' + p._id;
+  document.getElementById('shareUrlInput').value = url;
+
+  // Preview card
+  const img = p.images && p.images.length ? p.images[0] : '';
+  document.getElementById('sharePreview').innerHTML = `
+    ${img
+      ? `<img class="share-preview-img" src="${img}" onerror="this.style.display='none'" />`
+      : `<div class="share-preview-img" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem">🏠</div>`}
+    <div style="flex:1;min-width:0">
+      <div class="share-preview-title">${escapeHtml(p.title)}</div>
+      <div class="share-preview-price">${escapeHtml(p.displayPrice)}</div>
+      <div class="share-preview-loc">📍 ${escapeHtml(p.loc)}</div>
+    </div>`;
+
+  // WhatsApp message
+  const waText = encodeURIComponent(
+    `🏠 *${p.title}*\n` +
+    `💰 ${p.displayPrice}\n` +
+    `📍 ${p.loc}, ${p.city || 'Bengaluru'}\n` +
+    `🏷️ ${p.status}\n\n` +
+    `View here 👉 ${url}\n\n` +
+    `_RentInBangalore — Premier Realty_`
+  );
+  document.getElementById('shareWaBtn').onclick = function() {
+    window.open('https://wa.me/?text=' + waText, '_blank');
+    closeShareModal();
+  };
+
+  // Reset copy button state
+  const btn = document.getElementById('shareCopyBtn');
+  btn.textContent = 'Copy';
+  btn.classList.remove('copied');
+
+  document.getElementById('shareModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.copyShareUrl = function() {
+  const input = document.getElementById('shareUrlInput');
+  const btn   = document.getElementById('shareCopyBtn');
+  try {
+    navigator.clipboard.writeText(input.value).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+    });
+  } catch(e) {
+    input.select();
+    document.execCommand('copy');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2200);
+  }
+};
+
+window.closeShareModal = function() {
+  document.getElementById('shareModal').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+// Deep-link on page load: if ?p=<mongoId> in URL, auto-open that property
+(function checkDeepLink() {
+  try {
+    const mongoId = new URLSearchParams(window.location.search).get('p');
+    if (!mongoId) return;
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      const prop = PROPERTIES.find(p => String(p._id) === mongoId);
+      if (prop) {
+        openModal(prop.id);
+        history.replaceState({}, '', window.location.pathname);
+        clearInterval(poll);
+      }
+      if (attempts > 40) clearInterval(poll);
+    }, 250);
+  } catch(e) {}
+})();
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShareModal(); });
 </script>
 
 
