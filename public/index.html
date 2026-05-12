@@ -18,6 +18,42 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 
+.prop-btn[title] { position: relative; }
+.prop-btn[title]:active::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  z-index: 99;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .prop-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    z-index: 99;
+    pointer-events: none;
+  }
+}
+
 /* Splash covers the page — pre-hide animated elements so no flash */
 html,body{
   opacity:1;
@@ -2632,21 +2668,30 @@ function renderProps(list){
           `}
         </div>
 		<div class="prop-footer">
-		  <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">
+		  <button class="prop-btn prop-btn-outline" title="Call" onclick="event.stopPropagation();window.location.href='tel:9611459960'">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></button>
-		  <button class="prop-btn prop-btn-outline" id="cmp-btn-${p.id}" onclick="event.stopPropagation();toggleCompare(${p.id})">
+		  <button class="prop-btn prop-btn-outline" title="Compare" id="cmp-btn-${p.id}" onclick="event.stopPropagation();toggleCompare(${p.id})">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></button>
-		  <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();shareProperty(${p.id})">
+		  <button class="prop-btn prop-btn-outline" title="Share" onclick="event.stopPropagation();shareProperty(${p.id})">
 			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
 		  </button>
-		  <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">
+		  <button class="prop-btn prop-btn-fill" title="View" onclick="event.stopPropagation();openModal(${p.id})">
 			<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
 		  </button>
 		</div>
         ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
-          <button onclick="event.stopPropagation();openEditPropertyModal(${p.id})" ...>✏️</button>
-          <button onclick="event.stopPropagation();deleteProperty('${String(p._id)}',${p.id})" ...>🗑️</button>
-          <button onclick="event.stopPropagation();togglePromote('${String(p._id)}',${p.id})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #b45309;background:${p.promoted?'#fef3c7':'#fff7ed'};color:#b45309;font-size:0.76rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;justify-content:center;gap:5px" onmouseover="this.style.background='#f59e0b';this.style.color='#fff'" onmouseout="this.style.background='${p.promoted?'#fef3c7':'#fff7ed'}';this.style.color='#b45309'">${p.promoted ? '★' : '⭐'}</button>
+          <button class="prop-btn prop-btn-outline" title="Edit" onclick="event.stopPropagation();openEditPropertyModal(${p.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="prop-btn prop-btn-outline" title="Delete" onclick="event.stopPropagation();deleteProperty('${String(p._id)}',${p.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+          <button class="prop-btn" title="${p.promoted ? 'Unpromote' : 'Promote'}" style="${p.promoted 
+            ? 'background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;box-shadow:0 4px 14px rgba(245,158,11,0.4)' 
+            : 'background:rgba(0,0,0,0.04);border:1.5px solid rgba(0,0,0,0.08);color:#6b7280'}" 
+            onclick="event.stopPropagation();togglePromote('${String(p._id)}',${p.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="${p.promoted ? '#fff' : 'none'}" stroke="${p.promoted ? '#fff' : '#6b7280'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
         </div>` : ''}
       </div>
     </div>
