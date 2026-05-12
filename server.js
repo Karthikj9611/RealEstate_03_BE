@@ -73,7 +73,8 @@ const PropertySchema = new mongoose.Schema({
   createdAt:   { type: Date, default: Date.now },
   promoted: { type: Boolean, default: false },
   promotedPos: { type: String, default: 'top-right' },
-  promotedPriority: { type: Number, default: 3 }
+  promotedPriority: { type: Number, default: 3 },
+  views: { type: Number, default: 0 }
 });
 const Property = mongoose.model("Property", PropertySchema);
 
@@ -110,6 +111,12 @@ const PaymentSchema = new mongoose.Schema({
   createdAt:      { type: Date, default: Date.now }
 });
 const Payment = mongoose.model("Payment", PaymentSchema);
+const SiteVisitSchema = new mongoose.Schema({
+  date:    { type: String, required: true, unique: true }, // YYYY-MM-DD
+  count:   { type: Number, default: 0 },
+  total:   { type: Number, default: 0 }
+});
+const SiteVisit = mongoose.model("SiteVisit", SiteVisitSchema);
 
 // ── OTP STORE (in-memory) ──
 const otpStore = {};
@@ -439,6 +446,60 @@ app.patch("/api/properties/:id/remarks", async (req, res) => {
   }
 });
 
+
+// ── Increment property view count ──
+const viewedProps = new Map(); // "ip_propertyId" -> date string
+
+// ── Increment property view count ──
+app.patch("/api/properties/:id/view", async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid property ID" });
+
+    const today = new Date().toISOString().split('T')[0];
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const key = `${ip}_${req.params.id}_${today}`;
+
+    // Already viewed this property today from this IP
+    if (viewedProps.get(key) === today) {
+      const property = await Property.findById(req.params.id);
+      return res.json({ views: property.views, skipped: true });
+    }
+
+    viewedProps.set(key, today);
+
+    const property = await Property.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!property) return res.status(404).json({ message: "Property not found" });
+    res.json({ views: property.views });
+  } catch(err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ── Site visit tracker ──
+app.post("/api/site-visit", async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const visit = await SiteVisit.findOneAndUpdate(
+      { date: today },
+      { $inc: { count: 1, total: 1 } },
+      { upsert: true, new: true }
+    );
+    res.json({ success: true, today: visit.count });
+  } catch(err) { res.status(500).json({ success: false }); }
+});
+
+app.get("/api/site-visits", async (req, res) => {
+  try {
+    const visits = await SiteVisit.find().sort({ date: -1 }).limit(30);
+    const total = visits.reduce((sum, v) => sum + v.count, 0);
+    res.json({ visits, total });
+  } catch(err) { res.status(500).json({ visits: [], total: 0 }); }
+});
 
 // ── Toggle promoted status ──
 // ── Toggle promoted status ──
