@@ -449,6 +449,7 @@ app.patch("/api/properties/:id/remarks", async (req, res) => {
 
 // ── Increment property view count ──
 const viewedProps = new Map(); // "ip_propertyId" -> date string
+const visitedIps = new Map();  // ip -> date string
 
 // ── Increment property view count ──
 app.patch("/api/properties/:id/view", async (req, res) => {
@@ -484,6 +485,11 @@ app.patch("/api/properties/:id/view", async (req, res) => {
 app.post("/api/site-visit", async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    if (visitedIps.get(ip) === today) {
+      return res.json({ success: true, skipped: true });
+    }
+    visitedIps.set(ip, today);
     const visit = await SiteVisit.findOneAndUpdate(
       { date: today },
       { $inc: { count: 1, total: 1 } },
