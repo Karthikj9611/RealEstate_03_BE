@@ -1635,6 +1635,14 @@ input {
       <button onclick="closeNav();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:none;background:var(--accent);color:#fff;font-size:0.84rem;font-weight:700;font-family:inherit;cursor:pointer;text-align:left;align-items:center;gap:8px;transition:background 0.18s" onmouseover="this.style.background='var(--gold)';this.style.color='var(--ink)'" onmouseout="this.style.background='var(--accent)';this.style.color='#fff'">
         <span class="icon"><svg><use href="#ic-plus"/></svg></span> List Property
       </button>
+
+      <!-- ADD THIS BLOCK -->
+      <div class="admin-only-btn" style="display:none;flex-direction:column;gap:3px;padding:9px 12px;border-radius:var(--radius-xs);background:var(--surface);border:1.5px solid var(--border);font-size:0.75rem;color:var(--ink2)">
+        <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
+        <div id="mobileVisitToday">📅 Today: <strong>—</strong></div>
+        <div id="mobileVisit30">🗓️ Last 30 days: <strong>—</strong></div>
+      </div>
+
       <button onclick="closeNav();logoutUser()" style="width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:none;color:var(--red);font-size:0.84rem;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.18s;margin-top:2px" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-log-out"/></svg></span> Logout
       </button>
@@ -3305,6 +3313,10 @@ async function loadSiteVisits() {
     const monthEl = document.getElementById('siteVisit30');
     if(todayEl) todayEl.innerHTML = `📅 Today: <strong>${todayVisit ? todayVisit.count : 0}</strong>`;
     if(monthEl) monthEl.innerHTML = `🗓️ Last 30 days: <strong>${data.total}</strong>`;
+	const mobileToday = document.getElementById('mobileVisitToday');
+const mobileMonth = document.getElementById('mobileVisit30');
+if(mobileToday) mobileToday.innerHTML = `📅 Today: <strong>${todayVisit ? todayVisit.count : 0}</strong>`;
+if(mobileMonth) mobileMonth.innerHTML = `🗓️ Last 30 days: <strong>${data.total}</strong>`;
   } catch(e) {}
 }
 
