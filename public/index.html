@@ -1639,6 +1639,15 @@ input {
       <button onclick="event.stopPropagation();openAdminPaymentsModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-receipt"/></svg></span> View Payments
       </button>
+<div id="siteVisitStats" class="admin-only-btn" style="display:none;padding:10px 16px;font-size:0.75rem;color:var(--ink3);border-bottom:1px solid var(--border);gap:6px;flex-direction:column;">
+        <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
+        <div id="siteVisitToday">📅 Today: <strong>—</strong></div>
+        <div id="siteVisit30">🗓️ Last 30 days: <strong>—</strong></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <button onclick="event.stopPropagation();resetSiteVisits()" style="flex:1;padding:5px 8px;border-radius:8px;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);font-size:0.7rem;font-weight:700;font-family:inherit;cursor:pointer;">🗑 Visits</button>
+          <button onclick="event.stopPropagation();resetPropertyViews()" style="flex:1;padding:5px 8px;border-radius:8px;border:1.5px solid #6366f1;background:rgba(99,102,241,0.08);color:#6366f1;font-size:0.7rem;font-weight:700;font-family:inherit;cursor:pointer;">🗑 Views</button>
+        </div>
+      </div>
       <button onclick="event.stopPropagation();logoutUser()" style="width:100%;padding:11px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-log-out"/></svg></span> Logout
       </button>
@@ -3149,20 +3158,66 @@ var BASE_URL = location.hostname === 'localhost'
 })();
 
 
-async function loadSiteVisits() {
+async function resetSiteVisits() {
+  if(!isAdmin){ showToast('Admin only', 'error'); return; }
+  const ok = await Swal.fire({
+    title:'Reset site visits?',
+    text:'This will clear all visitor records.',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonText:'Yes, reset',
+    confirmButtonColor:'#ef4444'
+  });
+  if(!ok.isConfirmed) return;
   try {
-    const res = await fetch('/api/site-visits');
+    const pw = await Swal.fire({ title:'Confirm admin password', input:'password', inputPlaceholder:'Enter admin password', showCancelButton:true });
+    if(!pw.isConfirmed || !pw.value) return;
+    const res = await fetch('/api/site-visits/reset', {
+      method:'DELETE',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: 'admin', password: pw.value })
+    });
     const data = await res.json();
-    const el = document.getElementById('siteVisitStats');
-    if(!el) return;
-    const today = new Date().toISOString().split('T')[0];
-    const todayVisit = data.visits.find(v => v.date === today);
-    el.innerHTML = `
-      <span title="Today's visitors">📅 Today: <strong>${todayVisit ? todayVisit.count : 0}</strong></span>
-      &nbsp;|&nbsp;
-      <span title="Last 30 days">📊 30 days: <strong>${data.total}</strong></span>`;
-  } catch(e) {}
+    if(data.success){
+      localStorage.removeItem('kr_last_visit');
+      loadSiteVisits();
+      showToast('Site visits reset!', 'success');
+    } else {
+      showToast(data.message || 'Reset failed', 'error');
+    }
+  } catch(e) { showToast('Reset failed', 'error'); }
 }
+
+async function resetPropertyViews() {
+  if(!isAdmin){ showToast('Admin only', 'error'); return; }
+  const ok = await Swal.fire({
+    title:'Reset all property views?',
+    text:'This will set all property view counts to 0.',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonText:'Yes, reset',
+    confirmButtonColor:'#ef4444'
+  });
+  if(!ok.isConfirmed) return;
+  try {
+    const pw = await Swal.fire({ title:'Confirm admin password', input:'password', inputPlaceholder:'Enter admin password', showCancelButton:true });
+    if(!pw.isConfirmed || !pw.value) return;
+    const res = await fetch('/api/properties/views/reset', {
+      method:'DELETE',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: 'admin', password: pw.value })
+    });
+    const data = await res.json();
+    if(data.success){
+      PROPERTIES.forEach(p => p.views = 0);
+      filterProps();
+      showToast('All property views reset!', 'success');
+    } else {
+      showToast(data.message || 'Reset failed', 'error');
+    }
+  } catch(e) { showToast('Reset failed', 'error'); }
+}
+
 
 async function loadSiteVisits() {
   try {

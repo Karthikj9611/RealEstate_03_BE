@@ -501,6 +501,40 @@ app.get("/api/site-visits", async (req, res) => {
   } catch(err) { res.status(500).json({ visits: [], total: 0 }); }
 });
 
+// Reset all site visits (admin only)
+app.delete("/api/site-visits/reset", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.role !== 'admin') return res.status(403).json({ success: false, message: 'Admin only' });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(403).json({ success: false, message: 'Invalid credentials' });
+    await SiteVisit.deleteMany({});
+    visitedIps.clear();
+    res.json({ success: true });
+  } catch(err) { 
+    console.error('Reset site visits error:', err);
+    res.status(500).json({ success: false, message: err.message }); 
+  }
+});
+
+// Reset all property views (admin only)
+app.delete("/api/properties/views/reset", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.role !== 'admin') return res.status(403).json({ success: false, message: 'Admin only' });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(403).json({ success: false, message: 'Invalid credentials' });
+    await Property.updateMany({}, { $set: { views: 0 } });
+    viewedProps.clear();
+    res.json({ success: true });
+  } catch(err) { 
+    console.error('Reset property views error:', err);
+    res.status(500).json({ success: false, message: err.message }); 
+  }
+});
+
 // ── Toggle promoted status ──
 // ── Toggle promoted status ──
 app.patch("/api/properties/:id/promote", async (req, res) => {
