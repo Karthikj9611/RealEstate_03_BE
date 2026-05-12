@@ -2633,16 +2633,20 @@ function renderProps(list){
           ${p.bikeparking?`<span class="prop-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>${p.bikeparking} Bike</span>`:''}
           `}
         </div>
-        <div class="prop-footer">
-          <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-            Call
-          </button>
-          <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">
-            View
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
+       <div class="prop-footer">
+		  <button class="prop-btn prop-btn-outline" onclick="event.stopPropagation();window.location.href='tel:9611459960'">
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+			Call
+		  </button>
+		  <button class="prop-btn prop-btn-outline" id="cmp-btn-${p.id}" onclick="event.stopPropagation();toggleCompare(${p.id})">
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+			Compare
+		  </button>
+		  <button class="prop-btn prop-btn-fill" onclick="event.stopPropagation();openModal(${p.id})">
+			View
+			<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+		  </button>
+		</div>
         ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
           <button onclick="event.stopPropagation();openEditPropertyModal(${p.id})" ...>✏️</button>
           <button onclick="event.stopPropagation();deleteProperty('${String(p._id)}',${p.id})" ...>🗑️</button>
@@ -7811,6 +7815,306 @@ function clearAllFavs() {
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFavDrawer(); });
 </script>
+
+<!-- ── COMPARE FEATURE ── -->
+<style>
+button[id^="cmp-btn-"].cmp-active {
+  background: #daf0f7 !important;
+  border: 1.5px solid var(--teal) !important;
+  color: var(--teal) !important;
+}
+
+#compareTray {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 750;
+  background: var(--ink);
+  transform: translateY(100%);
+  transition: transform 0.36s cubic-bezier(0.34,1.2,0.64,1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.35);
+  padding: 12px clamp(1rem,4%,3rem);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+#compareTray.show { transform: translateY(0); }
+.cmp-tray-label {
+  font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.45);
+  letter-spacing: 0.8px; text-transform: uppercase; flex-shrink: 0;
+}
+.cmp-tray-slots { display: flex; gap: 8px; flex: 1; min-width: 0; flex-wrap: wrap; }
+.cmp-tray-slot {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 7px 12px;
+  font-size: 0.8rem; color: rgba(255,255,255,0.8); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+}
+.cmp-tray-slot-x {
+  background: none; border: none; color: rgba(255,255,255,0.45);
+  cursor: pointer; font-size: 0.8rem; padding: 0; flex-shrink: 0;
+  transition: color 0.15s;
+}
+.cmp-tray-slot-x:hover { color: #fff; }
+.cmp-tray-placeholder {
+  background: rgba(255,255,255,0.04); border: 1.5px dashed rgba(255,255,255,0.15);
+  border-radius: 10px; padding: 7px 16px;
+  font-size: 0.76rem; color: rgba(255,255,255,0.25);
+}
+.cmp-tray-btns { display: flex; gap: 8px; flex-shrink: 0; }
+.cmp-go-btn {
+  background: var(--gold); color: var(--ink);
+  font-size: 0.82rem; font-weight: 700; font-family: inherit;
+  border: none; border-radius: 10px; padding: 9px 20px;
+  cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.cmp-go-btn:hover { background: var(--gold2); transform: translateY(-1px); }
+.cmp-go-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.cmp-clear-btn {
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.55);
+  font-size: 0.8rem; font-weight: 600; font-family: inherit;
+  border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px;
+  padding: 9px 14px; cursor: pointer; transition: all 0.18s;
+}
+.cmp-clear-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+#compareModal {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(10,15,12,0.75);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  align-items: flex-start; justify-content: center;
+  padding: 1rem; overflow-y: auto;
+}
+#compareModal.open { display: flex; }
+.cmp-box {
+  background: var(--surface); border-radius: 24px;
+  width: 100%; max-width: 960px; margin: auto;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.45);
+  animation: cmpSlideIn 0.35s cubic-bezier(0.34,1.2,0.64,1);
+  overflow: hidden;
+}
+@keyframes cmpSlideIn {
+  from { opacity:0; transform: scale(0.94) translateY(20px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.cmp-header {
+  background: linear-gradient(135deg, var(--accent), var(--gold-dark));
+  padding: 1.3rem 1.8rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cmp-header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem; font-weight: 700; color: #fff;
+  display: flex; align-items: center; gap: 9px;
+}
+.cmp-close {
+  background: rgba(255,255,255,0.15); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%; font-size: 1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s;
+}
+.cmp-close:hover { background: rgba(255,255,255,0.3); }
+.cmp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cmp-table { width: 100%; border-collapse: collapse; min-width: 480px; }
+.cmp-table th { padding: 0; text-align: center; vertical-align: top; }
+.cmp-th-inner {
+  padding: 1.2rem 1rem 1rem;
+  border-right: 1px solid var(--border);
+  background: var(--surface2);
+}
+.cmp-table th:first-child .cmp-th-inner {
+  text-align: left; background: var(--bg);
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--ink3);
+  border-right: 2px solid var(--border);
+}
+.cmp-prop-img {
+  width: 100%; height: 100px; object-fit: cover;
+  border-radius: 10px; margin-bottom: 10px;
+  background: var(--surface3); display: block;
+}
+.cmp-prop-title { font-size: 0.86rem; font-weight: 700; color: var(--ink); margin-bottom: 3px; line-height: 1.3; }
+.cmp-prop-price { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--gold-dark); }
+.cmp-table td {
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  font-size: 0.84rem; color: var(--ink2); text-align: center; vertical-align: middle;
+}
+.cmp-table td:first-child {
+  text-align: left; font-size: 0.76rem; font-weight: 700; color: var(--ink3);
+  background: var(--bg); border-right: 2px solid var(--border);
+  white-space: nowrap;
+}
+.cmp-table tr:last-child td { border-bottom: none; }
+.cmp-row-highlight td { background: var(--gold-light) !important; }
+.cmp-val-na { color: var(--border2); font-style: italic; font-size: 0.76rem; }
+.cmp-amenities { font-size: 0.75rem; line-height: 1.7; text-align: left; }
+.cmp-footer-btns {
+  padding: 1.2rem 1.8rem; display: flex; gap: 10px; flex-wrap: wrap;
+  border-top: 1px solid var(--border); background: var(--bg);
+}
+.cmp-view-btn {
+  flex: 1; padding: 11px; border: none;
+  background: var(--accent); color: #fff;
+  font-size: 0.84rem; font-weight: 700; font-family: inherit;
+  border-radius: 10px; cursor: pointer; transition: all 0.18s; min-width: 120px;
+}
+.cmp-view-btn:hover { background: var(--gold); color: var(--ink); }
+@media(max-width:480px) {
+  .cmp-footer-btns { flex-direction: column; }
+}
+</style>
+
+<div id="compareTray">
+  <span class="cmp-tray-label">Compare</span>
+  <div class="cmp-tray-slots" id="cmpTraySlots"></div>
+  <div class="cmp-tray-btns">
+    <button class="cmp-clear-btn" onclick="clearCompare()">Clear</button>
+    <button class="cmp-go-btn" id="cmpGoBtn" onclick="openCompareModal()">Compare Now →</button>
+  </div>
+</div>
+
+<div id="compareModal" onclick="if(event.target===this)closeCompareModal()">
+  <div class="cmp-box">
+    <div class="cmp-header">
+      <div class="cmp-header-title">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        Property Comparison
+      </div>
+      <button class="cmp-close" onclick="closeCompareModal()">✕</button>
+    </div>
+    <div class="cmp-scroll">
+      <table class="cmp-table" id="cmpTable"></table>
+    </div>
+    <div class="cmp-footer-btns" id="cmpFooterBtns"></div>
+  </div>
+</div>
+
+<script>
+const compareSet = new Set();
+
+function toggleCompare(id) {
+  if (compareSet.has(id)) {
+    compareSet.delete(id);
+  } else {
+    if (compareSet.size >= 3) { showToast('Max 3 properties at a time'); return; }
+    compareSet.add(id);
+    showToast('Added to compare');
+  }
+  _updateCmpTray();
+  _updateCmpButtons();
+}
+
+function _updateCmpButtons() {
+  PROPERTIES.forEach(p => {
+    const btn = document.getElementById('cmp-btn-' + p.id);
+    if (!btn) return;
+    if (compareSet.has(p.id)) {
+      btn.classList.add('cmp-active');
+    } else {
+      btn.classList.remove('cmp-active');
+    }
+  });
+}
+
+function _updateCmpTray() {
+  const tray  = document.getElementById('compareTray');
+  const slots = document.getElementById('cmpTraySlots');
+  const goBtn = document.getElementById('cmpGoBtn');
+  if (compareSet.size === 0) {
+    tray.classList.remove('show');
+    slots.innerHTML = '';
+    return;
+  }
+  tray.classList.add('show');
+  goBtn.disabled = compareSet.size < 2;
+
+  let html = [...compareSet].map(id => {
+    const p = PROPERTIES.find(x => x.id === id);
+    if (!p) return '';
+    return `<div class="cmp-tray-slot">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px">${escapeHtml(p.title)}</span>
+      <button class="cmp-tray-slot-x" onclick="toggleCompare(${id})">✕</button>
+    </div>`;
+  }).join('');
+
+  if (compareSet.size < 3) {
+    html += `<div class="cmp-tray-placeholder">+ ${3 - compareSet.size} more</div>`;
+  }
+  slots.innerHTML = html;
+}
+
+function clearCompare() {
+  compareSet.clear();
+  _updateCmpTray();
+  _updateCmpButtons();
+}
+
+function openCompareModal() {
+  if (compareSet.size < 2) { showToast('Select at least 2 properties'); return; }
+
+  const props = [...compareSet].map(id => PROPERTIES.find(x => x.id === id)).filter(Boolean);
+
+  const ROWS = [
+    { label: 'Price',       fn: p => p.displayPrice,                                                            highlight: true },
+    { label: 'Type',        fn: p => p.status || '—'                                                                            },
+    { label: 'BHK',         fn: p => p.bhk ? p.bhk + ' BHK' : '—'                                                              },
+    { label: 'Area',        fn: p => p.area || '—'                                                                              },
+    { label: 'Floor',       fn: p => p.floor || '—'                                                                             },
+    { label: 'Furnishing',  fn: p => p.furnishing || '—'                                                                        },
+    { label: 'Bathrooms',   fn: p => p.toilet || '—'                                                                            },
+    { label: 'Car Parking', fn: p => (p.carparking != null && p.carparking !== '') ? p.carparking : '—'                         },
+    { label: 'Facing',      fn: p => p.facing || '—'                                                                            },
+    { label: 'Age',         fn: p => p.age || '—'                                                                               },
+    { label: 'Deposit',     fn: p => p.deposit ? '₹' + Number(p.deposit).toLocaleString('en-IN') : '—'                         },
+    { label: 'Amenities',   fn: p => Array.isArray(p.amenities) && p.amenities.length ? p.amenities.join(', ') : '—'            },
+  ];
+
+  // Header
+  let thead = '<thead><tr><th><div class="cmp-th-inner">Feature</div></th>';
+  props.forEach(p => {
+    const img = p.images && p.images.length ? p.images[0] : '';
+    thead += `<th><div class="cmp-th-inner">
+      ${img
+        ? `<img class="cmp-prop-img" src="${img}" onerror="this.style.display='none'" />`
+        : `<div class="cmp-prop-img" style="background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:2rem">🏠</div>`}
+      <div class="cmp-prop-title">${escapeHtml(p.title)}</div>
+      <div class="cmp-prop-price">${escapeHtml(p.displayPrice)}</div>
+    </div></th>`;
+  });
+  thead += '</tr></thead>';
+
+  // Body
+  let tbody = '<tbody>';
+  ROWS.forEach(row => {
+    const vals = props.map(p => row.fn(p));
+    tbody += `<tr${row.highlight ? ' class="cmp-row-highlight"' : ''}>`;
+    tbody += `<td>${row.label}</td>`;
+    vals.forEach(v => {
+      const isNA = v === '—';
+      const content = row.label === 'Amenities'
+        ? `<div class="cmp-amenities">${escapeHtml(v)}</div>`
+        : escapeHtml(String(v));
+      tbody += `<td><span class="${isNA ? 'cmp-val-na' : ''}">${content}</span></td>`;
+    });
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+
+  document.getElementById('cmpTable').innerHTML = thead + tbody;
+
+  document.getElementById('cmpFooterBtns').innerHTML = props.map(p =>
+    `<button class="cmp-view-btn" onclick="closeCompareModal();openModal(${p.id})">View: ${escapeHtml(p.title)}</button>`
+  ).join('');
+
+  document.getElementById('compareModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCompareModal() {
+  document.getElementById('compareModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCompareModal(); });
+</script>
+
 
 </body>
 </html>
