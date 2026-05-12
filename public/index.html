@@ -1628,22 +1628,18 @@ input {
     <!-- Desktop dropdown -->
     <div id="userMenuDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);min-width:190px;z-index:300;overflow:hidden">
       <div id="userMenuName" style="padding:13px 16px 10px;font-size:0.78rem;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border)"></div>
-      <div id="siteVisitStats" class="admin-only-btn" style="display:none;padding:10px 16px;font-size:0.75rem;color:var(--ink3);border-bottom:1px solid var(--border);gap:6px;flex-direction:column;">
-        <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
-        <div id="siteVisitToday" style="display:flex;align-items:center;gap:5px">📅 Today: <strong>—</strong></div>
-        <div id="siteVisit30" style="display:flex;align-items:center;gap:5px">🗓️ Last 30 days: <strong>—</strong></div>
-      </div>
+
       <button onclick="event.stopPropagation();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-plus"/></svg></span> List Property
       </button>
       <button onclick="event.stopPropagation();openAdminPaymentsModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-receipt"/></svg></span> View Payments
       </button>
-<div id="siteVisitStats" class="admin-only-btn" style="display:none;padding:10px 16px;font-size:0.75rem;color:var(--ink3);border-bottom:1px solid var(--border);gap:6px;flex-direction:column;">
+<div id="siteVisitStats" style="display:flex;padding:10px 16px;font-size:0.75rem;color:var(--ink3);border-bottom:1px solid var(--border);gap:6px;flex-direction:column;">
         <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
         <div id="siteVisitToday">📅 Today: <strong>—</strong></div>
         <div id="siteVisit30">🗓️ Last 30 days: <strong>—</strong></div>
-        <div style="display:flex;gap:6px;margin-top:6px">
+        <div id="siteVisitResetBtns" style="display:none;gap:6px;margin-top:6px">
           <button onclick="event.stopPropagation();resetSiteVisits()" style="flex:1;padding:5px 8px;border-radius:8px;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);font-size:0.7rem;font-weight:700;font-family:inherit;cursor:pointer;">🗑 Visits</button>
           <button onclick="event.stopPropagation();resetPropertyViews()" style="flex:1;padding:5px 8px;border-radius:8px;border:1.5px solid #6366f1;background:rgba(99,102,241,0.08);color:#6366f1;font-size:0.7rem;font-weight:700;font-family:inherit;cursor:pointer;">🗑 Views</button>
         </div>
@@ -2658,10 +2654,10 @@ function renderProps(list){
         <div class="prop-img-color-stripe"></div>
         <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
 <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button>
-        ${isAdmin ? `<div style="position:absolute;bottom:10px;left:10px;z-index:5;background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:99px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)">
+        <div style="position:absolute;bottom:10px;left:10px;z-index:5;background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:99px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           ${p.views || 0}
-        </div>` : ''}
+        </div>
         ${p.promoted ? `<div class="badge-promoted pos-${p.promotedPos || 'top-right'}">Priority ${p.promotedPriority || 3} ⭐</div>` : ''}
       </div>
       <div class="prop-body">
@@ -3280,8 +3276,10 @@ function applyLoginUI(firstName, lastName, admin) {
   const nameInput = document.getElementById('name');
   const addReviewTitle = document.getElementById('addYourReviewID');
   // Admin sees only reviews — no form, no gate, no title
-  if (isAdmin) {
-  loadSiteVisits();
+if (isAdmin) {
+    loadSiteVisits();
+    const resetBtns = document.getElementById('siteVisitResetBtns');
+    if(resetBtns) resetBtns.style.display = 'flex';
     if (gate) gate.style.display = 'none';
     if (fields) fields.style.display = 'none';
     if (addReviewTitle) addReviewTitle.style.display = 'none';
