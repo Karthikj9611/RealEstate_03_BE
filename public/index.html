@@ -8373,7 +8373,6 @@ function openCompareModal() {
         ? `<img class="cmp-prop-img" src="${img}" onerror="this.style.display='none'" />`
         : `<div class="cmp-prop-img" style="background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:2rem">🏠</div>`}
       <div class="cmp-prop-title">${escapeHtml(p.title)}</div>
-      <div class="cmp-prop-price">${escapeHtml(p.displayPrice)}</div>
     </div></th>`;
   });
   thead += '</tr></thead>';
@@ -8398,7 +8397,7 @@ function openCompareModal() {
   document.getElementById('cmpTable').innerHTML = thead + tbody;
 
   document.getElementById('cmpFooterBtns').innerHTML = props.map(p =>
-    `<button class="cmp-view-btn" onclick="closeCompareModal();openModal(${p.id})">View: ${escapeHtml(p.title)}</button>`
+    `<button class="cmp-view-btn" onclick="closeCompareModal();openModal(${p.id})">View</button>`
   ).join('');
 
   document.getElementById('compareModal').classList.add('open');
