@@ -576,7 +576,6 @@ nav{
   0%,100%{box-shadow:0 2px 14px rgba(16,185,129,0.4),0 0 0 0 rgba(16,185,129,0.3)}
   50%{box-shadow:0 2px 20px rgba(16,185,129,0.7),0 0 0 5px rgba(16,185,129,0)}
 }
-.badge-sold{background:linear-gradient(135deg,#6b7280,#9ca3af);color:#fff;box-shadow:0 2px 8px rgba(107,114,128,0.35)}
 .badge-lease{background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:#fff;box-shadow:0 2px 10px rgba(124,58,237,0.45)}
 .badge-pg{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;box-shadow:0 2px 10px rgba(217,119,6,0.45)}
 
@@ -2817,7 +2816,6 @@ function getBadgeClass(status){
   if(status==='For Sale')   return 'badge-sale';
   if(status==='For Rent')   return 'badge-rent';
   if(status==='New Launch') return 'badge-new';
-  if(status==='Sold')       return 'badge-sold';
   if(status==='Lease')      return 'badge-lease';
   if(status==='PG')         return 'badge-pg';
   return 'badge-new';
@@ -4380,7 +4378,6 @@ async function submitEditProperty() {
             <option value="For Rent">For Rent</option>
             <option value="Lease">Lease</option>
             <option value="PG">PG / Co-living</option>
-            <option value="Sold">Sold</option>
           </select>
         </div>
 		
@@ -5560,7 +5557,6 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
             <option value="For Rent">For Rent</option>
             <option value="Lease">Lease</option>
             <option value="PG">PG / Co-living</option>
-            <option value="Sold">Sold</option>
           </select>
         </div>
         <div class="listing-field">
