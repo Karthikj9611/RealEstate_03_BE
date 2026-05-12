@@ -2610,7 +2610,7 @@ function renderProps(list){
       </div>
       <div class="prop-body">
 	  <div class="prop-title">${p.displayPrice}</div>
-        <div class="prop-title">${p.title}</div>
+       ${isAdmin ? `<div class="prop-title">${p.title}</div>` : ''}
         <div class="prop-loc">
           <span class="icon" style="font-size:0.9rem;color:var(--gold)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
           ${p.loc}
@@ -2844,7 +2844,8 @@ function toggleFav(e, id) {
 
 // Fields to skip in the dynamic details grid (shown elsewhere or internal)
 //const MODAL_SKIP = new Set(['_id','title','loc','city','price','displayPrice','bhk','area','status','furnishing','floor','floorLevel','facing','toilet','amenities','images','desc','createdAt','__v','color','icon','id','updatedAt','ownerName','ownerNumber']);
-const MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
+//const MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
+const MODAL_SKIP_BASE = ['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude'];
 // Human-readable labels for known keys
 const MODAL_LABELS = {
   title:'Building Name',loc:'Area',bhk:'BHK', area:'Area (sqft)', furnishing:'Furnishing', floor:'Floor',
@@ -2889,6 +2890,10 @@ track.innerHTML = imgs.map((src, i) =>
   document.getElementById('modalLoc').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + p.loc;
 
   // ── Dynamic details grid: all keys not in MODAL_SKIP ──
+const MODAL_SKIP = new Set([
+    ...MODAL_SKIP_BASE,
+    ...(isAdmin ? [] : ['title','ownerName','ownerNumber'])
+  ]);
   const detailRows = Object.entries(p)
     .filter(([k, v]) => !MODAL_SKIP.has(k) && v != null && v !== '')
     .map(([k, v]) => {
