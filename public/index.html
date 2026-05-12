@@ -2848,11 +2848,15 @@ function toggleFav(e, id) {
 const MODAL_SKIP_BASE = ['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude'];
 // Human-readable labels for known keys
 const MODAL_LABELS = {
-  title:'Building Name',loc:'Area',bhk:'BHK', area:'Area (sqft)', furnishing:'Furnishing', floor:'Floor',
-  floorLevel:'Floor Level', parking:'Parking', carparking:'Car Parking',
-  bikeparking:'Bike Parking', toilet:'Bathrooms', toilet_type:'Toilet Type',
-  price:'Price(₹)', city:'City', facing:'Facing', age:'Property Age',
-  status:'Listing Type', desc:'Description', deposit:'Security Deposit (20b9)',
+  city:'City', loc:'Area', title:'Full Address', status:'Listing Type',
+  ownerName:'Owner Name', ownerNumber:'Owner Number',
+  price:'Price (₹)', deposit:'Security Deposit (₹)',
+  bhk:'BHK', toilet:'Bathrooms', furnishing:'Furnishing',
+  bikeparking:'Bike Parking', carparking:'Car Parking',
+  floor:'Floor', facing:'Facing', age:'Property Age', area:'Area (sqft)',
+  amenities:'Amenities', desc:'Description', createdAt:'Created At',
+  remarks:'Remarks', promoted:'Promoted', promotedPos:'Promoted Pos', promotedPriority:'Promoted Priority',
+  floorLevel:'Floor Level', parking:'Parking', toilet_type:'Toilet Type',
   pgGender:'Gender Preference', pgRoomType:'Room Type', pgMeals:'Meals Included',
   pgOccupancy:'Occupancy Available', pgNotice:'Notice Period', pgBathroom:'Attached Bathroom',
 };
@@ -2896,9 +2900,16 @@ const MODAL_SKIP = new Set([
     ...MODAL_SKIP_BASE,
     ...(isAdmin ? [] : ['title','ownerName','ownerNumber'])
   ]);
-  const detailRows = Object.entries(p)
-    .filter(([k, v]) => !MODAL_SKIP.has(k) && v != null && v !== '')
-    .map(([k, v]) => {
+  const MODAL_ORDER = ['city','loc','title','status','ownerName','ownerNumber','price','deposit','bhk','toilet','furnishing','bikeparking','carparking','floor','facing','age','area','amenities','desc','createdAt','remarks','promoted','promotedPos','promotedPriority'];
+  const entries = Object.entries(p).filter(([k, v]) => !MODAL_SKIP.has(k) && v != null && v !== '');
+  entries.sort(([a],[b]) => {
+    const ai = MODAL_ORDER.indexOf(a), bi = MODAL_ORDER.indexOf(b);
+    if(ai === -1 && bi === -1) return 0;
+    if(ai === -1) return 1;
+    if(bi === -1) return -1;
+    return ai - bi;
+  });
+  const detailRows = entries.map(([k, v]) => {
       const label = MODAL_LABELS[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g,' $1'));
       const val   = k === 'bhk' ? v + ' BHK' : v;
       return `<div class="modal-detail">
