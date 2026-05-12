@@ -6833,6 +6833,47 @@ nav.scrolled .nav-logo,
 nav.scrolled .nav-links a { color: rgba(255,255,255,0.88); }
 nav.scrolled .nav-links a:hover { background: rgba(46,125,90,0.25); }
 
+/* ── MOBILE SCROLLED NAV FIXES ── */
+
+/* Hamburger bars turn white on dark scrolled nav */
+nav.scrolled .nav-hamburger span {
+  background: #fff;
+}
+
+/* CTA button stays visible on dark scrolled nav */
+nav.scrolled .nav-cta {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* Mobile drawer: force dark text regardless of scroll state */
+@media (max-width: 760px) {
+  nav.scrolled .nav-links a {
+    color: var(--ink2) !important;
+  }
+  nav.scrolled .nav-links a:hover {
+    background: var(--gold-light) !important;
+    color: var(--gold-dark) !important;
+  }
+  nav.scrolled .nav-links a .icon {
+    color: var(--gold-dark) !important;
+  }
+  nav.scrolled #navFavBtn {
+    color: var(--ink) !important;
+  }
+}
+
+/* Fix: on mobile, the drawer has a white background — keep link text dark even when nav is scrolled */
+@media (max-width: 760px) {
+  nav.scrolled .nav-links a {
+    color: var(--ink2) !important;
+  }
+  nav.scrolled .nav-links a:hover {
+    background: var(--gold-light) !important;
+    color: var(--gold-dark) !important;
+  }
+}
+
 /* ── MOBILE MENU CSS SLIDE (override the old display:none approach) ── */
 @media(max-width:760px){
   .nav-links {
