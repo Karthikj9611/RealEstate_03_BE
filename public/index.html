@@ -2845,7 +2845,7 @@ function toggleFav(e, id) {
 // Fields to skip in the dynamic details grid (shown elsewhere or internal)
 //const MODAL_SKIP = new Set(['_id','title','loc','city','price','displayPrice','bhk','area','status','furnishing','floor','floorLevel','facing','toilet','amenities','images','desc','createdAt','__v','color','icon','id','updatedAt','ownerName','ownerNumber']);
 //const MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
-const MODAL_SKIP_BASE = ['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude'];
+const MODAL_SKIP_BASE = ['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude','promoted','promotedPos','promotedPriority'];
 // Human-readable labels for known keys
 const MODAL_LABELS = {
   city:'City', loc:'Area', title:'Full Address', status:'Listing Type',
@@ -2900,7 +2900,7 @@ const MODAL_SKIP = new Set([
     ...MODAL_SKIP_BASE,
     ...(isAdmin ? [] : ['title','ownerName','ownerNumber'])
   ]);
-  const MODAL_ORDER = ['city','loc','title','status','ownerName','ownerNumber','price','deposit','bhk','toilet','furnishing','bikeparking','carparking','floor','facing','age','area','amenities','desc','createdAt','remarks','promoted','promotedPos','promotedPriority'];
+  const MODAL_ORDER = ['city','loc','title','status','ownerName','ownerNumber','price','deposit','bhk','toilet','furnishing','bikeparking','carparking','floor','facing','age','area','amenities','desc','createdAt','remarks'];
   const entries = Object.entries(p).filter(([k, v]) => !MODAL_SKIP.has(k) && v != null && v !== '');
   entries.sort(([a],[b]) => {
     const ai = MODAL_ORDER.indexOf(a), bi = MODAL_ORDER.indexOf(b);
