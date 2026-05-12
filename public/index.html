@@ -3276,8 +3276,10 @@ function applyLoginUI(firstName, lastName, admin) {
   const nameInput = document.getElementById('name');
   const addReviewTitle = document.getElementById('addYourReviewID');
   // Admin sees only reviews — no form, no gate, no title
+loadSiteVisits();
+
 if (isAdmin) {
-    loadSiteVisits();
+    
     const resetBtns = document.getElementById('siteVisitResetBtns');
     if(resetBtns) resetBtns.style.display = 'flex';
     if (gate) gate.style.display = 'none';
