@@ -2886,9 +2886,11 @@ track.innerHTML = imgs.map((src, i) =>
   document.getElementById('modalPrice').innerHTML =
     `${p.displayPrice} <span class="prop-badge ${badgeClass}" style="position:relative;top:0;left:0;display:inline-block;margin-left:10px;font-size:0.72rem;vertical-align:middle">${p.status||''}</span>`;
 
-  document.getElementById('modalTitle').textContent = p.title;
-  document.getElementById('modalLoc').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + p.loc;
-
+document.getElementById('modalTitle').textContent = isAdmin ? p.title : '';
+  document.getElementById('modalLoc').innerHTML = isAdmin
+    ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + p.loc
+    : '';
+	
   // ── Dynamic details grid: all keys not in MODAL_SKIP ──
 const MODAL_SKIP = new Set([
     ...MODAL_SKIP_BASE,
