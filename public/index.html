@@ -2601,7 +2601,7 @@ function renderProps(list){
         <div class="prop-img-color-stripe"></div>
         <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
 <!--        <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button> -->
-        ${p.promoted ? `<div class="badge-promoted pos-${p.promotedPos || 'top-right'}">P${p.promotedPriority || 3} ⭐</div>` : ''}
+        ${p.promoted ? `<div class="badge-promoted pos-${p.promotedPos || 'top-right'}">Priority ${p.promotedPriority || 3} ⭐</div>` : ''}
         <div class="prop-price-overlay">
           <div class="prop-price">${p.displayPrice}</div>
         </div>
