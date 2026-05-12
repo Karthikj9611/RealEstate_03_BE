@@ -15,8 +15,8 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // ── MongoDB ──
-mongoose.connect("mongodb://127.0.0.1:27017/kr_realestate")
-//mongoose.connect("mongodb+srv://karthikj:karthikj@cluster0.hkz6yzz.mongodb.net/kr_realestate?retryWrites=true&w=majority")
+//mongoose.connect("mongodb://127.0.0.1:27017/kr_realestate")
+mongoose.connect("mongodb+srv://karthikj:karthikj@cluster0.hkz6yzz.mongodb.net/kr_realestate?retryWrites=true&w=majority")
   .then(async () => { console.log("✅ MongoDB Connected"); await seedAdmin(); })
   .catch(err => console.log("❌ MongoDB error:", err));
 
