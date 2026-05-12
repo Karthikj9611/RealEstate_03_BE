@@ -205,46 +205,6 @@ nav{
   #navListBtn{display:none!important}
   /* User block spacing */
   #mobileUserBlock{margin-top:8px!important}
-  /* Hide desktop dropdown on mobile, show flat links */
-  .nav-dropdown{display:none!important}
-  .mobile-only-link{display:inline-flex!important}
-}
-
-/* ── DESKTOP NAV DROPDOWN ── */
-@media(min-width:761px){
-  .nav-logo{margin-right:auto}
-  .nav-links{margin-left:0}
-  .mobile-only-link{display:none!important}
-  .nav-dropdown{position:relative;display:inline-flex;align-items:center}
-  .nav-dropdown-toggle{
-    display:inline-flex;align-items:center;gap:5px;
-    text-decoration:none;color:var(--ink2);
-    font-size:0.84rem;font-weight:500;
-    padding:6px 13px;border-radius:99px;
-    transition:all 0.18s;white-space:nowrap;
-    background:none;border:none;cursor:pointer;font-family:inherit;
-  }
-  .nav-dropdown-toggle:hover{background:var(--gold-light);color:var(--gold-dark)}
-  .nav-dropdown-menu{
-    display:none;position:absolute;top:calc(100% + 8px);right:0;
-    background:var(--surface);border:1px solid var(--border);
-    border-radius:14px;box-shadow:var(--shadow-md);
-    min-width:185px;z-index:300;overflow:hidden;
-    flex-direction:column;
-  }
-  .nav-dropdown:hover .nav-dropdown-menu,
-  .nav-dropdown:focus-within .nav-dropdown-menu{display:flex}
-  .nav-dropdown-menu a{
-    padding:11px 16px;font-size:0.84rem;font-weight:500;
-    color:var(--ink2);text-decoration:none;
-    display:flex;align-items:center;gap:8px;
-    border-bottom:1px solid var(--border);
-    transition:background 0.15s;white-space:nowrap;
-    border-radius:0;
-  }
-  .nav-dropdown-menu a:last-child{border-bottom:none}
-  .nav-dropdown-menu a:hover{background:var(--gold-light);color:var(--gold-dark)}
-  .nav-dropdown-menu a .icon{font-size:0.9rem;opacity:0.7}
 }
 
 /* ── HERO ── */
@@ -1627,38 +1587,21 @@ input {
 
   <!-- Desktop + Mobile drawer links -->
   <div class="nav-links" id="navLinks">
-
-    <!-- ── Mobile-only Properties link (shown in drawer) ── -->
-    <a href="#listings" class="active mobile-only-link" onclick="closeNav()" style="display:none;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-home"/></svg></span>Properties</a>
-
-    <!-- ── Desktop dropdown (hidden on mobile) — sits at far right ── -->
-    <div class="nav-dropdown">
-      <button class="nav-dropdown-toggle">
-        Menu <span style="font-size:0.65rem">▾</span>
-      </button>
-      <div class="nav-dropdown-menu">
-        <a href="#listings" onclick="closeNav()"><span class="icon"><svg><use href="#ic-home"/></svg></span>Properties</a>
-        <a href="#agents" onclick="closeNav()"><span class="icon"><svg><use href="#ic-users"/></svg></span>Agents</a>
-        <a href="javascript:void(0)" onclick="openAboutModal();closeNav()"><span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></span>About Us</a>
-        <a href="javascript:void(0)" onclick="openAdModal();closeNav()" style="position:relative">
-          <span style="position:absolute;top:8px;right:10px;background:var(--red);color:#fff;font-size:0.5rem;font-weight:800;padding:2px 5px;border-radius:99px;letter-spacing:0.5px;text-transform:uppercase;line-height:1;pointer-events:none">HOT</span>
-          <span class="icon"><svg><use href="#ic-tag"/></svg></span>Offers
-        </a>
-        <a href="javascript:void(0)" onclick="openPaymentModal();closeNav()"><span class="icon"><svg><use href="#ic-credit-card"/></svg></span>Payments</a>
-        <a href="#" id="navLoginLink" onclick="event.preventDefault();openAuthModal('login');closeNav()"><span class="icon"><svg><use href="#ic-user"/></svg></span>Sign In</a>
-      </div>
-    </div>
-
-    <!-- ── Mobile-only flat links (shown in drawer) ── -->
-    <a href="#agents" onclick="closeNav()" class="mobile-only-link" style="display:none;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-users"/></svg></span>Agents</a>
-    <a href="javascript:void(0)" onclick="openAboutModal();closeNav()" class="mobile-only-link" style="display:none;align-items:center;gap:5px"><span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></span>About Us</a>
-    <a href="javascript:void(0)" onclick="openAdModal();closeNav()" class="mobile-only-link" style="position:relative;display:none;align-items:center;gap:5px">
+    <a href="#listings" class="active" onclick="closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-home"/></svg></span>Properties</a>
+    <a href="#agents" onclick="closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-users"/></svg></span>Agents</a>
+    <a href="javascript:void(0)" onclick="openAboutModal();closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></span>About Us</a>
+    <a href="javascript:void(0)" onclick="openAdModal();closeNav()" style="position:relative;display:inline-flex;align-items:center;gap:5px">
       <span style="position:absolute;top:-5px;right:-8px;background:var(--red);color:#fff;font-size:0.5rem;font-weight:800;padding:2px 5px;border-radius:99px;letter-spacing:0.5px;text-transform:uppercase;line-height:1;pointer-events:none">HOT</span>
       <span class="icon"><svg><use href="#ic-tag"/></svg></span>Offers
     </a>
-    <a href="javascript:void(0)" onclick="openPaymentModal();closeNav()" class="mobile-only-link" style="display:none;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-credit-card"/></svg></span>Payments</a>
-    <a href="#" id="navLoginLinkMobile" onclick="event.preventDefault();openAuthModal('login');closeNav()" class="mobile-only-link" style="display:none;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-user"/></svg></span>Sign In</a>
-
+    <a href="javascript:void(0)" onclick="openPaymentModal();closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-credit-card"/></svg></span>Payments</a>
+    <a href="#" id="navLoginLink" onclick="event.preventDefault();openAuthModal('login');closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-user"/></svg></span>Sign In</a>
+	
+	<button id="navFavBtn" onclick="openFavDrawer()">
+  ❤️ Shortlist
+  <span id="navFavBadge"></span>
+</button>
+	
     <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
     <div id="mobileUserBlock" style="display:none;margin-top:6px;padding:12px 14px;background:var(--gold-light);border-radius:var(--radius-xs);border:1.5px solid var(--gold);flex-direction:column;gap:4px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
@@ -1707,11 +1650,6 @@ input {
     </div>
   </div>
 
-
-  <button id="navFavBtn" onclick="openFavDrawer()">
-    ❤️ Shortlist
-    <span id="navFavBadge"></span>
-  </button>
 
   <button class="nav-hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -3309,8 +3247,6 @@ function applyLoginUI(firstName, lastName, admin) {
   // ── Nav: hide Login link ──
   const loginLink = document.getElementById('navLoginLink');
   if (loginLink) loginLink.style.display = 'none';
-  const loginLinkMobile = document.getElementById('navLoginLinkMobile');
-  if (loginLinkMobile) loginLinkMobile.style.display = 'none';
 
   // ── Desktop pill ──
   const pill = document.getElementById('navUserPill');
@@ -3425,8 +3361,6 @@ function logoutUser() {
 
       const loginLink = document.getElementById('navLoginLink');
       if (loginLink) loginLink.style.display = '';
-      const loginLinkMobile2 = document.getElementById('navLoginLinkMobile');
-      if (loginLinkMobile2) loginLinkMobile2.style.display = '';
       const pill = document.getElementById('navUserPill');
       if (pill) pill.style.display = 'none';
       const dropdown = document.getElementById('userMenuDropdown');
