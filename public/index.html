@@ -3204,6 +3204,11 @@ function calcEMI(){
 let isLoggedIn = false;
 let isAdmin = false;
 
+// Returns headers with x-admin-key for all admin API calls
+function adminHeaders(extra) {
+  return Object.assign({ 'Content-Type': 'application/json', 'x-admin-key': window._adminKey || '' }, extra || {});
+}
+
 // ── BASE URL ──
 var BASE_URL = location.hostname === 'localhost'
   ? 'http://localhost:5000'
@@ -3265,12 +3270,9 @@ async function resetSiteVisits() {
   });
   if(!ok.isConfirmed) return;
   try {
-    const pw = await Swal.fire({ title:'Confirm admin password', input:'password', inputPlaceholder:'Enter admin password', showCancelButton:true });
-    if(!pw.isConfirmed || !pw.value) return;
     const res = await fetch('/api/site-visits/reset', {
       method:'DELETE',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email: 'admin', password: pw.value })
+      headers: adminHeaders()
     });
     const data = await res.json();
     if(data.success){
@@ -3295,12 +3297,9 @@ async function resetPropertyViews() {
   });
   if(!ok.isConfirmed) return;
   try {
-    const pw = await Swal.fire({ title:'Confirm admin password', input:'password', inputPlaceholder:'Enter admin password', showCancelButton:true });
-    if(!pw.isConfirmed || !pw.value) return;
     const res = await fetch('/api/properties/views/reset', {
       method:'DELETE',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ email: 'admin', password: pw.value })
+      headers: adminHeaders()
     });
     const data = await res.json();
     if(data.success){
@@ -3316,7 +3315,7 @@ async function resetPropertyViews() {
 
 async function loadSiteVisits() {
   try {
-    const res = await fetch('/api/site-visits');
+    const res = await fetch('/api/site-visits', { headers: adminHeaders() });
     const data = await res.json();
     const today = new Date().toISOString().split('T')[0];
     const todayVisit = data.visits.find(v => v.date === today);
@@ -4086,7 +4085,7 @@ async function deleteProperty(mongoId, localId) {
   });
   if (!result.isConfirmed) return;
   try {
-    const res = await fetch(BASE_URL + '/api/properties/' + mongoId, { method: 'DELETE' });
+    const res = await fetch(BASE_URL + '/api/properties/' + mongoId, { method: 'DELETE', headers: adminHeaders() });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Delete failed');
     Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Property removed.', timer: 1800, showConfirmButton: false });
@@ -4110,7 +4109,7 @@ async function deleteReview(reviewId) {
   });
   if (!result.isConfirmed) return;
   try {
-    const res = await fetch(BASE_URL + '/api/reviews/' + reviewId, { method: 'DELETE' });
+    const res = await fetch(BASE_URL + '/api/reviews/' + reviewId, { method: 'DELETE', headers: adminHeaders() });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'Delete failed');
     Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Review removed.', timer: 1800, showConfirmButton: false });
@@ -4378,7 +4377,7 @@ async function submitEditProperty() {
   if(btn){btn.textContent='Saving…';btn.disabled=true;}
   try{
     const res=await fetch(BASE_URL+'/api/properties/'+_editPropertyId,{
-      method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+      method:'PUT',headers:adminHeaders(),body:JSON.stringify(payload)
     });
     const data=await res.json();
     if(!res.ok) throw new Error(data.message||'Update failed');
@@ -4953,7 +4952,7 @@ async function submitListing(){
   try {
     const res = await fetch(BASE_URL+'/api/properties', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers: adminHeaders(),
       body: JSON.stringify(payload)
     });
 
@@ -7807,7 +7806,7 @@ async function loadAdminPayments() {
   var tbody = document.getElementById('adminPayTableBody');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">Loading…</td></tr>';
   try {
-    var res  = await fetch(BASE_URL + '/api/payments');
+    var res  = await fetch(BASE_URL + '/api/payments', { headers: adminHeaders() });
     var data = await res.json();
     if (!data.length) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--ink3)">No payments yet.</td></tr>';
@@ -7847,7 +7846,7 @@ window.deletePayment = async function(id) {
   var conf = await Swal.fire({ icon:'warning', title:'Delete this payment record?', text:'This cannot be undone.', showCancelButton:true, confirmButtonText:'Delete', confirmButtonColor:'#c03040' });
   if (!conf.isConfirmed) return;
   try {
-    var res  = await fetch(BASE_URL + '/api/payments/' + id, { method: 'DELETE' });
+    var res  = await fetch(BASE_URL + '/api/payments/' + id, { method: 'DELETE', headers: adminHeaders() });
     var d    = await res.json();
     if (res.ok) { Swal.fire({ icon:'success', title:'Deleted', timer:1500, showConfirmButton:false }); loadAdminPayments(); }
     else Swal.fire({ icon:'error', title:'Error', text: d.message || 'Could not delete.', timer:2500, showConfirmButton:false });
@@ -7871,7 +7870,7 @@ async function togglePromote(mongoId, localId) {
     });
     if (!result.isConfirmed) return;
     try {
-      const res = await fetch(BASE_URL + '/api/properties/' + mongoId + '/promote', { method: 'PATCH' });
+      const res = await fetch(BASE_URL + '/api/properties/' + mongoId + '/promote', { method: 'PATCH', headers: adminHeaders() });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed');
       Swal.fire({ icon: 'success', title: 'Removed from Promoted', timer: 1800, showConfirmButton: false });
@@ -7954,7 +7953,7 @@ window._promoPos = null;
   try {
     const res = await fetch(BASE_URL + '/api/properties/' + mongoId + '/promote', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({ promotedPos: pos.value.pos, promotedPriority: pos.value.priority })
     });
     const data = await res.json();

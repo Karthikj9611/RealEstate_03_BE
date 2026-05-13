@@ -259,11 +259,11 @@ app.post("/api/login", async (req, res) => {
 });
 
 // USERS
-app.get("/api/users", async (req, res) => {
+app.get("/api/users", adminAuth, async (req, res) => {
   try { res.json(await User.find({},"-password").sort({createdAt:-1})); }
   catch(err) { res.status(500).json([]); }
 });
-app.delete("/api/users/mobile/:mobile", async (req, res) => {
+app.delete("/api/users/mobile/:mobile", adminAuth, async (req, res) => {
   try {
     const deleted = await User.findOneAndDelete({ mobile: req.params.mobile });
     if (!deleted) return res.status(404).json({ message:"User not found" });
@@ -274,6 +274,15 @@ app.delete("/api/users/mobile/:mobile", async (req, res) => {
 // PROPERTIES
 // Fields that are admin-only and must never be sent to regular users
 const ADMIN_ONLY_FIELDS = ['ownerName','ownerNumber','fullAddress','latitude','longitude','remarks'];
+
+// Admin auth middleware - all admin routes require x-admin-key header
+function adminAuth(req, res, next) {
+  const key = req.headers['x-admin-key'];
+  if (!key || key !== process.env.ADMIN_API_KEY) {
+    return res.status(403).json({ success: false, message: 'Forbidden: admin access required.' });
+  }
+  next();
+}
 
 app.get("/api/properties", async (req, res) => {
   try {
@@ -290,7 +299,7 @@ app.get("/api/properties", async (req, res) => {
   } catch(err) { res.status(500).json([]); }
 });
 
-app.post("/api/properties", async (req, res) => {
+app.post("/api/properties", adminAuth, async (req, res) => {
   try {
     const prop = new Property(req.body);
     await prop.save();
@@ -301,7 +310,7 @@ app.post("/api/properties", async (req, res) => {
   }
 });
 
-app.put("/api/properties/:id", async (req, res) => {
+app.put("/api/properties/:id", adminAuth, async (req, res) => {
   try {
     const updated = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: "Property not found" });
@@ -324,7 +333,7 @@ app.put("/api/properties/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/properties/:id", async (req, res) => {
+app.delete("/api/properties/:id", adminAuth, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res.status(400).json({ message: "Invalid property ID" });
@@ -368,7 +377,7 @@ app.get("/api/reviews/check/:email", async (req, res) => {
   }
 });
 
-app.delete("/api/reviews/:id", async (req, res) => {
+app.delete("/api/reviews/:id", adminAuth, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res.status(400).json({ message: "Invalid review ID" });
@@ -383,7 +392,7 @@ app.delete("/api/reviews/:id", async (req, res) => {
 
 
 // ── After the users DELETE route ──
-app.patch("/api/users/mobile/:mobile/remarks", async (req, res) => {
+app.patch("/api/users/mobile/:mobile/remarks", adminAuth, async (req, res) => {
   try {
 
     const remarkText = (req.body.remarks || "").trim();
@@ -422,7 +431,7 @@ app.patch("/api/users/mobile/:mobile/remarks", async (req, res) => {
 });
 
 // ── After the properties DELETE route ──
-app.patch("/api/properties/:id/remarks", async (req, res) => {
+app.patch("/api/properties/:id/remarks", adminAuth, async (req, res) => {
   try {
 
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
@@ -516,7 +525,7 @@ app.post("/api/site-visit", async (req, res) => {
   } catch(err) { res.status(500).json({ success: false }); }
 });
 
-app.get("/api/site-visits", async (req, res) => {
+app.get("/api/site-visits", adminAuth, async (req, res) => {
   try {
     const visits = await SiteVisit.find().sort({ date: -1 }).limit(30);
     const total = visits.reduce((sum, v) => sum + v.count, 0);
@@ -525,13 +534,8 @@ app.get("/api/site-visits", async (req, res) => {
 });
 
 // Reset all site visits (admin only)
-app.delete("/api/site-visits/reset", async (req, res) => {
+app.delete("/api/site-visits/reset", adminAuth, async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || user.role !== 'admin') return res.status(403).json({ success: false, message: 'Admin only' });
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(403).json({ success: false, message: 'Invalid credentials' });
     await SiteVisit.deleteMany({});
     visitedIps.clear();
     res.json({ success: true });
@@ -542,13 +546,8 @@ app.delete("/api/site-visits/reset", async (req, res) => {
 });
 
 // Reset all property views (admin only)
-app.delete("/api/properties/views/reset", async (req, res) => {
+app.delete("/api/properties/views/reset", adminAuth, async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || user.role !== 'admin') return res.status(403).json({ success: false, message: 'Admin only' });
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(403).json({ success: false, message: 'Invalid credentials' });
     await Property.updateMany({}, { $set: { views: 0 } });
     viewedProps.clear();
     res.json({ success: true });
@@ -560,7 +559,7 @@ app.delete("/api/properties/views/reset", async (req, res) => {
 
 // ── Toggle promoted status ──
 // ── Toggle promoted status ──
-app.patch("/api/properties/:id/promote", async (req, res) => {
+app.patch("/api/properties/:id/promote", adminAuth, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res.status(400).json({ message: "Invalid property ID" });
@@ -678,13 +677,13 @@ app.post("/api/payment/failed", async (req, res) => {
 });
 
 // LIST PAYMENTS (admin)
-app.get("/api/payments", async (req, res) => {
+app.get("/api/payments", adminAuth, async (req, res) => {
   try { res.json(await Payment.find().sort({ createdAt: -1 })); }
   catch (err) { res.status(500).json([]); }
 });
 
 // DELETE PAYMENT (admin)
-app.delete("/api/payments/:id", async (req, res) => {
+app.delete("/api/payments/:id", adminAuth, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
       return res.status(400).json({ message: "Invalid payment ID" });
