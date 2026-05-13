@@ -3227,12 +3227,7 @@ var BASE_URL = location.hostname === 'localhost'
 // Track site visit
 // Track site visit (once per day per device)
 (function trackVisit() {
-  const today = new Date().toISOString().split('T')[0];
-  const lastVisit = localStorage.getItem('kr_last_visit');
-  if (lastVisit !== today) {
-    fetch('/api/site-visit', { method: 'POST' }).catch(()=>{});
-    localStorage.setItem('kr_last_visit', today);
-  }
+  fetch('/api/site-visit', { method: 'POST' }).catch(()=>{});
 })();
 
 // ── On page load: restore session ──

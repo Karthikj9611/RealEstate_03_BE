@@ -118,9 +118,9 @@ const PaymentSchema = new mongoose.Schema({
 });
 const Payment = mongoose.model("Payment", PaymentSchema);
 const SiteVisitSchema = new mongoose.Schema({
-  date:    { type: String, required: true, unique: true }, // YYYY-MM-DD
-  count:   { type: Number, default: 0 },
-  total:   { type: Number, default: 0 }
+  date:  { type: String, required: true, unique: true },
+  count: { type: Number, default: 0 },
+  ips:   [{ type: String }]   // one entry per unique IP per day
 });
 const SiteVisit = mongoose.model("SiteVisit", SiteVisitSchema);
 
@@ -486,7 +486,6 @@ app.patch("/api/properties/:id/remarks", adminAuth, async (req, res) => {
 
 // ── Increment property view count ──
 const viewedProps = new Map(); // "ip_propertyId" -> date string
-const visitedIps = new Map();  // ip -> date string
 
 app.patch("/api/properties/:id/view", async (req, res) => {
   try {
@@ -522,24 +521,32 @@ app.post("/api/site-visit", async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
-    if (visitedIps.get(ip) === today) {
+
+    // Check DB — has this IP already been counted today?
+    const alreadyVisited = await SiteVisit.findOne({ date: today, ips: ip });
+    if (alreadyVisited) {
       return res.json({ success: true, skipped: true });
     }
-    visitedIps.set(ip, today);
+
+    // New IP for today — increment count and record the IP
     const visit = await SiteVisit.findOneAndUpdate(
       { date: today },
-      { $inc: { count: 1, total: 1 } },
+      { $inc: { count: 1 }, $addToSet: { ips: ip } },
       { upsert: true, new: true }
     );
     res.json({ success: true, today: visit.count });
-  } catch(err) { res.status(500).json({ success: false }); }
+  } catch(err) {
+    console.error('Site visit error:', err);
+    res.status(500).json({ success: false });
+  }
 });
 
 app.get("/api/site-visits", adminAuth, async (req, res) => {
   try {
     const visits = await SiteVisit.find().sort({ date: -1 }).limit(30);
     const total = visits.reduce((sum, v) => sum + v.count, 0);
-    res.json({ visits, total });
+    const clean = visits.map(v => ({ date: v.date, count: v.count }));
+    res.json({ visits: clean, total });
   } catch(err) { res.status(500).json({ visits: [], total: 0 }); }
 });
 
@@ -547,7 +554,6 @@ app.get("/api/site-visits", adminAuth, async (req, res) => {
 app.delete("/api/site-visits/reset", adminAuth, async (req, res) => {
   try {
     await SiteVisit.deleteMany({});
-    visitedIps.clear();
     res.json({ success: true });
   } catch(err) { 
     console.error('Reset site visits error:', err);
