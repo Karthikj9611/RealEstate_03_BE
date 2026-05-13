@@ -723,6 +723,23 @@ app.patch("/api/properties/:id/status", adminAuth, async (req, res) => {
   }
 });
 
+// ── Reset single property views ──
+app.delete("/api/properties/:id/views/reset", adminAuth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid property ID" });
+    const property = await Property.findByIdAndUpdate(
+      req.params.id,
+      { $set: { views: 0 } },
+      { new: true }
+    );
+    if (!property) return res.status(404).json({ message: "Property not found" });
+    res.json({ success: true, views: 0 });
+  } catch(err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 

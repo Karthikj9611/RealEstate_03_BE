@@ -2739,7 +2739,10 @@ function renderProps(list){
 <button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button>
 <div id="view-badge-${p.id}" style="position:absolute;bottom:10px;left:10px;z-index:5;background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:99px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)">
   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-  <span id="view-count-${p.id}">${p.views || 0}</span>
+  ${isAdmin
+    ? `<span id="view-count-${p.id}" title="Click to reset views" style="cursor:pointer;text-decoration:underline dotted;" onclick="event.stopPropagation();resetSinglePropertyViews('${String(p._id)}',${p.id})">${p.views || 0}</span>`
+    : `<span id="view-count-${p.id}">${p.views || 0}</span>`
+  }
 </div>
         ${p.promoted ? `<div class="badge-promoted pos-${p.promotedPos || 'top-right'}">Priority ${p.promotedPriority || 3} ⭐</div>` : ''}
       </div>
@@ -2778,7 +2781,7 @@ function renderProps(list){
 			<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
 		  </button>
 		</div>
-        ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:8px">
+        ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:6px;margin-top:8px">
           <button class="prop-btn prop-btn-outline" title="Edit" onclick="event.stopPropagation();openEditPropertyModal(${p.id})">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
@@ -2793,6 +2796,9 @@ function renderProps(list){
           </button>
           <button class="prop-btn prop-btn-outline" title="Change Status" onclick="event.stopPropagation();quickStatusChange('${String(p._id)}',${p.id},'${p.status}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><circle cx="18" cy="6" r="3"/></svg>
+          </button>
+          <button class="prop-btn prop-btn-outline" title="Clone" onclick="event.stopPropagation();cloneProperty(${p.id})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
           </button>
         </div>` : ''}
       </div>
@@ -8716,6 +8722,90 @@ window.doStatusChange = async function(mongoId, localId, newStatus, btn) {
     showToast(`Status changed to ${newStatus}`, 'success');
   } catch(e) {
     showToast('Error updating status', 'error');
+  }
+}
+
+
+function cloneProperty(localId) {
+  if (!isAdmin) return;
+  const p = PROPERTIES.find(x => x.id === localId);
+  if (!p) return;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
+
+  openListingModal();
+
+  setTimeout(() => {
+    set('l_title',       'Copy of ' + (p.title || ''));
+    set('l_loc',         p.loc         || '');
+    set('l_city',        p.city        || 'Bengaluru');
+    set('l_price',       p.price       || '');
+    set('l_area',        p.area        || '');
+    set('l_floor',       p.floor       || '');
+    set('l_age',         p.age         || '');
+    set('l_desc',        p.desc        || '');
+    set('l_fullAddress', p.fullAddress || '');
+    set('l_ownerName',   p.ownerName   || '');
+    set('l_ownerNumber', p.ownerNumber || '');
+    set('l_amenities',   Array.isArray(p.amenities) ? p.amenities.join(', ') : (p.amenities || ''));
+    set('l_deposit',     p.deposit     || '');
+    set('l_status',      p.status      || 'For Sale');
+    set('l_bhk',         p.bhk         || '');
+    set('l_toilet',      p.toilet      || '');
+    set('l_furnishing',  p.furnishing  || 'Unfurnished');
+    set('l_facing',      p.facing      || '');
+    set('l_carparking',  p.carparking  || '');
+    set('l_bikeparking', p.bikeparking || '');
+    set('l_pgGender',    p.pgGender    || '');
+    set('l_pgRoomType',  p.pgRoomType  || '');
+    set('l_pgMeals',     p.pgMeals     || '');
+    set('l_pgOccupancy', p.pgOccupancy || '');
+    set('l_pgNotice',    p.pgNotice    || '');
+    set('l_pgBathroom',  p.pgBathroom  || '');
+
+    onListingStatusChange(p.status || 'For Sale');
+
+    if (p.images && p.images.length) {
+      _listingImages.length = 0;
+      p.images.forEach(url => _listingImages.push({ value: url, thumb: url, uploaded: false }));
+      _refreshImgPreview();
+    }
+
+    showToast('Cloned! Update the fields and submit.', 'success');
+  }, 150);
+}
+
+async function resetSinglePropertyViews(mongoId, localId) {
+  if (!isAdmin) return;
+
+  const ok = await Swal.fire({
+    title: 'Reset views for this property?',
+    text: 'View count will be set to 0.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, reset',
+    confirmButtonColor: '#ef4444',
+    cancelButtonText: 'Cancel'
+  });
+  if (!ok.isConfirmed) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/properties/${mongoId}/views/reset`, {
+      method: 'DELETE',
+      headers: adminHeaders()
+    });
+    const data = await res.json();
+    if (!data.success) { showToast(data.message || 'Reset failed', 'error'); return; }
+
+    const p = PROPERTIES.find(x => x._id === mongoId);
+    if (p) p.views = 0;
+
+    const badge = document.getElementById(`view-count-${localId}`);
+    if (badge) badge.textContent = '0';
+
+    showToast('Views reset to 0', 'success');
+  } catch(e) {
+    showToast('Error resetting views', 'error');
   }
 }
 
