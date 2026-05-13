@@ -2730,7 +2730,7 @@ function renderProps(list){
     return;
   }
   grid.innerHTML=list.map(p=>`
-    <div class="prop-card fade-up" onclick="openModal(${p.id})">
+    <div class="prop-card fade-up" data-prop-id="${p.id}" onclick="openModal(${p.id})">
       <div class="prop-img">
         ${buildGallery(p.images, 'gal-'+p.id, true)}
         <div class="img-overlay-gradient"></div>
@@ -2778,7 +2778,7 @@ function renderProps(list){
 			<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
 		  </button>
 		</div>
-        ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">
+        ${isAdmin ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-top:8px">
           <button class="prop-btn prop-btn-outline" title="Edit" onclick="event.stopPropagation();openEditPropertyModal(${p.id})">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
@@ -2790,6 +2790,9 @@ function renderProps(list){
             : 'background:rgba(0,0,0,0.04);border:1.5px solid rgba(0,0,0,0.08);color:#6b7280'}" 
             onclick="event.stopPropagation();togglePromote('${String(p._id)}',${p.id})">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="${p.promoted ? '#fff' : 'none'}" stroke="${p.promoted ? '#fff' : '#6b7280'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <button class="prop-btn prop-btn-outline" title="Change Status" onclick="event.stopPropagation();quickStatusChange('${String(p._id)}',${p.id},'${p.status}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><circle cx="18" cy="6" r="3"/></svg>
           </button>
         </div>` : ''}
       </div>
@@ -8647,6 +8650,74 @@ document.addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeMoreMenu();
 });
+
+
+async function quickStatusChange(mongoId, localId, currentStatus) {
+  const statuses = ["For Sale","For Rent","New Launch","Lease","PG","Sold"];
+
+  const options = statuses.map(s => `
+    <button onclick="doStatusChange('${mongoId}',${localId},'${s}',this)"
+      style="
+        width:100%;padding:10px 14px;margin-bottom:6px;border-radius:10px;
+        border:2px solid ${s === currentStatus ? '#2e7d5a' : '#e5e7eb'};
+        background:${s === currentStatus ? '#f0faf5' : '#fff'};
+        font-weight:${s === currentStatus ? '700' : '500'};
+        color:${s === 'Sold' ? '#ef4444' : s === currentStatus ? '#2e7d5a' : '#374151'};
+        cursor:pointer;font-size:0.88rem;font-family:inherit;text-align:left;
+        display:flex;align-items:center;gap:8px;
+      ">
+      ${s === currentStatus ? '✓ ' : ''}${s}
+      ${s === 'Sold' ? '<span style="margin-left:auto;font-size:0.72rem;color:#ef4444;font-weight:600;">Hidden from UI</span>' : ''}
+    </button>
+  `).join('');
+
+  await Swal.fire({
+    title: 'Change Status',
+    html: `<div style="text-align:left">${options}</div>`,
+    showConfirmButton: false,
+    showCloseButton: true,
+    width: 340,
+  });
+}
+
+window.doStatusChange = async function(mongoId, localId, newStatus, btn) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/properties/${mongoId}/status`, {
+      method: 'PATCH',
+      headers: adminHeaders(),
+      body: JSON.stringify({ status: newStatus })
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.message || 'Failed', 'error'); return; }
+
+    // Update local PROPERTIES array
+    const p = PROPERTIES.find(x => x._id === mongoId);
+    if (p) p.status = newStatus;
+
+    // If Sold — remove card from UI
+    if (newStatus === 'Sold') {
+      const card = document.querySelector(`[data-prop-id="${localId}"]`);
+      if (card) {
+        card.style.transition = 'opacity 0.4s, transform 0.4s';
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.95)';
+        setTimeout(() => card.remove(), 420);
+      }
+    } else {
+      // Update badge on card
+      const badge = document.querySelector(`[data-prop-id="${localId}"] .prop-badge`);
+      if (badge) {
+        badge.textContent = newStatus;
+        badge.className = `prop-badge ${getBadgeClass(newStatus)}`;
+      }
+    }
+
+    Swal.close();
+    showToast(`Status changed to ${newStatus}`, 'success');
+  } catch(e) {
+    showToast('Error updating status', 'error');
+  }
+}
 
 </script>
 

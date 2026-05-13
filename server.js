@@ -702,6 +702,27 @@ app.delete("/api/payments/:id", adminAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ message: "Server error" }); }
 });
 
+// ── Quick Status Change ──
+app.patch("/api/properties/:id/status", adminAuth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ["For Sale","For Rent","New Launch","Sold","Lease","PG"];
+    if (!validStatuses.includes(status))
+      return res.status(400).json({ message: "Invalid status" });
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid property ID" });
+    const property = await Property.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!property) return res.status(404).json({ message: "Property not found" });
+    res.json({ message: "Status updated", status: property.status });
+  } catch(err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 
