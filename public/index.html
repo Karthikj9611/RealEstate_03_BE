@@ -3229,6 +3229,10 @@ var BASE_URL = location.hostname === 'localhost'
       const user = JSON.parse(saved);
       if (user && user.firstName) {
         isAdmin = !!user.isAdmin;
+        // Restore admin API key from session
+        if (isAdmin) {
+          try { window._adminKey = sessionStorage.getItem('kr_admin_key') || ''; } catch(e) {}
+        }
         // On restore, check server-side if user already reviewed (using stored email)
         if (!isAdmin && user.email) {
           fetch(BASE_URL + '/api/reviews/check/' + encodeURIComponent(user.email))
@@ -3445,6 +3449,8 @@ function logoutUser() {
         localStorage.removeItem('kr_user');
         localStorage.removeItem('kr_review_form_hidden');
         localStorage.removeItem('kr_review_submitted');
+        sessionStorage.removeItem('kr_admin_key');
+        window._adminKey = '';
       } catch(e) {}
       isLoggedIn = false;
       isAdmin = false;
@@ -3475,6 +3481,8 @@ function logoutUser() {
       if (addReviewTitle) addReviewTitle.style.display = 'block';
 
       Swal.fire({icon:'success', title:'Logged Out', text:'See you next time!', timer:1800, showConfirmButton:false});
+      // Reload properties without admin key so sensitive fields are stripped
+      loadPropertiesFromDB();
     }
   });
 }
@@ -3765,6 +3773,18 @@ async function doLogin() {
       }
     } catch(e) {}
     unlockReviewForm(data.firstName, data.lastName || '', admin, loginEmail);
+    // If admin just logged in, store key and reload properties to get full data
+    if (admin) {
+      try {
+        if (data.adminKey) {
+          sessionStorage.setItem('kr_admin_key', data.adminKey);
+          window._adminKey = data.adminKey;
+        } else {
+          window._adminKey = sessionStorage.getItem('kr_admin_key') || '';
+        }
+      } catch(e) {}
+      loadPropertiesFromDB();
+    }
     document.getElementById('loginEmail').value = '';
     document.getElementById('loginPassword').value = '';
   } catch(err) {
@@ -3981,7 +4001,9 @@ function showSkeletons() {
 async function loadPropertiesFromDB() {
   showSkeletons();
   try {
-    const res = await fetch(BASE_URL + "/api/properties");
+    const adminKey = isAdmin ? (window._adminKey || '') : '';
+    const url = BASE_URL + "/api/properties" + (adminKey ? '?key=' + encodeURIComponent(adminKey) : '');
+    const res = await fetch(url);
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {

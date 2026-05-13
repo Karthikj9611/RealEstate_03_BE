@@ -1,4 +1,6 @@
 require('dotenv').config();
+// Required .env variables: BREVO_API_KEY, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
+// ADMIN_API_KEY: a strong random secret (e.g. run: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -239,15 +241,17 @@ app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message:"Email and password are required." });
     const emailLower = email.trim().toLowerCase();
+    const ADMIN_KEY = process.env.ADMIN_API_KEY;
     if (emailLower === "admin" && password === "admin") {
-      return res.json({ firstName:"Admin", lastName:"", isAdmin:true, role:"admin" });
+      return res.json({ firstName:"Admin", lastName:"", isAdmin:true, role:"admin", adminKey: ADMIN_KEY });
     }
     const user = await User.findOne({ email: emailLower });
     if (!user) return res.status(401).json({ message:"No account found with this email. Please register first." });
     if (!user.password) return res.status(401).json({ message:"Password not set. Please register again." });
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message:"Incorrect password. Please try again." });
-    res.json({ firstName:user.firstName, lastName:user.lastName||"", isAdmin:user.role==="admin", role:user.role });
+    const isAdminUser = user.role === "admin";
+    res.json({ firstName:user.firstName, lastName:user.lastName||"", isAdmin:isAdminUser, role:user.role, ...(isAdminUser ? { adminKey: ADMIN_KEY } : {}) });
   } catch(err) {
     console.error("Login error:", err);
     res.status(500).json({ message:"Server error." });
@@ -268,9 +272,22 @@ app.delete("/api/users/mobile/:mobile", async (req, res) => {
 });
 
 // PROPERTIES
+// Fields that are admin-only and must never be sent to regular users
+const ADMIN_ONLY_FIELDS = ['ownerName','ownerNumber','fullAddress','latitude','longitude','remarks'];
+
 app.get("/api/properties", async (req, res) => {
-  try { res.json(await Property.find().sort({createdAt:-1})); }
-  catch(err) { res.status(500).json([]); }
+  try {
+    const isAdmin = req.query.key === process.env.ADMIN_API_KEY;
+    const props = await Property.find().sort({ createdAt: -1 }).lean();
+    if (isAdmin) return res.json(props);
+    // Strip sensitive fields for non-admin callers
+    const safe = props.map(p => {
+      const clone = { ...p };
+      ADMIN_ONLY_FIELDS.forEach(f => delete clone[f]);
+      return clone;
+    });
+    res.json(safe);
+  } catch(err) { res.status(500).json([]); }
 });
 
 app.post("/api/properties", async (req, res) => {
