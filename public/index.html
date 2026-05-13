@@ -1636,6 +1636,10 @@ input {
         <span class="icon"><svg><use href="#ic-plus"/></svg></span> List Property
       </button>
 
+      <button onclick="closeNav();openProfileModal()" class="user-only-btn" style="display:none;width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:none;color:var(--ink);font-size:0.84rem;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;align-items:center;gap:8px;transition:all 0.18s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
+        <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> My Profile
+      </button>
+
       <!-- ADD THIS BLOCK -->
       <div class="admin-only-btn" style="display:none;flex-direction:column;gap:3px;padding:9px 12px;border-radius:var(--radius-xs);background:var(--surface);border:1.5px solid var(--border);font-size:0.75rem;color:var(--ink2)">
   <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
@@ -1662,13 +1666,17 @@ input {
     <div id="userMenuDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);min-width:190px;z-index:300;overflow:hidden">
       <div id="userMenuName" style="padding:13px 16px 10px;font-size:0.78rem;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border)"></div>
 
+      <button onclick="event.stopPropagation();openProfileModal()" class="user-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
+        <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> My Profile
+      </button>
+
       <button onclick="event.stopPropagation();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-plus"/></svg></span> List Property
       </button>
       <button onclick="event.stopPropagation();openAdminPaymentsModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-receipt"/></svg></span> View Payments
       </button>
-<div id="siteVisitStats" style="display:flex;padding:10px 16px;font-size:0.75rem;color:var(--ink3);border-bottom:1px solid var(--border);gap:6px;flex-direction:column;">
+<div id="siteVisitStats" class="admin-only-btn" style="display:none;padding:10px 16px;font-size:0.75rem;color:var(--ink3);border-bottom:1px solid var(--border);gap:6px;flex-direction:column;">
         <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
         <div id="siteVisitToday">📅 Today: <strong>—</strong></div>
         <div id="siteVisit30">🗓️ Last 30 days: <strong>—</strong></div>
@@ -3373,6 +3381,10 @@ function applyLoginUI(firstName, lastName, admin) {
   document.querySelectorAll('.admin-only-btn').forEach(el => {
     el.style.display = isAdmin ? 'flex' : 'none';
   });
+  // ── User-only buttons (non-admin) ──
+  document.querySelectorAll('.user-only-btn').forEach(el => {
+    el.style.display = isAdmin ? 'none' : 'flex';
+  });
   const navListBtn = document.getElementById('navListBtn');
   if (navListBtn) navListBtn.style.display = isAdmin ? '' : 'none';
 
@@ -3483,6 +3495,7 @@ function logoutUser() {
 
       // Hide all admin-only buttons
       document.querySelectorAll('.admin-only-btn').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.user-only-btn').forEach(el => el.style.display = 'none');
       const navListBtn = document.getElementById('navListBtn');
       if (navListBtn) navListBtn.style.display = 'none';
 
@@ -8832,8 +8845,139 @@ async function resetSinglePropertyViews(mongoId, localId) {
 })();
 
 
+// ── USER PROFILE MODAL ──
+async function openProfileModal() {
+  const modal = document.getElementById('profileModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  let user = {};
+  try { user = JSON.parse(localStorage.getItem('kr_user') || '{}'); } catch(e) {}
+
+  const firstName = user.firstName || '';
+  const lastName  = user.lastName  || '';
+  const email     = user.email     || '';
+  const fullName  = firstName + (lastName ? ' ' + lastName : '');
+  const initials  = (firstName.charAt(0) + (lastName ? lastName.charAt(0) : '')).toUpperCase();
+
+  document.getElementById('profileAvatar').textContent   = initials;
+  document.getElementById('profileName').textContent     = fullName;
+  document.getElementById('profileEmail').textContent    = email;
+  document.getElementById('profileDetailName').textContent  = fullName || '—';
+  document.getElementById('profileDetailEmail').textContent = email || '—';
+
+  // Saved / Favourites
+  const savedProps = PROPERTIES.filter(p => favs.has(p.id));
+  document.getElementById('profileFavCount').textContent    = savedProps.length;
+  document.getElementById('profileViewedCount').textContent = savedProps.length;
+
+  const favList = document.getElementById('profileFavList');
+  if (savedProps.length === 0) {
+    favList.innerHTML = '<div style="color:var(--ink3);font-size:0.8rem;padding:4px 0">No saved properties yet.</div>';
+  } else {
+    favList.innerHTML = savedProps.map(p => `
+      <div onclick="closeProfileModal();openModal(${p.id})" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface2);border-radius:10px;cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='var(--surface2)'">
+        <div style="width:44px;height:44px;border-radius:8px;background:var(--surface3);overflow:hidden;flex-shrink:0">
+          ${p.images && p.images[0] ? `<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🏠</div>'}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.82rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.displayPrice}</div>
+          <div style="font-size:0.72rem;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.loc} · ${p.bhk} BHK</div>
+        </div>
+        <div style="font-size:0.7rem;color:var(--gold-dark);font-weight:700;flex-shrink:0">${p.status}</div>
+      </div>
+    `).join('');
+  }
+
+  // Review status
+  let reviewCount = 0;
+  const reviewBox = document.getElementById('profileReviewBox');
+  if (email) {
+    try {
+      const res  = await fetch(BASE_URL + '/api/reviews/check/' + encodeURIComponent(email));
+      const data = await res.json();
+      if (data.hasReviewed) {
+        reviewCount = 1;
+        reviewBox.innerHTML = '<div style="color:var(--accent);font-weight:600">✅ You have submitted a review. Thank you!</div>';
+      } else {
+        reviewBox.innerHTML = `<div style="color:var(--ink3)">You haven't submitted a review yet. <a href="#reviews" onclick="closeProfileModal()" style="color:var(--accent);font-weight:600;cursor:pointer">Write one →</a></div>`;
+      }
+    } catch(e) {
+      reviewBox.innerHTML = '<div style="color:var(--ink3)">Could not load review status.</div>';
+    }
+  }
+  document.getElementById('profileReviewCount').textContent = reviewCount;
+}
+
+function closeProfileModal() {
+  const modal = document.getElementById('profileModal');
+  if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
 
 </script>
+
+<!-- ── USER PROFILE MODAL ── -->
+<div id="profileModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeProfileModal()">
+  <div style="background:var(--surface);border-radius:20px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.25)">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1b3a2d,#2e7d5a);padding:24px;border-radius:20px 20px 0 0;position:relative">
+      <button onclick="closeProfileModal()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;font-family:inherit">✕</button>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div id="profileAvatar" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:1.4rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.4);flex-shrink:0"></div>
+        <div>
+          <div id="profileName" style="font-size:1.1rem;font-weight:700;color:#fff"></div>
+          <div id="profileEmail" style="font-size:0.78rem;color:rgba(255,255,255,0.7);margin-top:2px"></div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);margin-top:2px">Member · KR Real Estate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)">
+      <div style="padding:14px;text-align:center;border-right:1px solid var(--border)">
+        <div id="profileFavCount" style="font-size:1.5rem;font-weight:800;color:var(--accent)">0</div>
+        <div style="font-size:0.7rem;color:var(--ink3);margin-top:2px">Saved</div>
+      </div>
+      <div style="padding:14px;text-align:center;border-right:1px solid var(--border)">
+        <div id="profileReviewCount" style="font-size:1.5rem;font-weight:800;color:var(--accent)">0</div>
+        <div style="font-size:0.7rem;color:var(--ink3);margin-top:2px">Reviews</div>
+      </div>
+      <div style="padding:14px;text-align:center">
+        <div id="profileViewedCount" style="font-size:1.5rem;font-weight:800;color:var(--accent)">0</div>
+        <div style="font-size:0.7rem;color:var(--ink3);margin-top:2px">Shortlisted</div>
+      </div>
+    </div>
+
+    <!-- Saved properties -->
+    <div style="padding:16px">
+      <div style="font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:10px">❤️ Saved Properties</div>
+      <div id="profileFavList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- Review -->
+    <div style="padding:0 16px 16px">
+      <div style="font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:10px">⭐ Your Review</div>
+      <div id="profileReviewBox" style="background:var(--surface2);border-radius:12px;padding:12px;font-size:0.8rem;color:var(--ink3)">Checking...</div>
+    </div>
+
+    <!-- Account details -->
+    <div style="padding:0 16px 20px">
+      <div style="font-size:0.82rem;font-weight:700;color:var(--ink);margin-bottom:10px">👤 Account Details</div>
+      <div style="background:var(--surface2);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;font-size:0.8rem">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--ink3)">Name</span>
+          <span id="profileDetailName" style="font-weight:600;color:var(--ink)">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--ink3)">Email</span>
+          <span id="profileDetailEmail" style="font-weight:600;color:var(--ink);word-break:break-all;text-align:right;max-width:60%">—</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 
 </body>
