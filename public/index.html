@@ -4247,7 +4247,7 @@ function openEditPropertyModal(localId) {
 
   // Populate selects
   const selects = {
-    ep_status:p.status||'For Sale', ep_bhk:p.bhk||'', ep_toilet:p.toilet||'',
+    ep_status:p.status||'For Rent', ep_bhk:p.bhk||'', ep_toilet:p.toilet||'',
     ep_furnishing:p.furnishing||'Unfurnished', ep_facing:p.facing||'',
     ep_carparking:p.carparking||'', ep_bikeparking:p.bikeparking||'',
     ep_pgGender:p.pgGender||'', ep_pgRoomType:p.pgRoomType||'',
@@ -4257,7 +4257,7 @@ function openEditPropertyModal(localId) {
   Object.entries(selects).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
 
   // Trigger status UI update (deposit, PG section, price label)
-  onEditStatusChange(p.status||'For Sale');
+  onEditStatusChange(p.status||'For Rent');
 
   // Load existing images into image manager
   _editImages.length=0;
@@ -4441,8 +4441,6 @@ async function submitEditProperty() {
         <div class="listing-field">
           <label>Status<span style="color:red;">*</span></label>
           <select id="l_status" onchange="onListingStatusChange(this.value)">
-            <option value="For Sale">For Sale</option>
-            <option value="New Launch">New Launch</option>
             <option value="For Rent">For Rent</option>
             <option value="Lease">Lease</option>
             <option value="PG">PG / Co-living</option>
@@ -4599,10 +4597,193 @@ async function submitEditProperty() {
       <input type="hidden" id="l_latitude"/>
       <input type="hidden" id="l_longitude"/>
 
-      <!-- Section: Description & Amenities -->
+      <!-- ══ FOR RENT: Extra Fields ══ -->
+      <div id="l_rentSection" style="display:none">
+        <div class="listing-section-label">4 · Availability &amp; Terms</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Available From</label>
+            <select id="l_availableFrom">
+              <option value="">Immediate</option>
+              <option>Within 15 Days</option>
+              <option>Within 1 Month</option>
+              <option>Within 2 Months</option>
+              <option>Within 3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Notice Period</label>
+            <select id="l_noticePeriod">
+              <option value="">Select</option>
+              <option>1 Month</option>
+              <option>2 Months</option>
+              <option>3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Lease Duration</label>
+            <select id="l_leaseDuration">
+              <option value="">Any</option>
+              <option>11 Months</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Tenant Preference</label>
+            <select id="l_tenantPref">
+              <option value="">Any</option>
+              <option>Family</option>
+              <option>Bachelors</option>
+              <option>Working Professionals</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Maintenance (₹/mo)</label>
+            <input type="number" id="l_maintenance" placeholder="e.g. 2000"/>
+          </div>
+        </div>
+        <div class="listing-section-label">6 · Tenant Rules</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Pets Allowed</label>
+            <select id="l_petsAllowed">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Non-veg Allowed</label>
+            <select id="l_nonVegAllowed">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Piped Gas</label>
+            <select id="l_pipedGas">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- PG Specific Fields (shown only when PG is selected) -->
-      <div id="l_pgSection" style="display:none">
-        <div class="listing-section-label">PG / Co-living Details</div>
+      <!-- ══ LEASE: Extra Fields ══ -->
+      <div id="l_leaseSection" style="display:none">
+        <div class="listing-section-label">3 · Pricing</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Lease Amount (₹)<span style="color:red;">*</span></label>
+            <input type="number" id="l_leaseAmount" placeholder="e.g. 2500000"/>
+          </div>
+          <div class="listing-field">
+            <label>Monthly Rent (₹) <span style="font-weight:400;color:var(--ink3);font-size:0.78rem">optional / token</span></label>
+            <input type="number" id="l_leaseMonthlyRent" placeholder="e.g. 0"/>
+          </div>
+          <div class="listing-field">
+            <label>Maintenance (₹/mo)</label>
+            <input type="number" id="l_leaseMaintenance" placeholder="e.g. 2000"/>
+          </div>
+        </div>
+        <div class="listing-section-label">4 · Lease Terms</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Lease Duration</label>
+            <select id="l_leaseDuration">
+              <option value="">Select</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+              <option>3 Years</option>
+              <option>5 Years</option>
+              <option>9 Years</option>
+              <option>15 Years</option>
+              <option>30 Years</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Lease Type</label>
+            <select id="l_leaseType">
+              <option value="">Select</option>
+              <option>Residential</option>
+              <option>Commercial</option>
+              <option>Industrial</option>
+              <option>Mixed Use</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Lock-in Period</label>
+            <select id="l_lockInPeriod">
+              <option value="">None</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+              <option>3 Years</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Available From</label>
+            <select id="l_leaseAvailableFrom">
+              <option value="">Immediate</option>
+              <option>Within 15 Days</option>
+              <option>Within 1 Month</option>
+              <option>Within 2 Months</option>
+              <option>Within 3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Notice Period</label>
+            <select id="l_leaseNoticePeriod">
+              <option value="">Select</option>
+              <option>1 Month</option>
+              <option>2 Months</option>
+              <option>3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Rent Escalation</label>
+            <select id="l_rentEscalation">
+              <option value="">None</option>
+              <option>5% per year</option>
+              <option>10% per year</option>
+              <option>15% per year</option>
+            </select>
+          </div>
+        </div>
+        <div class="listing-section-label">6 · House Rules</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Pets Allowed</label>
+            <select id="l_leasePets">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Non-veg Allowed</label>
+            <select id="l_leaseNonVeg">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- PG Specific Fields (shown only when PG is selected) -->
+<div id="l_pgSection" style="display:none">
+        <div class="listing-section-label">3 · Pricing</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Meals Cost (₹/mo)</label>
+            <input type="number" id="l_pgMealsCost" placeholder="e.g. 3000"/>
+          </div>
+        </div>
+        <div class="listing-section-label">4 · Room Details</div>
         <div class="listing-grid-3">
           <div class="listing-field">
             <label>Gender Preference<span style="color:red;">*</span></label>
@@ -4624,34 +4805,114 @@ async function submitEditProperty() {
             </select>
           </div>
           <div class="listing-field">
-            <label>Meals Included<span style="color:red;">*</span></label>
-            <select id="l_pgMeals">
+            <label>Attached Bathroom<span style="color:red;">*</span></label>
+            <select id="l_pgBathroom">
+              <option value="Yes">Yes</option>
+              <option>Shared</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Occupancy Available</label>
+            <input type="number" id="l_pgOccupancy" placeholder="e.g. 2"/>
+          </div>
+          <div class="listing-field">
+            <label>Total Beds in PG</label>
+            <input type="number" id="l_pgTotalBeds" placeholder="e.g. 20"/>
+          </div>
+          <div class="listing-field">
+            <label>Room Furnishing</label>
+            <select id="l_pgRoomFurnishing">
               <option value="">Select</option>
-              <option>Yes – All Meals</option>
-              <option>Yes – Breakfast Only</option>
-              <option>No Meals</option>
+              <option>Bed + Almirah</option>
+              <option>Fully Furnished</option>
+              <option>Basic</option>
             </select>
           </div>
         </div>
+        <div class="listing-section-label">5 · Meals &amp; Food</div>
         <div class="listing-grid-3">
           <div class="listing-field">
-            <label>Occupancy Available<span style="color:red;">*</span></label>
-            <input type="text" id="l_pgOccupancy" placeholder="e.g. 2 beds available"/>
+            <label>Meals Included<span style="color:red;">*</span></label>
+            <select id="l_pgMeals">
+              <option value="">Select</option>
+              <option>No Meals</option>
+              <option>Breakfast Only</option>
+              <option>Dinner Only</option>
+              <option>Lunch + Dinner</option>
+              <option>All 3 Meals</option>
+              <option>On Request</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Food Type</label>
+            <select id="l_pgFoodType">
+              <option value="">Select</option>
+              <option>Veg Only</option>
+              <option>Veg + Non-veg</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Kitchen Access</label>
+            <select id="l_pgKitchenAccess">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+              <option>Common Kitchen</option>
+            </select>
+          </div>
+        </div>
+        <div class="listing-section-label">6 · Availability &amp; House Rules</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Available From</label>
+            <select id="l_pgAvailableFrom">
+              <option value="">Immediate</option>
+              <option>Within 15 Days</option>
+              <option>Within 1 Month</option>
+              <option>Within 2 Months</option>
+            </select>
           </div>
           <div class="listing-field">
             <label>Notice Period<span style="color:red;">*</span></label>
             <select id="l_pgNotice">
-              <option value="">Any</option>
+              <option value="">Select</option>
               <option>15 Days</option>
               <option>1 Month</option>
               <option>2 Months</option>
             </select>
           </div>
           <div class="listing-field">
-            <label>Attached Bathroom<span style="color:red;">*</span></label>
-            <select id="l_pgBathroom">
-              <option value="Yes">Yes</option>
-              <option>Shared</option>
+            <label>Visitor Policy</label>
+            <select id="l_pgVisitorPolicy">
+              <option value="">Select</option>
+              <option>Allowed</option>
+              <option>Lobby Only</option>
+              <option>Not Allowed</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Gate Closing Time</label>
+            <select id="l_pgGateTime">
+              <option value="">No Curfew</option>
+              <option>9 PM</option>
+              <option>10 PM</option>
+              <option>11 PM</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Non-veg Allowed</label>
+            <select id="l_pgNonVeg">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Pets Allowed</label>
+            <select id="l_pgPets">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
             </select>
           </div>
         </div>
@@ -4920,7 +5181,7 @@ async function submitListing(){
     return;
   }
   if(!status){
-    Swal.fire({icon:'warning',title:'Missing Status',text:'Please select For Sale, For Rent, or New Launch.'});
+    Swal.fire({icon:'warning',title:'Missing Status',text:'Please select a listing type.'});
     return;
   }
   if(!price || isNaN(Number(price)) || Number(price) <= 0){
@@ -4964,12 +5225,43 @@ async function submitListing(){
     deposit:      (['For Rent','Lease','PG'].includes(status) && deposit && !isNaN(Number(deposit))) ? Number(deposit) : undefined,
     latitude:     (latVal && !isNaN(Number(latVal)) && Number(latVal) !== 0) ? Number(latVal) : undefined,
     longitude:    (lngVal && !isNaN(Number(lngVal)) && Number(lngVal) !== 0) ? Number(lngVal) : undefined,
-    pgGender:    status === 'PG' ? get('l_pgGender')    || undefined : undefined,
-    pgRoomType:  status === 'PG' ? get('l_pgRoomType')  || undefined : undefined,
-    pgMeals:     status === 'PG' ? get('l_pgMeals')     || undefined : undefined,
-    pgOccupancy: status === 'PG' ? get('l_pgOccupancy') || undefined : undefined,
-    pgNotice:    status === 'PG' ? get('l_pgNotice')    || undefined : undefined,
-    pgBathroom:  status === 'PG' ? get('l_pgBathroom')  || undefined : undefined,
+    pgGender:         status === 'PG' ? get('l_pgGender')         || undefined : undefined,
+    pgRoomType:       status === 'PG' ? get('l_pgRoomType')        || undefined : undefined,
+    pgMeals:          status === 'PG' ? get('l_pgMeals')           || undefined : undefined,
+    pgOccupancy:      status === 'PG' ? get('l_pgOccupancy')       || undefined : undefined,
+    pgNotice:         status === 'PG' ? get('l_pgNotice')          || undefined : undefined,
+    pgBathroom:       status === 'PG' ? get('l_pgBathroom')        || undefined : undefined,
+    pgMealsCost:      status === 'PG' ? (get('l_pgMealsCost') ? Number(get('l_pgMealsCost')) : undefined) : undefined,
+    pgTotalBeds:      status === 'PG' ? get('l_pgTotalBeds')       || undefined : undefined,
+    pgRoomFurnishing: status === 'PG' ? get('l_pgRoomFurnishing')  || undefined : undefined,
+    pgFoodType:       status === 'PG' ? get('l_pgFoodType')        || undefined : undefined,
+    pgKitchenAccess:  status === 'PG' ? get('l_pgKitchenAccess')   || undefined : undefined,
+    pgAvailableFrom:  status === 'PG' ? get('l_pgAvailableFrom')   || undefined : undefined,
+    pgVisitorPolicy:  status === 'PG' ? get('l_pgVisitorPolicy')   || undefined : undefined,
+    pgGateTime:       status === 'PG' ? get('l_pgGateTime')        || undefined : undefined,
+    pgNonVeg:         status === 'PG' ? get('l_pgNonVeg')          || undefined : undefined,
+    pgPets:           status === 'PG' ? get('l_pgPets')            || undefined : undefined,
+    // For Rent extra fields
+    maintenance:      status === 'For Rent' ? (get('l_maintenance')  ? Number(get('l_maintenance')) : undefined) : undefined,
+    availableFrom:    status === 'For Rent' ? get('l_availableFrom') || undefined : undefined,
+    noticePeriod:     status === 'For Rent' ? get('l_noticePeriod')  || undefined : undefined,
+    leaseDuration:    status === 'For Rent' ? get('l_leaseDuration') || undefined : undefined,
+    tenantPref:       status === 'For Rent' ? get('l_tenantPref')    || undefined : undefined,
+    petsAllowed:      status === 'For Rent' ? get('l_petsAllowed')   || undefined : undefined,
+    nonVegAllowed:    status === 'For Rent' ? get('l_nonVegAllowed') || undefined : undefined,
+    pipedGas:         status === 'For Rent' ? get('l_pipedGas')      || undefined : undefined,
+    // Lease extra fields
+    leaseAmount:      status === 'Lease' ? (get('l_leaseAmount')      ? Number(get('l_leaseAmount'))      : undefined) : undefined,
+    leaseMonthlyRent: status === 'Lease' ? (get('l_leaseMonthlyRent') ? Number(get('l_leaseMonthlyRent')) : undefined) : undefined,
+    leaseMaintenance: status === 'Lease' ? (get('l_leaseMaintenance') ? Number(get('l_leaseMaintenance')) : undefined) : undefined,
+    leaseDurationVal: status === 'Lease' ? get('l_leaseDuration')      || undefined : undefined,
+    leaseType:        status === 'Lease' ? get('l_leaseType')          || undefined : undefined,
+    lockInPeriod:     status === 'Lease' ? get('l_lockInPeriod')       || undefined : undefined,
+    leaseAvailFrom:   status === 'Lease' ? get('l_leaseAvailableFrom') || undefined : undefined,
+    leaseNotice:      status === 'Lease' ? get('l_leaseNoticePeriod')  || undefined : undefined,
+    rentEscalation:   status === 'Lease' ? get('l_rentEscalation')     || undefined : undefined,
+    leasePets:        status === 'Lease' ? get('l_leasePets')          || undefined : undefined,
+    leaseNonVeg:      status === 'Lease' ? get('l_leaseNonVeg')        || undefined : undefined,
 	ownerName:   get('l_ownerName')   || undefined,
     ownerNumber: get('l_ownerNumber') || undefined,
   };
@@ -5004,10 +5296,17 @@ async function submitListing(){
     setTimeout(loadPropertiesFromDB, 800);
 
     // Reset form
-    ['l_title','l_loc','l_city','l_price','l_deposit','l_area','l_floor','l_age','l_desc','l_amenities','l_fullAddress']
+    ['l_title','l_loc','l_city','l_price','l_deposit','l_area','l_floor','l_age','l_desc','l_amenities','l_fullAddress',
+     'l_maintenance','l_leaseAmount','l_leaseMonthlyRent','l_leaseMaintenance','l_pgMealsCost','l_pgOccupancy','l_pgTotalBeds']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking']
+    ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking',
+     'l_availableFrom','l_noticePeriod','l_leaseDuration','l_tenantPref','l_petsAllowed','l_nonVegAllowed','l_pipedGas',
+     'l_leaseDuration','l_leaseType','l_lockInPeriod','l_leaseAvailableFrom','l_leaseNoticePeriod','l_rentEscalation','l_leasePets','l_leaseNonVeg',
+     'l_pgGender','l_pgRoomType','l_pgMeals','l_pgBathroom','l_pgNotice','l_pgRoomFurnishing','l_pgFoodType','l_pgKitchenAccess','l_pgAvailableFrom','l_pgVisitorPolicy','l_pgGateTime','l_pgNonVeg','l_pgPets']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    // Hide type-specific sections on reset
+    const rs=document.getElementById('l_rentSection');  if(rs)  rs.style.display='none';
+    const ls=document.getElementById('l_leaseSection'); if(ls) ls.style.display='none';
     // Reset coordinate fields
     ['l_latitude','l_longitude','l_lat_manual','l_lng_manual']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
@@ -5028,21 +5327,20 @@ async function submitListing(){
 
 // ── STATUS CHANGE: show/hide deposit ──
 function onListingStatusChange(val) {
-  const wrap    = document.getElementById('l_depositWrap');
-  const lbl     = document.getElementById('l_priceLabel');
-  const pgSec   = document.getElementById('l_pgSection');
-  const bhkWrap = document.getElementById('l_bhk')?.closest('.listing-field');
+  const wrap     = document.getElementById('l_depositWrap');
+  const lbl      = document.getElementById('l_priceLabel');
+  const pgSec    = document.getElementById('l_pgSection');
+  const rentSec  = document.getElementById('l_rentSection');
   if (!wrap) return;
 
   const isMonthly = (val === 'For Rent' || val === 'PG' || val === 'Lease');
   const isPG      = (val === 'PG');
+  const isRent    = (val === 'For Rent');
 
   // Deposit / price label
   if (isMonthly) {
     wrap.style.display = '';
-    if (lbl) lbl.textContent = val === 'PG' ? 'Monthly Rent*' : val === 'Lease' ? 'Monthly Lease (₹)' : 'Monthly Rent*';
-	    if (lbl) { lbl.innerHTML = val === 'PG' ? 'Monthly Rent<span style="color:red">*</span>' : val === 'Lease' ? 'Monthly Lease (₹)' : 'Monthly Rent<span style="color:red">*</span>'; }
-
+    if (lbl) { lbl.innerHTML = val === 'PG' ? 'Monthly Rent<span style="color:red">*</span>' : val === 'Lease' ? 'Monthly Lease (₹)<span style="color:red">*</span>' : 'Monthly Rent<span style="color:red">*</span>'; }
   } else {
     wrap.style.display = 'none';
     const dep = document.getElementById('l_deposit');
@@ -5050,8 +5348,13 @@ function onListingStatusChange(val) {
     if (lbl) lbl.innerHTML = 'Price<span style="color:red">*</span>';
   }
 
-  // PG section
-  if (pgSec) pgSec.style.display = isPG ? '' : 'none';
+const leaseSec = document.getElementById('l_leaseSection');
+  const isLease  = (val === 'Lease');
+
+  // Show/hide type-specific sections
+  if (pgSec)    pgSec.style.display    = isPG    ? '' : 'none';
+  if (rentSec)  rentSec.style.display  = isRent  ? '' : 'none';
+  if (leaseSec) leaseSec.style.display = isLease ? '' : 'none';
 }
 
 // ── LIVE LOCATION CAPTURE ──
@@ -5620,8 +5923,6 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
         <div class="listing-field">
           <label>Status<span style="color:red;">*</span></label>
           <select id="ep_status" onchange="onEditStatusChange(this.value)">
-            <option value="For Sale">For Sale</option>
-            <option value="New Launch">New Launch</option>
             <option value="For Rent">For Rent</option>
             <option value="Lease">Lease</option>
             <option value="PG">PG / Co-living</option>
@@ -8681,7 +8982,7 @@ document.addEventListener('keydown', function(e) {
 
 
 async function quickStatusChange(mongoId, localId, currentStatus) {
-  const statuses = ["For Sale","For Rent","New Launch","Lease","PG","Sold"];
+  const statuses = ["For Rent","Lease","PG","Sold"];
 
   const options = statuses.map(s => `
     <button onclick="doStatusChange('${mongoId}',${localId},'${s}',this)"
@@ -8771,7 +9072,7 @@ function cloneProperty(localId) {
     set('l_ownerNumber', p.ownerNumber || '');
     set('l_amenities',   Array.isArray(p.amenities) ? p.amenities.join(', ') : (p.amenities || ''));
     set('l_deposit',     p.deposit     || '');
-    set('l_status',      p.status      || 'For Sale');
+    set('l_status',      p.status      || 'For Rent');
     set('l_bhk',         p.bhk         || '');
     set('l_toilet',      p.toilet      || '');
     set('l_furnishing',  p.furnishing  || 'Unfurnished');
@@ -8785,7 +9086,7 @@ function cloneProperty(localId) {
     set('l_pgNotice',    p.pgNotice    || '');
     set('l_pgBathroom',  p.pgBathroom  || '');
 
-    onListingStatusChange(p.status || 'For Sale');
+    onListingStatusChange(p.status || 'For Rent');
 
     if (p.images && p.images.length) {
       _listingImages.length = 0;
