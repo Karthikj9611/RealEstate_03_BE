@@ -3327,18 +3327,18 @@ async function loadSiteVisits() {
     const data = await res.json();
     const today = new Date().toISOString().split('T')[0];
     const todayVisit = data.visits.find(v => v.date === today);
-    const todayEl = document.getElementById('siteVisitToday');
-const monthEl = document.getElementById('siteVisit30');
-const todayMob = document.getElementById('mobileVisitToday');
-const monthMob = document.getElementById('mobileVisit30');
-    if (todayEl) todayEl.innerHTML = `📅 Today: <strong>${todayCount}</strong>`;
-if (monthEl) monthEl.innerHTML = `🗓️ Last 30 days: <strong>${total}</strong>`;
-if (todayMob) todayMob.innerHTML = `📅 Today: <strong>${todayCount}</strong>`;
-if (monthMob) monthMob.innerHTML = `🗓️ Last 30 days: <strong>${total}</strong>`;
-	const mobileToday = document.getElementById('mobileVisitToday');
-const mobileMonth = document.getElementById('mobileVisit30');
-if(mobileToday) mobileToday.innerHTML = `📅 Today: <strong>${todayVisit ? todayVisit.count : 0}</strong>`;
-if(mobileMonth) mobileMonth.innerHTML = `🗓️ Last 30 days: <strong>${data.total}</strong>`;
+    const todayCount = todayVisit ? todayVisit.count : 0;
+    const total = data.total;
+
+    const todayEl  = document.getElementById('siteVisitToday');
+    const monthEl  = document.getElementById('siteVisit30');
+    const todayMob = document.getElementById('mobileVisitToday');
+    const monthMob = document.getElementById('mobileVisit30');
+
+    if (todayEl)  todayEl.innerHTML  = `📅 Today: <strong>${todayCount}</strong>`;
+    if (monthEl)  monthEl.innerHTML  = `🗓️ Last 30 days: <strong>${total}</strong>`;
+    if (todayMob) todayMob.innerHTML = `📅 Today: <strong>${todayCount}</strong>`;
+    if (monthMob) monthMob.innerHTML = `🗓️ Last 30 days: <strong>${total}</strong>`;
   } catch(e) {}
 }
 
