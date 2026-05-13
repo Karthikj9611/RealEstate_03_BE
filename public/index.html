@@ -4239,9 +4239,14 @@ function openEditPropertyModal(localId) {
     ep_deposit:p.deposit||'',
     ep_amenities:Array.isArray(p.amenities)?p.amenities.join(', '):(p.amenities||''),
     ep_latitude: p.latitude || '', ep_longitude: p.longitude || '',
-	ep_fullAddress: p.fullAddress || '',
-	ep_ownerName: p.ownerName || '', ep_ownerNumber: p.ownerNumber || '',
+    ep_fullAddress: p.fullAddress || '',
+    ep_ownerName: p.ownerName || '', ep_ownerNumber: p.ownerNumber || '',
     ep_pgOccupancy: p.pgOccupancy||'',
+    // For Rent
+    ep_maintenance: p.maintenance||'',
+    // Lease
+    ep_leaseAmount: p.leaseAmount||'', ep_leaseMonthlyRent: p.leaseMonthlyRent||'',
+    ep_leaseMaintenance: p.leaseMaintenance||'',
   };
   Object.entries(textFields).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
 
@@ -4253,6 +4258,16 @@ function openEditPropertyModal(localId) {
     ep_pgGender:p.pgGender||'', ep_pgRoomType:p.pgRoomType||'',
     ep_pgMeals:p.pgMeals||'', ep_pgNotice:p.pgNotice||'',
     ep_pgBathroom:p.pgBathroom||'Yes',
+    // For Rent
+    ep_availableFrom:p.availableFrom||'', ep_noticePeriod:p.noticePeriod||'',
+    ep_leaseDuration:p.leaseDuration||'', ep_tenantPref:p.tenantPref||'',
+    ep_petsAllowed:p.petsAllowed||'', ep_nonVegAllowed:p.nonVegAllowed||'',
+    ep_pipedGas:p.pipedGas||'',
+    // Lease
+    ep_leaseDurationVal:p.leaseDurationVal||'', ep_leaseType:p.leaseType||'',
+    ep_lockInPeriod:p.lockInPeriod||'', ep_leaseAvailFrom:p.leaseAvailFrom||'',
+    ep_leaseNotice:p.leaseNotice||'', ep_rentEscalation:p.rentEscalation||'',
+    ep_leasePets:p.leasePets||'', ep_leaseNonVeg:p.leaseNonVeg||'',
   };
   Object.entries(selects).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.value=val; });
 
@@ -4280,12 +4295,16 @@ function closeEditPropertyModal() {
 
 // ── EDIT STATUS CHANGE: mirrors onListingStatusChange ──
 function onEditStatusChange(val) {
-  const wrap = document.getElementById('ep_depositWrap');
-  const lbl  = document.getElementById('ep_priceLabel');
-  const pgSec= document.getElementById('ep_pgSection');
+  const wrap     = document.getElementById('ep_depositWrap');
+  const lbl      = document.getElementById('ep_priceLabel');
+  const pgSec    = document.getElementById('ep_pgSection');
+  const rentSec  = document.getElementById('ep_rentSection');
+  const leaseSec = document.getElementById('ep_leaseSection');
   if (!wrap) return;
   const isMonthly = (val === 'For Rent' || val === 'PG' || val === 'Lease');
   const isPG      = (val === 'PG');
+  const isRent    = (val === 'For Rent');
+  const isLease   = (val === 'Lease');
   if (isMonthly) {
     wrap.style.display = '';
     if (lbl) { lbl.innerHTML = val === 'PG' ? 'Monthly Rent<span style="color:red">*</span>' : val === 'Lease' ? 'Monthly Lease (₹)<span style="color:red">*</span>' : 'Monthly Rent<span style="color:red">*</span>'; }
@@ -4294,7 +4313,9 @@ function onEditStatusChange(val) {
     const dep = document.getElementById('ep_deposit'); if(dep) dep.value='';
     if (lbl) lbl.innerHTML = 'Price<span style="color:red">*</span>';
   }
-  if (pgSec) pgSec.style.display = isPG ? '' : 'none';
+  if (pgSec)    pgSec.style.display    = isPG    ? '' : 'none';
+  if (rentSec)  rentSec.style.display  = isRent  ? '' : 'none';
+  if (leaseSec) leaseSec.style.display = isLease ? '' : 'none';
 }
 
 // ── LIVE LOCATION CAPTURE (Edit modal) ──
@@ -4399,6 +4420,27 @@ async function submitEditProperty() {
     pgOccupancy:status==='PG'?get('ep_pgOccupancy')||undefined:undefined,
     pgNotice:   status==='PG'?get('ep_pgNotice')||undefined:undefined,
     pgBathroom: status==='PG'?get('ep_pgBathroom')||undefined:undefined,
+    // For Rent
+    availableFrom: status==='For Rent'?get('ep_availableFrom')||undefined:undefined,
+    noticePeriod:  status==='For Rent'?get('ep_noticePeriod')||undefined:undefined,
+    leaseDuration: status==='For Rent'?get('ep_leaseDuration')||undefined:undefined,
+    tenantPref:    status==='For Rent'?get('ep_tenantPref')||undefined:undefined,
+    maintenance:   status==='For Rent'?(get('ep_maintenance')?Number(get('ep_maintenance')):undefined):undefined,
+    petsAllowed:   status==='For Rent'?get('ep_petsAllowed')||undefined:undefined,
+    nonVegAllowed: status==='For Rent'?get('ep_nonVegAllowed')||undefined:undefined,
+    pipedGas:      status==='For Rent'?get('ep_pipedGas')||undefined:undefined,
+    // Lease
+    leaseAmount:      status==='Lease'?(get('ep_leaseAmount')?Number(get('ep_leaseAmount')):undefined):undefined,
+    leaseMonthlyRent: status==='Lease'?(get('ep_leaseMonthlyRent')?Number(get('ep_leaseMonthlyRent')):undefined):undefined,
+    leaseMaintenance: status==='Lease'?(get('ep_leaseMaintenance')?Number(get('ep_leaseMaintenance')):undefined):undefined,
+    leaseDurationVal: status==='Lease'?get('ep_leaseDurationVal')||undefined:undefined,
+    leaseType:        status==='Lease'?get('ep_leaseType')||undefined:undefined,
+    lockInPeriod:     status==='Lease'?get('ep_lockInPeriod')||undefined:undefined,
+    leaseAvailFrom:   status==='Lease'?get('ep_leaseAvailFrom')||undefined:undefined,
+    leaseNotice:      status==='Lease'?get('ep_leaseNotice')||undefined:undefined,
+    rentEscalation:   status==='Lease'?get('ep_rentEscalation')||undefined:undefined,
+    leasePets:        status==='Lease'?get('ep_leasePets')||undefined:undefined,
+    leaseNonVeg:      status==='Lease'?get('ep_leaseNonVeg')||undefined:undefined,
 	ownerName:   get('ep_ownerName')   || undefined,
     ownerNumber: get('ep_ownerNumber') || undefined,
   };
@@ -4694,9 +4736,9 @@ async function submitEditProperty() {
         <div class="listing-grid-3">
           <div class="listing-field">
             <label>Lease Duration</label>
-            <select id="l_leaseDuration">
-              <option value="">Select</option>
-              <option>1 Year</option>
+            <select id="l_leaseDurationVal">
+  <option value="">Select</option>
+  <option>1 Year</option>
               <option>2 Years</option>
               <option>3 Years</option>
               <option>5 Years</option>
@@ -5254,7 +5296,7 @@ async function submitListing(){
     leaseAmount:      status === 'Lease' ? (get('l_leaseAmount')      ? Number(get('l_leaseAmount'))      : undefined) : undefined,
     leaseMonthlyRent: status === 'Lease' ? (get('l_leaseMonthlyRent') ? Number(get('l_leaseMonthlyRent')) : undefined) : undefined,
     leaseMaintenance: status === 'Lease' ? (get('l_leaseMaintenance') ? Number(get('l_leaseMaintenance')) : undefined) : undefined,
-    leaseDurationVal: status === 'Lease' ? get('l_leaseDuration')      || undefined : undefined,
+    leaseDurationVal: status === 'Lease' ? get('l_leaseDurationVal') || undefined : undefined,
     leaseType:        status === 'Lease' ? get('l_leaseType')          || undefined : undefined,
     lockInPeriod:     status === 'Lease' ? get('l_lockInPeriod')       || undefined : undefined,
     leaseAvailFrom:   status === 'Lease' ? get('l_leaseAvailableFrom') || undefined : undefined,
@@ -5301,7 +5343,7 @@ async function submitListing(){
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     ['l_status','l_bhk','l_toilet','l_furnishing','l_facing','l_carparking','l_bikeparking',
      'l_availableFrom','l_noticePeriod','l_leaseDuration','l_tenantPref','l_petsAllowed','l_nonVegAllowed','l_pipedGas',
-     'l_leaseDuration','l_leaseType','l_lockInPeriod','l_leaseAvailableFrom','l_leaseNoticePeriod','l_rentEscalation','l_leasePets','l_leaseNonVeg',
+'l_leaseDurationVal','l_leaseType','l_lockInPeriod','l_leaseAvailableFrom','l_leaseNoticePeriod','l_rentEscalation','l_leasePets','l_leaseNonVeg',
      'l_pgGender','l_pgRoomType','l_pgMeals','l_pgBathroom','l_pgNotice','l_pgRoomFurnishing','l_pgFoodType','l_pgKitchenAccess','l_pgAvailableFrom','l_pgVisitorPolicy','l_pgGateTime','l_pgNonVeg','l_pgPets']
       .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     // Hide type-specific sections on reset
@@ -6099,6 +6141,172 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
               <option>Dormitory</option>
             </select>
           </div>
+		  <!-- ══ EDIT: FOR RENT EXTRA FIELDS ══ -->
+<div id="ep_rentSection" style="display:none">
+  <div class="listing-section-label">Availability & Terms</div>
+  <div class="listing-grid-3">
+    <div class="listing-field">
+      <label>Available From</label>
+      <select id="ep_availableFrom">
+        <option value="">Immediate</option>
+        <option>Within 15 Days</option>
+        <option>Within 1 Month</option>
+        <option>Within 2 Months</option>
+        <option>Within 3 Months</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Notice Period</label>
+      <select id="ep_noticePeriod">
+        <option value="">Select</option>
+        <option>1 Month</option>
+        <option>2 Months</option>
+        <option>3 Months</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Lease Duration</label>
+      <select id="ep_leaseDuration">
+        <option value="">Any</option>
+        <option>11 Months</option>
+        <option>1 Year</option>
+        <option>2 Years</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Tenant Preference</label>
+      <select id="ep_tenantPref">
+        <option value="">Any</option>
+        <option>Family</option>
+        <option>Bachelors</option>
+        <option>Working Professionals</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Maintenance (₹/mo)</label>
+      <input type="number" id="ep_maintenance" placeholder="e.g. 2000"/>
+    </div>
+    <div class="listing-field">
+      <label>Pets Allowed</label>
+      <select id="ep_petsAllowed">
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Non-veg Allowed</label>
+      <select id="ep_nonVegAllowed">
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Piped Gas</label>
+      <select id="ep_pipedGas">
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EDIT: LEASE EXTRA FIELDS ══ -->
+<div id="ep_leaseSection" style="display:none">
+  <div class="listing-section-label">Lease Terms</div>
+  <div class="listing-grid-3">
+    <div class="listing-field">
+      <label>Lease Amount (₹)</label>
+      <input type="number" id="ep_leaseAmount" placeholder="e.g. 2500000"/>
+    </div>
+    <div class="listing-field">
+      <label>Monthly Rent (₹)</label>
+      <input type="number" id="ep_leaseMonthlyRent" placeholder="e.g. 0"/>
+    </div>
+    <div class="listing-field">
+      <label>Maintenance (₹/mo)</label>
+      <input type="number" id="ep_leaseMaintenance" placeholder="e.g. 2000"/>
+    </div>
+    <div class="listing-field">
+      <label>Lease Duration</label>
+      <select id="ep_leaseDurationVal">
+        <option value="">Select</option>
+        <option>1 Year</option>
+        <option>2 Years</option>
+        <option>3 Years</option>
+        <option>5 Years</option>
+        <option>9 Years</option>
+        <option>15 Years</option>
+        <option>30 Years</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Lease Type</label>
+      <select id="ep_leaseType">
+        <option value="">Select</option>
+        <option>Residential</option>
+        <option>Commercial</option>
+        <option>Industrial</option>
+        <option>Mixed Use</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Lock-in Period</label>
+      <select id="ep_lockInPeriod">
+        <option value="">None</option>
+        <option>1 Year</option>
+        <option>2 Years</option>
+        <option>3 Years</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Available From</label>
+      <select id="ep_leaseAvailFrom">
+        <option value="">Immediate</option>
+        <option>Within 15 Days</option>
+        <option>Within 1 Month</option>
+        <option>Within 2 Months</option>
+        <option>Within 3 Months</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Notice Period</label>
+      <select id="ep_leaseNotice">
+        <option value="">Select</option>
+        <option>1 Month</option>
+        <option>2 Months</option>
+        <option>3 Months</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Rent Escalation</label>
+      <select id="ep_rentEscalation">
+        <option value="">None</option>
+        <option>5% per year</option>
+        <option>10% per year</option>
+        <option>15% per year</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Pets Allowed</label>
+      <select id="ep_leasePets">
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+    </div>
+    <div class="listing-field">
+      <label>Non-veg Allowed</label>
+      <select id="ep_leaseNonVeg">
+        <option value="">Select</option>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+    </div>
+  </div>
+</div>
           <div class="listing-field">
             <label>Meals Included<span style="color:red;">*</span></label>
             <select id="ep_pgMeals">

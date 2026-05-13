@@ -66,21 +66,53 @@ const PropertySchema = new mongoose.Schema({
   pgOccupancy: { type: String, default: null },
   pgNotice:    { type: String, default: null },
   pgBathroom:  { type: String, default: null },
+  // ── PG extra fields ──
+  pgMealsCost:      { type: Number, default: null },
+  pgTotalBeds:      { type: String, default: null },
+  pgRoomFurnishing: { type: String, default: null },
+  pgFoodType:       { type: String, default: null },
+  pgKitchenAccess:  { type: String, default: null },
+  pgAvailableFrom:  { type: String, default: null },
+  pgVisitorPolicy:  { type: String, default: null },
+  pgGateTime:       { type: String, default: null },
+  pgNonVeg:         { type: String, default: null },
+  pgPets:           { type: String, default: null },
+  // ── For Rent extra fields ──
+  availableFrom:  { type: String, default: null },
+  noticePeriod:   { type: String, default: null },
+  leaseDuration:  { type: String, default: null },
+  tenantPref:     { type: String, default: null },
+  maintenance:    { type: Number, default: null },
+  petsAllowed:    { type: String, default: null },
+  nonVegAllowed:  { type: String, default: null },
+  pipedGas:       { type: String, default: null },
+  // ── Lease extra fields ──
+  leaseAmount:      { type: Number, default: null },
+  leaseMonthlyRent: { type: Number, default: null },
+  leaseMaintenance: { type: Number, default: null },
+  leaseDurationVal: { type: String, default: null },
+  leaseType:        { type: String, default: null },
+  lockInPeriod:     { type: String, default: null },
+  leaseAvailFrom:   { type: String, default: null },
+  leaseNotice:      { type: String, default: null },
+  rentEscalation:   { type: String, default: null },
+  leasePets:        { type: String, default: null },
+  leaseNonVeg:      { type: String, default: null },
   // ── Owner Details ──
   ownerName:   { type: String, default: "" },
   ownerNumber: { type: String, default: "" },
   fullAddress: { type: String, default: "" },
   remarks: [
-  {
-    remark: { type: String, default: "" },
-    date: { type: Date, default: Date.now }
-  }
-],
-  createdAt:   { type: Date, default: Date.now },
-  promoted: { type: Boolean, default: false },
-  promotedPos: { type: String, default: 'top-right' },
-  promotedPriority: { type: Number, default: 3 },
-  views: { type: Number, default: 0 }
+    {
+      remark: { type: String, default: "" },
+      date:   { type: Date,   default: Date.now }
+    }
+  ],
+  createdAt:        { type: Date,    default: Date.now },
+  promoted:         { type: Boolean, default: false },
+  promotedPos:      { type: String,  default: 'top-right' },
+  promotedPriority: { type: Number,  default: 3 },
+  views:            { type: Number,  default: 0 }
 });
 const Property = mongoose.model("Property", PropertySchema);
 
