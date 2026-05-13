@@ -746,6 +746,18 @@ app.delete("/api/properties/:id/views/reset", adminAuth, async (req, res) => {
   }
 });
 
+app.get("/api/site-visit-public", async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const visits = await SiteVisit.find().sort({ date: -1 }).limit(30);
+    const todayVisit = visits.find(v => v.date === today);
+    const total = visits.reduce((sum, v) => sum + v.count, 0);
+    res.json({ today: todayVisit ? todayVisit.count : 0, total });
+  } catch(err) {
+    res.status(500).json({ today: 0, total: 0 });
+  }
+});
+
 // FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 

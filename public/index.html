@@ -1852,26 +1852,28 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
       <p class="hero-desc">Verified listings across HSR Layout.</p>
     </div>
 
-    <!-- RHS: commission box -->
+    <!-- AFTER -->
+    <!-- RHS: site visits box -->
     <div class="hero-commission-box commission-banner">
       <div class="hero-commission-label">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-        Our Promise
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Site Visitors
       </div>
-      <div class="hero-commission-title">Transparent Commission<br>— No Hidden Charges</div>
+      <div class="hero-commission-title">People Exploring<br>Properties on KR</div>
       <div class="hero-commission-pills">
         <div class="hero-commission-pill hero-commission-pill-rent">
-          <span class="hero-commission-pill-lbl">Rental</span>
-          <span class="hero-commission-pill-val">½ Mo</span>
-          <span class="hero-commission-pill-note">brokerage</span>
+          <span class="hero-commission-pill-lbl">Today</span>
+          <span class="hero-commission-pill-val" id="publicVisitToday">—</span>
+          <span class="hero-commission-pill-note">visitors</span>
         </div>
         <div class="hero-commission-pill hero-commission-pill-sale">
-          <span class="hero-commission-pill-lbl">Sale</span>
-          <span class="hero-commission-pill-val">2%</span>
-          <span class="hero-commission-pill-note">of value</span>
+          <span class="hero-commission-pill-lbl">30 Days</span>
+          <span class="hero-commission-pill-val" id="publicVisitTotal">—</span>
+          <span class="hero-commission-pill-note">visitors</span>
         </div>
       </div>
     </div>
+   
 
   </div>
 </section>
@@ -8811,6 +8813,21 @@ async function resetSinglePropertyViews(mongoId, localId) {
     showToast('Error resetting views', 'error');
   }
 }
+
+
+(function loadPublicVisitCount() {
+  fetch('/api/site-visit-public')
+    .then(r => r.json())
+    .then(data => {
+      const todayEl = document.getElementById('publicVisitToday');
+      const totalEl = document.getElementById('publicVisitTotal');
+      if (todayEl) todayEl.textContent = data.today ?? '—';
+      if (totalEl) totalEl.textContent = data.total ?? '—';
+    })
+    .catch(() => {});
+})();
+
+
 
 </script>
 
