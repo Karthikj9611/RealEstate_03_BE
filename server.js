@@ -164,13 +164,30 @@ async function sendEmailWithBrevo(to, subject, htmlContent) {
 }
 
 // ── SEED ADMIN ──
+// ── SEED ADMINS ──
+const ADMIN_ACCOUNTS = [
+  { firstName: "Admin",  lastName: "",       email: "admin",             mobile: "0000000000", password: "admin" },
+  { firstName: "Karthik", lastName: "J",     email: "karthik@yourdomain.com", mobile: "9999999991", password: "KarthikPass@1" },
+  { firstName: "Admin2", lastName: "",       email: "admin2@yourdomain.com",  mobile: "9999999992", password: "Admin2Pass@2" },
+  { firstName: "Admin3", lastName: "",       email: "admin3@yourdomain.com",  mobile: "9999999993", password: "Admin3Pass@3" },
+];
+
 async function seedAdmin() {
   try {
-    const exists = await User.findOne({ email: "admin" });
-    if (!exists) {
-      const hashed = await bcrypt.hash("admin", 10);
-      await new User({ firstName:"Admin", lastName:"", email:"admin", mobile:"0000000000", password:hashed, role:"admin" }).save();
-      console.log("✅ Admin seeded  (login: admin / admin)");
+    for (const acc of ADMIN_ACCOUNTS) {
+      const exists = await User.findOne({ email: acc.email });
+      if (!exists) {
+        const hashed = await bcrypt.hash(acc.password, 10);
+        await new User({
+          firstName: acc.firstName,
+          lastName:  acc.lastName,
+          email:     acc.email,
+          mobile:    acc.mobile,
+          password:  hashed,
+          role:      "admin"
+        }).save();
+        console.log(`✅ Admin seeded: ${acc.email}`);
+      }
     }
   } catch(e) { console.log("Admin seed skipped:", e.message); }
 }
