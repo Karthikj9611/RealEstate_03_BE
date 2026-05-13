@@ -521,17 +521,21 @@ app.post("/api/site-visit", async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const { ua = '', sw = '', sh = '' } = req.body || {};
 
-    // Check DB — has this IP already been counted today?
-    const alreadyVisited = await SiteVisit.findOne({ date: today, ips: ip });
+    // Build a unique device key: ip + user-agent + screen size
+    const deviceKey = `${ip}|${ua.slice(0, 120)}|${sw}x${sh}`;
+
+    // Check if this device already visited today
+    const alreadyVisited = await SiteVisit.findOne({ date: today, ips: deviceKey });
     if (alreadyVisited) {
       return res.json({ success: true, skipped: true });
     }
 
-    // New IP for today — increment count and record the IP
+    // New device for today — increment count and record the device key
     const visit = await SiteVisit.findOneAndUpdate(
       { date: today },
-      { $inc: { count: 1 }, $addToSet: { ips: ip } },
+      { $inc: { count: 1 }, $addToSet: { ips: deviceKey } },
       { upsert: true, new: true }
     );
     res.json({ success: true, today: visit.count });

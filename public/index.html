@@ -3233,7 +3233,11 @@ var BASE_URL = location.hostname === 'localhost'
 // Track site visit
 // Track site visit (once per day per device)
 (function trackVisit() {
-  fetch('/api/site-visit', { method: 'POST' }).catch(()=>{});
+  fetch('/api/site-visit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ua: navigator.userAgent, sw: screen.width, sh: screen.height })
+  }).catch(()=>{});
 })();
 
 // ── On page load: restore session ──
