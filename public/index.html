@@ -1638,10 +1638,14 @@ input {
 
       <!-- ADD THIS BLOCK -->
       <div class="admin-only-btn" style="display:none;flex-direction:column;gap:3px;padding:9px 12px;border-radius:var(--radius-xs);background:var(--surface);border:1.5px solid var(--border);font-size:0.75rem;color:var(--ink2)">
-        <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
-        <div id="mobileVisitToday">📅 Today: <strong>—</strong></div>
-        <div id="mobileVisit30">🗓️ Last 30 days: <strong>—</strong></div>
-      </div>
+  <div style="font-weight:700;color:var(--ink);margin-bottom:2px">📊 Site Visits</div>
+  <div id="mobileVisitToday">📅 Today: <strong>—</strong></div>
+  <div id="mobileVisit30">🗓️ Last 30 days: <strong>—</strong></div>
+  <div style="display:flex;gap:6px;margin-top:4px">
+    <button onclick="event.stopPropagation();resetSiteVisits()" style="flex:1;padding:5px 8px;border-radius:8px;border:1.5px solid var(--red);background:var(--red-light);color:var(--red);font-size:0.7rem;font-weight:700;font-family:inherit;cursor:pointer;">🗑 Visits</button>
+    <button onclick="event.stopPropagation();resetPropertyViews()" style="flex:1;padding:5px 8px;border-radius:8px;border:1.5px solid #6366f1;background:rgba(99,102,241,0.08);color:#6366f1;font-size:0.7rem;font-weight:700;font-family:inherit;cursor:pointer;">🗑 Views</button>
+  </div>
+</div>
 
       <button onclick="closeNav();logoutUser()" style="width:100%;padding:9px 12px;border-radius:var(--radius-xs);border:1.5px solid var(--border);background:none;color:var(--red);font-size:0.84rem;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all 0.18s;margin-top:2px" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg><use href="#ic-log-out"/></svg></span> Logout
@@ -3324,9 +3328,13 @@ async function loadSiteVisits() {
     const today = new Date().toISOString().split('T')[0];
     const todayVisit = data.visits.find(v => v.date === today);
     const todayEl = document.getElementById('siteVisitToday');
-    const monthEl = document.getElementById('siteVisit30');
-    if(todayEl) todayEl.innerHTML = `📅 Today: <strong>${todayVisit ? todayVisit.count : 0}</strong>`;
-    if(monthEl) monthEl.innerHTML = `🗓️ Last 30 days: <strong>${data.total}</strong>`;
+const monthEl = document.getElementById('siteVisit30');
+const todayMob = document.getElementById('mobileVisitToday');
+const monthMob = document.getElementById('mobileVisit30');
+    if (todayEl) todayEl.innerHTML = `📅 Today: <strong>${todayCount}</strong>`;
+if (monthEl) monthEl.innerHTML = `🗓️ Last 30 days: <strong>${total}</strong>`;
+if (todayMob) todayMob.innerHTML = `📅 Today: <strong>${todayCount}</strong>`;
+if (monthMob) monthMob.innerHTML = `🗓️ Last 30 days: <strong>${total}</strong>`;
 	const mobileToday = document.getElementById('mobileVisitToday');
 const mobileMonth = document.getElementById('mobileVisit30');
 if(mobileToday) mobileToday.innerHTML = `📅 Today: <strong>${todayVisit ? todayVisit.count : 0}</strong>`;
