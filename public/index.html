@@ -3047,13 +3047,20 @@ document.getElementById('modalTitle').textContent = isAdmin ? p.title : '';
     ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + p.loc
     : '';
 	
-  // ── Dynamic details grid: all keys not in MODAL_SKIP ──
+  // ── Dynamic details grid ──
+  // Admin: sees all fields. Non-admin: only the compare-equivalent fields.
+  const USER_ALLOWED_KEYS = new Set(['bhk','area','floor','furnishing','toilet','carparking','bikeparking','facing','age','deposit','amenities']);
 const MODAL_SKIP = new Set([
     ...MODAL_SKIP_BASE,
-    ...(isAdmin ? [] : ['title','ownerName','ownerNumber'])
+    ...(isAdmin ? [] : ['title','loc','city','ownerName','ownerNumber','desc','createdAt','remarks',
+        'pgGender','pgRoomType','pgMeals','pgOccupancy','pgNotice','pgBathroom','toilet_type','views'])
   ]);
   const MODAL_ORDER = ['city','loc','title','floor','ownerName','ownerNumber','deposit','bhk','toilet','toilet_type','furnishing','bikeparking','carparking','facing','age','area','amenities','desc','createdAt','remarks'];
-  const entries = Object.entries(p).filter(([k, v]) => !MODAL_SKIP.has(k) && v != null && v !== '');
+  const entries = Object.entries(p).filter(([k, v]) => {
+    if (MODAL_SKIP.has(k)) return false;
+    if (!isAdmin && !USER_ALLOWED_KEYS.has(k)) return false;
+    return v != null && v !== '';
+  });
   entries.sort(([a],[b]) => {
     const ai = MODAL_ORDER.indexOf(a), bi = MODAL_ORDER.indexOf(b);
     if(ai === -1 && bi === -1) return 0;
@@ -3090,9 +3097,9 @@ const MODAL_SKIP = new Set([
     </div>`;
   }
 
-  // Description + amenities
+  // Description + amenities (desc only for admin; amenities visible to all)
   const descEl = document.getElementById('modalDesc');
-  descEl.innerHTML = (p.desc ? `<p style="margin-bottom:${amenitiesHtml?'1rem':'0'}">${escapeHtml(p.desc)}</p>` : '') + amenitiesHtml;
+  descEl.innerHTML = (isAdmin && p.desc ? `<p style="margin-bottom:${amenitiesHtml?'1rem':'0'}">${escapeHtml(p.desc)}</p>` : '') + amenitiesHtml;
 
   document.getElementById('propModal').classList.add('open');
   document.body.style.overflow='hidden';
@@ -8078,8 +8085,8 @@ function openFavDrawer() {
       return `<div class="fav-row" onclick="closeFavDrawer();openModal(${p.id})">
         ${img ? `<img class="fav-row-img" src="${img}" onerror="this.style.display='none'" />` : '<div class="fav-row-img" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem">🏠</div>'}
         <div style="flex:1;min-width:0">
-          <div class="fav-row-title">${escapeHtml(p.title)}</div>
-          <div class="fav-row-price">${escapeHtml(p.displayPrice)}</div>
+          <div class="fav-row-title">${isAdmin ? escapeHtml(p.title) : escapeHtml(p.displayPrice)}</div>
+          <div class="fav-row-price">${isAdmin ? escapeHtml(p.displayPrice) : (p.bhk ? p.bhk + ' BHK' : '') + (p.area ? (p.bhk ? ' · ' : '') + p.area : '')}</div>
           <div class="fav-row-loc">📍 ${escapeHtml(p.loc)}</div>
         </div>
         <button class="fav-row-remove" onclick="event.stopPropagation();removeFav(${p.id})">✕</button>
@@ -8327,7 +8334,7 @@ function _updateCmpTray() {
     const p = PROPERTIES.find(x => x.id === id);
     if (!p) return '';
     return `<div class="cmp-tray-slot">
-      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px">${escapeHtml(p.title)}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px">${escapeHtml(isAdmin ? p.title : p.displayPrice)}</span>
       <button class="cmp-tray-slot-x" onclick="toggleCompare(${id})">✕</button>
     </div>`;
   }).join('');
@@ -8372,7 +8379,7 @@ function openCompareModal() {
       ${img
         ? `<img class="cmp-prop-img" src="${img}" onerror="this.style.display='none'" />`
         : `<div class="cmp-prop-img" style="background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:2rem">🏠</div>`}
-      <div class="cmp-prop-title">${escapeHtml(p.title)}</div>
+      ${isAdmin ? `<div class="cmp-prop-title">${escapeHtml(p.title)}</div>` : `<div class="cmp-prop-title" style="color:var(--gold-dark)">${escapeHtml(p.displayPrice)}</div>`}
     </div></th>`;
   });
   thead += '</tr></thead>';
