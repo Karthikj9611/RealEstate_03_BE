@@ -4000,9 +4000,9 @@ function showSkeletons() {
 async function loadPropertiesFromDB() {
   showSkeletons();
   try {
-    const adminKey = isAdmin ? (window._adminKey || '') : '';
-    const url = BASE_URL + "/api/properties" + (adminKey ? '?key=' + encodeURIComponent(adminKey) : '');
-    const res = await fetch(url);
+    const res = await fetch(BASE_URL + "/api/properties", {
+      headers: isAdmin ? adminHeaders() : {}
+    });
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {

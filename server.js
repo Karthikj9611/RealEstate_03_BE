@@ -1,24 +1,28 @@
 require('dotenv').config();
-// Required .env variables: BREVO_API_KEY, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
-// ADMIN_API_KEY: a strong random secret (e.g. run: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+// Required .env variables:
+// MONGODB_URI        - MongoDB Atlas connection string
+// ADMIN_API_KEY      - Strong random secret for admin API access
+// BREVO_API_KEY      - Brevo (Sendinblue) email API key
+// RAZORPAY_KEY_ID    - Razorpay key ID
+// RAZORPAY_KEY_SECRET- Razorpay key secret
+// ALLOWED_ORIGIN     - Frontend URL for CORS (e.g. https://yourdomain.com). Defaults to * if not set.
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 const axios = require("axios");
 const path = require("path");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.static("public"));
 
 // ── MongoDB ──
 //mongoose.connect("mongodb://127.0.0.1:27017/kr_realestate")
-mongoose.connect("mongodb+srv://karthikj:karthikj@cluster0.hkz6yzz.mongodb.net/kr_realestate?retryWrites=true&w=majority")
+mongoose.connect(process.env.MONGODB_URI)
   .then(async () => { console.log("✅ MongoDB Connected"); await seedAdmin(); })
   .catch(err => console.log("❌ MongoDB error:", err));
 
@@ -122,6 +126,13 @@ const SiteVisit = mongoose.model("SiteVisit", SiteVisitSchema);
 
 // ── OTP STORE (in-memory) ──
 const otpStore = {};
+// Clean up expired OTPs every 10 minutes to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  Object.keys(otpStore).forEach(email => {
+    if (otpStore[email].expiresAt < now) delete otpStore[email];
+  });
+}, 10 * 60 * 1000);
 
 // ── EMAIL ──
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
@@ -286,7 +297,7 @@ function adminAuth(req, res, next) {
 
 app.get("/api/properties", async (req, res) => {
   try {
-    const isAdmin = req.query.key === process.env.ADMIN_API_KEY;
+    const isAdmin = req.headers['x-admin-key'] === process.env.ADMIN_API_KEY;
     const props = await Property.find().sort({ createdAt: -1 }).lean();
     if (isAdmin) return res.json(props);
     // Strip sensitive fields for non-admin callers
@@ -477,7 +488,6 @@ app.patch("/api/properties/:id/remarks", adminAuth, async (req, res) => {
 const viewedProps = new Map(); // "ip_propertyId" -> date string
 const visitedIps = new Map();  // ip -> date string
 
-// ── Increment property view count ──
 app.patch("/api/properties/:id/view", async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
@@ -557,7 +567,6 @@ app.delete("/api/properties/views/reset", adminAuth, async (req, res) => {
   }
 });
 
-// ── Toggle promoted status ──
 // ── Toggle promoted status ──
 app.patch("/api/properties/:id/promote", adminAuth, async (req, res) => {
   try {
