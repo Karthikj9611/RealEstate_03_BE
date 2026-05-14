@@ -3023,23 +3023,8 @@ const MODAL_LABELS = {
   amenities:'Amenities', desc:'Description', createdAt:'Created At',
   remarks:'Remarks', promoted:'Promoted', promotedPos:'Promoted Pos', promotedPriority:'Promoted Priority',
   floorLevel:'Floor Level', parking:'Parking', toilet_type:'Toilet Type',
-  // PG fields
   pgGender:'Gender Preference', pgRoomType:'Room Type', pgMeals:'Meals Included',
   pgOccupancy:'Occupancy Available', pgNotice:'Notice Period', pgBathroom:'Attached Bathroom',
-  pgMealsCost:'Meals Cost (₹/mo)', pgTotalBeds:'Total Beds', pgRoomFurnishing:'Room Furnishing',
-  pgFoodType:'Food Type', pgKitchenAccess:'Kitchen Access', pgAvailableFrom:'Available From',
-  pgVisitorPolicy:'Visitor Policy', pgGateTime:'Gate Closing Time',
-  pgNonVeg:'Non-veg Allowed', pgPets:'Pets Allowed',
-  // For Rent fields
-  availableFrom:'Available From', noticePeriod:'Notice Period', leaseDuration:'Lease Duration',
-  tenantPref:'Tenant Preference', maintenance:'Maintenance (₹/mo)',
-  petsAllowed:'Pets Allowed', nonVegAllowed:'Non-veg Allowed', pipedGas:'Piped Gas',
-  // Lease fields
-  leaseAmount:'Lease Amount (₹)', leaseMonthlyRent:'Monthly Rent (₹)',
-  leaseMaintenance:'Maintenance (₹/mo)', leaseDurationVal:'Lease Duration',
-  leaseType:'Lease Type', lockInPeriod:'Lock-in Period', leaseAvailFrom:'Available From',
-  leaseNotice:'Notice Period', rentEscalation:'Rent Escalation',
-  leasePets:'Pets Allowed', leaseNonVeg:'Non-veg Allowed',
 };
 
 function openModal(id){
@@ -3085,123 +3070,36 @@ document.getElementById('modalTitle').textContent = isAdmin ? p.title : '';
     ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + p.loc
     : '';
 	
-  // ── Dynamic details grid — grouped by listing type ──
-  const status = p.status || '';
-
-  // Helper: render a detail tile
-  function detailTile(label, val) {
-    if (val == null || val === '' || val === undefined) return '';
-    return `<div class="modal-detail">
-      <div class="modal-detail-label">${escapeHtml(label)}</div>
-      <div class="modal-detail-val">${escapeHtml(String(val))}</div>
-    </div>`;
-  }
-
-  // Helper: render a section with a heading + grid of tiles
-  function detailSection(heading, tiles) {
-    const content = tiles.join('');
-    if (!content) return '';
-    return `<div style="margin-bottom:1rem">
-      <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.9px;color:var(--gold-dark);margin-bottom:8px;padding-bottom:4px;border-bottom:1.5px solid var(--gold-light)">${escapeHtml(heading)}</div>
-      <div class="modal-details-grid">${content}</div>
-    </div>`;
-  }
-
-  // ── Section 1: Property Overview (common to all types) ──
-  const overviewTiles = [
-    detailTile('Area (sqft)', p.area),
-    detailTile('Floor', p.floor),
-    detailTile('Property Age', p.age),
-    detailTile('Facing', p.facing),
-    detailTile('Furnishing', p.furnishing),
-    detailTile('Car Parking', p.carparking),
-    detailTile('Bike Parking', p.bikeparking),
-  ];
-  // BHK only for non-PG
-  if (status !== 'PG') overviewTiles.unshift(detailTile('BHK', p.bhk ? p.bhk + ' BHK' : null));
-  if (status !== 'PG') overviewTiles.splice(1, 0, detailTile('Bathrooms', p.toilet));
-
-  // ── Section 2: Type-specific details ──
-  let typeSection = '';
-
-  if (status === 'PG') {
-    const pgTiles = [
-      detailTile('Gender Preference', p.pgGender),
-      detailTile('Room Type', p.pgRoomType),
-      detailTile('Meals Included', p.pgMeals),
-      detailTile('Occupancy Available', p.pgOccupancy),
-      detailTile('Notice Period', p.pgNotice),
-      detailTile('Attached Bathroom', p.pgBathroom),
-      detailTile('Meals Cost (₹/mo)', p.pgMealsCost),
-      detailTile('Total Beds', p.pgTotalBeds),
-      detailTile('Room Furnishing', p.pgRoomFurnishing),
-      detailTile('Food Type', p.pgFoodType),
-      detailTile('Kitchen Access', p.pgKitchenAccess),
-      detailTile('Available From', p.pgAvailableFrom),
-      detailTile('Visitor Policy', p.pgVisitorPolicy),
-      detailTile('Gate Closing Time', p.pgGateTime),
-      detailTile('Non-veg Allowed', p.pgNonVeg),
-      detailTile('Pets Allowed', p.pgPets),
-      detailTile('Security Deposit (₹)', p.deposit),
-    ];
-    typeSection = detailSection('PG / Co-living Details', pgTiles);
-
-  } else if (status === 'For Rent') {
-    const rentTiles = [
-      detailTile('Security Deposit (₹)', p.deposit),
-      detailTile('Maintenance (₹/mo)', p.maintenance),
-      detailTile('Available From', p.availableFrom),
-      detailTile('Notice Period', p.noticePeriod),
-      detailTile('Lease Duration', p.leaseDuration),
-      detailTile('Tenant Preference', p.tenantPref),
-      detailTile('Pets Allowed', p.petsAllowed),
-      detailTile('Non-veg Allowed', p.nonVegAllowed),
-      detailTile('Piped Gas', p.pipedGas),
-    ];
-    typeSection = detailSection('Rental Terms', rentTiles);
-
-  } else if (status === 'Lease') {
-    const leaseTiles = [
-      detailTile('Lease Amount (₹)', p.leaseAmount),
-      detailTile('Monthly Rent (₹)', p.leaseMonthlyRent),
-      detailTile('Security Deposit (₹)', p.deposit),
-      detailTile('Maintenance (₹/mo)', p.leaseMaintenance),
-      detailTile('Lease Duration', p.leaseDurationVal),
-      detailTile('Lease Type', p.leaseType),
-      detailTile('Lock-in Period', p.lockInPeriod),
-      detailTile('Available From', p.leaseAvailFrom),
-      detailTile('Notice Period', p.leaseNotice),
-      detailTile('Rent Escalation', p.rentEscalation),
-      detailTile('Pets Allowed', p.leasePets),
-      detailTile('Non-veg Allowed', p.leaseNonVeg),
-    ];
-    typeSection = detailSection('Lease Terms', leaseTiles);
-
-  } else {
-    // For Sale / other
-    const saleTiles = [
-      detailTile('Security Deposit (₹)', p.deposit),
-    ];
-    typeSection = detailSection('Sale Details', saleTiles);
-  }
-
-  // ── Section 3: Admin-only fields ──
-  let adminSection = '';
-  if (isAdmin) {
-    const adminTiles = [
-      detailTile('Owner Name', p.ownerName),
-      detailTile('Owner Number', p.ownerNumber),
-      detailTile('City', p.city),
-      detailTile('Area', p.loc),
-      detailTile('Building Name', p.title),
-      detailTile('Remarks', p.remarks),
-      detailTile('Created At', p.createdAt),
-    ];
-    adminSection = detailSection('Admin Info', adminTiles);
-  }
-
-  const allSections = detailSection('Property Overview', overviewTiles) + typeSection + adminSection;
-  document.getElementById('modalDetails').innerHTML = allSections || '<div style="color:var(--ink3);font-size:0.85rem">No details available.</div>';
+  // ── Dynamic details grid ──
+  // Admin: sees all fields. Non-admin: only the compare-equivalent fields.
+  const USER_ALLOWED_KEYS = new Set(['bhk','area','floor','furnishing','toilet','carparking','bikeparking','facing','age','deposit','amenities']);
+const MODAL_SKIP = new Set([
+    ...MODAL_SKIP_BASE,
+    ...(isAdmin ? [] : ['title','loc','city','ownerName','ownerNumber','desc','createdAt','remarks',
+        'pgGender','pgRoomType','pgMeals','pgOccupancy','pgNotice','pgBathroom','toilet_type','views'])
+  ]);
+  const MODAL_ORDER = ['city','loc','title','floor','ownerName','ownerNumber','deposit','bhk','toilet','toilet_type','furnishing','bikeparking','carparking','facing','age','area','amenities','desc','createdAt','remarks'];
+  const entries = Object.entries(p).filter(([k, v]) => {
+    if (MODAL_SKIP.has(k)) return false;
+    if (!isAdmin && !USER_ALLOWED_KEYS.has(k)) return false;
+    return v != null && v !== '';
+  });
+  entries.sort(([a],[b]) => {
+    const ai = MODAL_ORDER.indexOf(a), bi = MODAL_ORDER.indexOf(b);
+    if(ai === -1 && bi === -1) return 0;
+    if(ai === -1) return 1;
+    if(bi === -1) return -1;
+    return ai - bi;
+  });
+  const detailRows = entries.map(([k, v]) => {
+      const label = MODAL_LABELS[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g,' $1'));
+      const val   = k === 'bhk' ? v + ' BHK' : v;
+      return `<div class="modal-detail">
+        <div class="modal-detail-label">${escapeHtml(label)}</div>
+        <div class="modal-detail-val">${escapeHtml(String(val))}</div>
+      </div>`;
+    }).join('');
+  document.getElementById('modalDetails').innerHTML = detailRows || '<div style="color:var(--ink3);font-size:0.85rem">No details available.</div>';
 
   // ── Amenities section ──
   let amenitiesHtml = '';
@@ -8962,6 +8860,15 @@ function toggleCompare(id) {
     compareSet.delete(id);
   } else {
     if (compareSet.size >= 3) { showToast('Max 3 properties at a time'); return; }
+    // Type-match validation
+    if (compareSet.size > 0) {
+      const existingType = PROPERTIES.find(x => x.id === [...compareSet][0])?.status || '';
+      const newType      = PROPERTIES.find(x => x.id === id)?.status || '';
+      if (existingType !== newType) {
+        showToast(`⚠️ Can only compare same type. Selected: ${existingType}`);
+        return;
+      }
+    }
     compareSet.add(id);
     showToast('Added to compare');
   }
@@ -9018,21 +8925,88 @@ function openCompareModal() {
   if (compareSet.size < 2) { showToast('Select at least 2 properties'); return; }
 
   const props = [...compareSet].map(id => PROPERTIES.find(x => x.id === id)).filter(Boolean);
+  const type  = props[0]?.status || '';
 
-  const ROWS = [
-    { label: 'Price',       fn: p => p.displayPrice,                                                            highlight: true },
-    { label: 'Type',        fn: p => p.status || '—'                                                                            },
-    { label: 'BHK',         fn: p => p.bhk ? p.bhk + ' BHK' : '—'                                                              },
-    { label: 'Area',        fn: p => p.area || '—'                                                                              },
-    { label: 'Floor',       fn: p => p.floor || '—'                                                                             },
-    { label: 'Furnishing',  fn: p => p.furnishing || '—'                                                                        },
-    { label: 'Bathrooms',   fn: p => p.toilet || '—'                                                                            },
-    { label: 'Car Parking', fn: p => (p.carparking != null && p.carparking !== '') ? p.carparking : '—'                         },
-    { label: 'Facing',      fn: p => p.facing || '—'                                                                            },
-    { label: 'Age',         fn: p => p.age || '—'                                                                               },
-    { label: 'Deposit',     fn: p => p.deposit ? '₹' + Number(p.deposit).toLocaleString('en-IN') : '—'                         },
-    { label: 'Amenities',   fn: p => Array.isArray(p.amenities) && p.amenities.length ? p.amenities.join(', ') : '—'            },
+  // ── Build dynamic ROWS based on listing type ──
+  const COMMON_ROWS = [
+    { label: 'Price',        fn: p => p.displayPrice,                                                                                   highlight: true },
+    { label: 'Type',         fn: p => p.status || '—' },
+    { label: 'Area (sqft)',  fn: p => p.area || '—' },
+    { label: 'Floor',        fn: p => p.floor || '—' },
+    { label: 'Furnishing',   fn: p => p.furnishing || '—' },
+    { label: 'Car Parking',  fn: p => (p.carparking != null && p.carparking !== '') ? p.carparking : '—' },
+    { label: 'Bike Parking', fn: p => (p.bikeparking != null && p.bikeparking !== '') ? p.bikeparking : '—' },
+    { label: 'Facing',       fn: p => p.facing || '—' },
+    { label: 'Age',          fn: p => p.age || '—' },
+    { label: 'Amenities',    fn: p => Array.isArray(p.amenities) && p.amenities.length ? p.amenities.join(', ') : (p.amenities || '—'), amenities: true },
   ];
+
+  let TYPE_ROWS = [];
+
+  if (type === 'PG') {
+    TYPE_ROWS = [
+      { label: 'Deposit',          fn: p => p.deposit ? '₹' + Number(p.deposit).toLocaleString('en-IN') : '—' },
+      { label: 'Gender',           fn: p => p.pgGender || '—' },
+      { label: 'Room Type',        fn: p => p.pgRoomType || '—' },
+      { label: 'Meals',            fn: p => p.pgMeals || '—' },
+      { label: 'Occupancy',        fn: p => p.pgOccupancy || '—' },
+      { label: 'Meals Cost',       fn: p => p.pgMealsCost ? '₹' + Number(p.pgMealsCost).toLocaleString('en-IN') + '/mo' : '—' },
+      { label: 'Total Beds',       fn: p => p.pgTotalBeds || '—' },
+      { label: 'Room Furnishing',  fn: p => p.pgRoomFurnishing || '—' },
+      { label: 'Food Type',        fn: p => p.pgFoodType || '—' },
+      { label: 'Kitchen Access',   fn: p => p.pgKitchenAccess || '—' },
+      { label: 'Available From',   fn: p => p.pgAvailableFrom || '—' },
+      { label: 'Visitor Policy',   fn: p => p.pgVisitorPolicy || '—' },
+      { label: 'Gate Time',        fn: p => p.pgGateTime || '—' },
+      { label: 'Non-veg',          fn: p => p.pgNonVeg || '—' },
+      { label: 'Pets',             fn: p => p.pgPets || '—' },
+      { label: 'Notice Period',    fn: p => p.pgNotice || '—' },
+      { label: 'Bathroom',         fn: p => p.pgBathroom || '—' },
+    ];
+
+  } else if (type === 'For Rent') {
+    TYPE_ROWS = [
+      { label: 'BHK',              fn: p => p.bhk ? p.bhk + ' BHK' : '—' },
+      { label: 'Bathrooms',        fn: p => p.toilet || '—' },
+      { label: 'Deposit',          fn: p => p.deposit ? '₹' + Number(p.deposit).toLocaleString('en-IN') : '—' },
+      { label: 'Maintenance',      fn: p => p.maintenance ? '₹' + Number(p.maintenance).toLocaleString('en-IN') + '/mo' : '—' },
+      { label: 'Available From',   fn: p => p.availableFrom || '—' },
+      { label: 'Notice Period',    fn: p => p.noticePeriod || '—' },
+      { label: 'Lease Duration',   fn: p => p.leaseDuration || '—' },
+      { label: 'Tenant Pref',      fn: p => p.tenantPref || '—' },
+      { label: 'Pets Allowed',     fn: p => p.petsAllowed || '—' },
+      { label: 'Non-veg',          fn: p => p.nonVegAllowed || '—' },
+      { label: 'Piped Gas',        fn: p => p.pipedGas || '—' },
+    ];
+
+  } else if (type === 'Lease') {
+    TYPE_ROWS = [
+      { label: 'BHK',              fn: p => p.bhk ? p.bhk + ' BHK' : '—' },
+      { label: 'Bathrooms',        fn: p => p.toilet || '—' },
+      { label: 'Lease Amount',     fn: p => p.leaseAmount ? '₹' + Number(p.leaseAmount).toLocaleString('en-IN') : '—' },
+      { label: 'Monthly Rent',     fn: p => p.leaseMonthlyRent ? '₹' + Number(p.leaseMonthlyRent).toLocaleString('en-IN') : '—' },
+      { label: 'Deposit',          fn: p => p.deposit ? '₹' + Number(p.deposit).toLocaleString('en-IN') : '—' },
+      { label: 'Maintenance',      fn: p => p.leaseMaintenance ? '₹' + Number(p.leaseMaintenance).toLocaleString('en-IN') + '/mo' : '—' },
+      { label: 'Lease Duration',   fn: p => p.leaseDurationVal || '—' },
+      { label: 'Lease Type',       fn: p => p.leaseType || '—' },
+      { label: 'Lock-in Period',   fn: p => p.lockInPeriod || '—' },
+      { label: 'Available From',   fn: p => p.leaseAvailFrom || '—' },
+      { label: 'Notice Period',    fn: p => p.leaseNotice || '—' },
+      { label: 'Rent Escalation',  fn: p => p.rentEscalation || '—' },
+      { label: 'Pets Allowed',     fn: p => p.leasePets || '—' },
+      { label: 'Non-veg',          fn: p => p.leaseNonVeg || '—' },
+    ];
+
+  } else {
+    // For Sale / other
+    TYPE_ROWS = [
+      { label: 'BHK',       fn: p => p.bhk ? p.bhk + ' BHK' : '—' },
+      { label: 'Bathrooms', fn: p => p.toilet || '—' },
+      { label: 'Deposit',   fn: p => p.deposit ? '₹' + Number(p.deposit).toLocaleString('en-IN') : '—' },
+    ];
+  }
+
+  const ROWS = [...TYPE_ROWS, ...COMMON_ROWS];
 
   // Header
   let thead = '<thead><tr><th><div class="cmp-th-inner">Feature</div></th>';
@@ -9051,11 +9025,13 @@ function openCompareModal() {
   let tbody = '<tbody>';
   ROWS.forEach(row => {
     const vals = props.map(p => row.fn(p));
+    // Skip row if all values are '—'
+    if (vals.every(v => v === '—')) return;
     tbody += `<tr${row.highlight ? ' class="cmp-row-highlight"' : ''}>`;
     tbody += `<td>${row.label}</td>`;
     vals.forEach(v => {
       const isNA = v === '—';
-      const content = row.label === 'Amenities'
+      const content = row.amenities
         ? `<div class="cmp-amenities">${escapeHtml(v)}</div>`
         : escapeHtml(String(v));
       tbody += `<td><span class="${isNA ? 'cmp-val-na' : ''}">${content}</span></td>`;
