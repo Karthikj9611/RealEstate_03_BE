@@ -3258,7 +3258,7 @@ var BASE_URL = location.hostname === 'localhost'
         isAdmin = !!user.isAdmin;
         // Restore admin API key from session
         if (isAdmin) {
-  try { window._adminKey = sessionStorage.getItem('kr_admin_key') || ''; } catch(e) {}
+  try { window._adminKey = localStorage.getItem('kr_admin_key') || ''; } catch(e) {}
   loadSiteVisits(); // ← add this line here, after key is restored
 }
         // On restore, check server-side if user already reviewed (using stored email)
@@ -3480,6 +3480,7 @@ function logoutUser() {
         localStorage.removeItem('kr_review_form_hidden');
         localStorage.removeItem('kr_review_submitted');
         sessionStorage.removeItem('kr_admin_key');
+localStorage.removeItem('kr_admin_key');
         window._adminKey = '';
       } catch(e) {}
       isLoggedIn = false;
@@ -3808,10 +3809,10 @@ async function doLogin() {
     if (admin) {
       try {
         if (data.adminKey) {
-          sessionStorage.setItem('kr_admin_key', data.adminKey);
+          localStorage.setItem('kr_admin_key', data.adminKey);
           window._adminKey = data.adminKey;
         } else {
-          window._adminKey = sessionStorage.getItem('kr_admin_key') || '';
+          window._adminKey = localStorage.getItem('kr_admin_key') || '';
         }
       } catch(e) {}
       loadPropertiesFromDB();
