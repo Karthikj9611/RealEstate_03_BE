@@ -394,6 +394,9 @@ nav{
   display:flex;align-items:center;justify-content:center;gap:6px;
   white-space:nowrap;transition:all 0.18s;
   width:100%;
+  height:38px;
+  align-self:end;
+  margin-top:calc(0.68rem + 5px + 1em);
 }
 .search-btn:hover{background:var(--gold);color:var(--ink)}
 
@@ -2936,11 +2939,17 @@ function buildFilters(){
   filterBar.querySelectorAll('.filter-chip:not(.chip-all)').forEach(el=>el.remove());
   statuses.forEach(s=>{
     const btn = document.createElement('button');
-    btn.className = 'filter-chip';
+    btn.className = 'filter-chip' + (s === activeFilter ? ' active' : '');
     btn.textContent = s;
     btn.onclick = function(){ setFilter(this, s); };
     filterBar.appendChild(btn);
   });
+  // Keep "All" chip active state in sync
+  const allChip = filterBar.querySelector('.chip-all');
+  if (allChip) {
+    if (activeFilter === 'all') allChip.classList.add('active');
+    else allChip.classList.remove('active');
+  }
 
   // ── 2. Rebuild dropdown filter bar ──
   const bar = document.getElementById('dynamicFilterBar');
@@ -3016,8 +3025,6 @@ function filterProps(){
 
 function resetFilters(){
   activeFilter='all';
-  document.querySelectorAll('.filter-chip').forEach(btn=>btn.classList.remove('active'));
-  document.querySelector('.filter-chip.chip-all').classList.add('active');
   buildFilters();
   filterProps();
   document.querySelector('#listings').scrollIntoView({behavior:'smooth'});
@@ -3028,10 +3035,9 @@ function populateFilters(){}
 function setOptions(){}
 
 function setFilter(btn,val){
-  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
   activeFilter=val;
   // Rebuild all filter dropdowns for this listing type
+  // buildFilters() will handle setting the correct active chip
   buildFilters();
   filterProps();
 }
@@ -7348,8 +7354,11 @@ const origSetFilter = window.setFilter;
 if (origSetFilter) {
   window.setFilter = function(el, f) {
     origSetFilter(el, f);
-    /* pop-bounce on active chip */
-    gsap.fromTo(el, { scale: 0.85 }, { scale: 1, duration: 0.35, ease: 'back.out(2)' });
+    /* pop-bounce on the newly rendered active chip (el is stale after buildFilters) */
+    const activeChip = document.querySelector('.filter-chip.active');
+    if (activeChip) {
+      gsap.fromTo(activeChip, { scale: 0.85 }, { scale: 1, duration: 0.35, ease: 'back.out(2)' });
+    }
   };
 }
 
@@ -7853,7 +7862,7 @@ function revealPage() {
   observe('.search-section',
     {y:0, opacity:1, duration:0.30, ease:'power2.out'});
 
-  /* Filter chips — observe the bar container */
+  /* Filter chips — observe the bar container for initial reveal */
   var fb = document.getElementById('filterBar');
   if (fb) {
     new IntersectionObserver(function(entries) {
@@ -7862,6 +7871,15 @@ function revealPage() {
           {opacity:1, scale:1, duration:0.18, stagger:0.028, ease:'back.out(1.5)'});
       }
     }, {threshold:0.1}).observe(fb);
+  }
+  /* Patch buildFilters to always make rebuilt chips visible (avoid GSAP opacity:0 trap) */
+  var _origBuildFilters = window.buildFilters;
+  if (typeof _origBuildFilters === 'function') {
+    window.buildFilters = function() {
+      _origBuildFilters();
+      var chips = document.querySelectorAll('#filterBar .filter-chip');
+      gsap.set(chips, {opacity:1, scale:1});
+    };
   }
 
   /* Re-animate on renderProps */
