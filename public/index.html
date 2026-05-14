@@ -1598,8 +1598,9 @@ input {
 
   <!-- Desktop + Mobile drawer links -->
 <div class="nav-links" id="navLinks">
-    <a href="#listings" class="active" onclick="closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-home"/></svg></span>Properties</a>
-    <a href="#agents" onclick="closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-users"/></svg></span>Agents</a>
+    <!-- Properties & Agents: hidden on desktop (moved into More dropdown), visible in mobile drawer -->
+    <a href="#listings" class="active nav-mobile-only" onclick="closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-home"/></svg></span>Properties</a>
+    <a href="#agents" class="nav-mobile-only" onclick="closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-users"/></svg></span>Agents</a>
 
     <!-- ── Desktop "More" dropdown ── -->
     <div class="nav-more-wrap" id="navMoreWrap">
@@ -1607,6 +1608,12 @@ input {
         More <span class="nav-more-chevron">▾</span>
       </button>
       <div class="nav-more-dropdown" id="navMoreDropdown">
+        <a href="#listings" onclick="closeMoreMenu()" class="nav-more-item active">
+          <span class="icon"><svg><use href="#ic-home"/></svg></span>Properties
+        </a>
+        <a href="#agents" onclick="closeMoreMenu()" class="nav-more-item">
+          <span class="icon"><svg><use href="#ic-users"/></svg></span>Agents
+        </a>
         <a href="javascript:void(0)" onclick="openAboutModal();closeMoreMenu()" class="nav-more-item">
           <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg></span>About Us
         </a>
@@ -1616,6 +1623,12 @@ input {
         </a>
         <a href="javascript:void(0)" onclick="openPaymentModal();closeMoreMenu()" class="nav-more-item">
           <span class="icon"><svg><use href="#ic-credit-card"/></svg></span>Payments
+        </a>
+        <a href="javascript:void(0)" onclick="openListingModal();closeMoreMenu()" class="nav-more-item admin-only-btn" style="display:none;color:var(--accent);font-weight:600">
+          <span class="icon"><svg><use href="#ic-plus"/></svg></span>List Property
+        </a>
+        <a href="javascript:void(0)" onclick="openAdminPaymentsModal();closeMoreMenu()" class="nav-more-item admin-only-btn" style="display:none;color:var(--accent);font-weight:600">
+          <span class="icon"><svg><use href="#ic-receipt"/></svg></span>View Payments
         </a>
       </div>
     </div>
@@ -1669,13 +1682,6 @@ input {
 
       <button onclick="event.stopPropagation();openProfileModal()" class="user-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
         <span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> My Profile
-      </button>
-
-      <button onclick="event.stopPropagation();openListingModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
-        <span class="icon"><svg><use href="#ic-plus"/></svg></span> List Property
-      </button>
-      <button onclick="event.stopPropagation();openAdminPaymentsModal()" class="admin-only-btn" style="display:none;width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);text-align:left;font-size:0.84rem;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='none'">
-        <span class="icon"><svg><use href="#ic-receipt"/></svg></span> View Payments
       </button>
 
       <button onclick="event.stopPropagation();logoutUser()" style="width:100%;padding:11px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:background 0.15s" onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
