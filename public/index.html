@@ -3011,7 +3011,7 @@ function toggleFav(e, id) {
 // Fields to skip in the dynamic details grid (shown elsewhere or internal)
 //const MODAL_SKIP = new Set(['_id','title','loc','city','price','displayPrice','bhk','area','status','furnishing','floor','floorLevel','facing','toilet','amenities','images','desc','createdAt','__v','color','icon','id','updatedAt','ownerName','ownerNumber']);
 //const MODAL_SKIP = new Set(['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude']);
-const MODAL_SKIP_BASE = ['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude','promoted','promotedPos','promotedPriority','fullAddress','status','price'];
+const MODAL_SKIP_BASE = ['_id','displayPrice','images','__v','color','icon','id','floorLevel','latitude','longitude','promoted','promotedPos','promotedPriority','status','price'];
 // Human-readable labels for known keys
 const MODAL_LABELS = {
   city:'City', loc:'Area', title:'Building Name', status:'Listing Type',
@@ -3020,7 +3020,7 @@ const MODAL_LABELS = {
   bhk:'BHK', toilet:'Bathrooms', furnishing:'Furnishing',
   bikeparking:'Bike Parking', carparking:'Car Parking',
   floor:'Floor', facing:'Facing', age:'Property Age', area:'Area (sqft)',
-  amenities:'Amenities', desc:'Description', createdAt:'Created At',
+  amenities:'Amenities', desc:'Description', createdAt:'Created At', fullAddress:'Live Location Address',
   remarks:'Remarks', promoted:'Promoted', promotedPos:'Promoted Pos', promotedPriority:'Promoted Priority',
   floorLevel:'Floor Level', parking:'Parking', toilet_type:'Toilet Type',
   pgGender:'Gender Preference', pgRoomType:'Room Type', pgMeals:'Meals Included',
@@ -3075,10 +3075,10 @@ document.getElementById('modalTitle').textContent = isAdmin ? p.title : '';
   const USER_ALLOWED_KEYS = new Set(['bhk','area','floor','furnishing','toilet','carparking','bikeparking','facing','age','deposit','amenities']);
 const MODAL_SKIP = new Set([
     ...MODAL_SKIP_BASE,
-    ...(isAdmin ? [] : ['title','loc','city','ownerName','ownerNumber','desc','createdAt','remarks',
+...(isAdmin ? [] : ['title','loc','city','ownerName','ownerNumber','fullAddress','desc','createdAt','remarks',
         'pgGender','pgRoomType','pgMeals','pgOccupancy','pgNotice','pgBathroom','toilet_type','views'])
   ]);
-  const MODAL_ORDER = ['city','loc','title','floor','ownerName','ownerNumber','deposit','bhk','toilet','toilet_type','furnishing','bikeparking','carparking','facing','age','area','amenities','desc','createdAt','remarks'];
+  const MODAL_ORDER = ['city','loc','title','floor','ownerName','ownerNumber','fullAddress','deposit','bhk','toilet','toilet_type','furnishing','bikeparking','carparking','facing','age','area','amenities','desc','createdAt','remarks'];
   const entries = Object.entries(p).filter(([k, v]) => {
     if (MODAL_SKIP.has(k)) return false;
     if (!isAdmin && !USER_ALLOWED_KEYS.has(k)) return false;
@@ -8929,9 +8929,16 @@ function openCompareModal() {
   const type  = props[0]?.status || '';
 
   // ── Build dynamic ROWS based on listing type ──
-  const COMMON_ROWS = [
+const COMMON_ROWS = [
     { label: 'Price',        fn: p => p.displayPrice,                                                                                   highlight: true },
     { label: 'Type',         fn: p => p.status || '—' },
+    ...(isAdmin ? [
+      { label: 'Building Name',          fn: p => p.title || '—' },
+      { label: 'Area / Location',        fn: p => p.loc || '—' },
+      { label: 'Owner Name',             fn: p => p.ownerName || '—' },
+      { label: 'Owner Contact',          fn: p => p.ownerNumber || '—' },
+      { label: 'Live Location Address',  fn: p => p.fullAddress || '—' },
+    ] : []),
     { label: 'Area (sqft)',  fn: p => p.area || '—' },
     { label: 'Floor',        fn: p => p.floor || '—' },
     { label: 'Furnishing',   fn: p => p.furnishing || '—' },
@@ -8941,7 +8948,6 @@ function openCompareModal() {
     { label: 'Age',          fn: p => p.age || '—' },
     { label: 'Amenities',    fn: p => Array.isArray(p.amenities) && p.amenities.length ? p.amenities.join(', ') : (p.amenities || '—'), amenities: true },
   ];
-
   let TYPE_ROWS = [];
 
   if (type === 'PG') {
