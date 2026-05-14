@@ -50,7 +50,7 @@ const PropertySchema = new mongoose.Schema({
   city:         { type: String, default: "Bengaluru" },
   price:        { type: Number, required: true },
   displayPrice: { type: String, required: true },
-  bhk:          { type: Number, required: true },
+  bhk: { type: Number, default: null },
   area:         String,
   status:       { type: String, enum: ["For Sale","For Rent","New Launch","Sold","Lease","PG"], default: "For Sale" },
   furnishing:   { type: String, default: "Unfurnished" },

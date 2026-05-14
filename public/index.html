@@ -4242,6 +4242,8 @@ function openEditPropertyModal(localId) {
     ep_fullAddress: p.fullAddress || '',
     ep_ownerName: p.ownerName || '', ep_ownerNumber: p.ownerNumber || '',
     ep_pgOccupancy: p.pgOccupancy||'',
+    ep_pgMealsCost: p.pgMealsCost||'',
+    ep_pgTotalBeds: p.pgTotalBeds||'',
     // For Rent
     ep_maintenance: p.maintenance||'',
     // Lease
@@ -4258,6 +4260,10 @@ function openEditPropertyModal(localId) {
     ep_pgGender:p.pgGender||'', ep_pgRoomType:p.pgRoomType||'',
     ep_pgMeals:p.pgMeals||'', ep_pgNotice:p.pgNotice||'',
     ep_pgBathroom:p.pgBathroom||'Yes',
+    ep_pgRoomFurnishing:p.pgRoomFurnishing||'', ep_pgFoodType:p.pgFoodType||'',
+    ep_pgKitchenAccess:p.pgKitchenAccess||'', ep_pgAvailableFrom:p.pgAvailableFrom||'',
+    ep_pgVisitorPolicy:p.pgVisitorPolicy||'', ep_pgGateTime:p.pgGateTime||'',
+    ep_pgNonVeg:p.pgNonVeg||'', ep_pgPets:p.pgPets||'',
     // For Rent
     ep_availableFrom:p.availableFrom||'', ep_noticePeriod:p.noticePeriod||'',
     ep_leaseDuration:p.leaseDuration||'', ep_tenantPref:p.tenantPref||'',
@@ -4420,6 +4426,16 @@ async function submitEditProperty() {
     pgOccupancy:status==='PG'?get('ep_pgOccupancy')||undefined:undefined,
     pgNotice:   status==='PG'?get('ep_pgNotice')||undefined:undefined,
     pgBathroom: status==='PG'?get('ep_pgBathroom')||undefined:undefined,
+    pgMealsCost:      status==='PG'?(get('ep_pgMealsCost')?Number(get('ep_pgMealsCost')):undefined):undefined,
+    pgTotalBeds:      status==='PG'?get('ep_pgTotalBeds')||undefined:undefined,
+    pgRoomFurnishing: status==='PG'?get('ep_pgRoomFurnishing')||undefined:undefined,
+    pgFoodType:       status==='PG'?get('ep_pgFoodType')||undefined:undefined,
+    pgKitchenAccess:  status==='PG'?get('ep_pgKitchenAccess')||undefined:undefined,
+    pgAvailableFrom:  status==='PG'?get('ep_pgAvailableFrom')||undefined:undefined,
+    pgVisitorPolicy:  status==='PG'?get('ep_pgVisitorPolicy')||undefined:undefined,
+    pgGateTime:       status==='PG'?get('ep_pgGateTime')||undefined:undefined,
+    pgNonVeg:         status==='PG'?get('ep_pgNonVeg')||undefined:undefined,
+    pgPets:           status==='PG'?get('ep_pgPets')||undefined:undefined,
     // For Rent
     availableFrom: status==='For Rent'?get('ep_availableFrom')||undefined:undefined,
     noticePeriod:  status==='For Rent'?get('ep_noticePeriod')||undefined:undefined,
@@ -6141,172 +6157,6 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
               <option>Dormitory</option>
             </select>
           </div>
-		  <!-- ══ EDIT: FOR RENT EXTRA FIELDS ══ -->
-<div id="ep_rentSection" style="display:none">
-  <div class="listing-section-label">Availability & Terms</div>
-  <div class="listing-grid-3">
-    <div class="listing-field">
-      <label>Available From</label>
-      <select id="ep_availableFrom">
-        <option value="">Immediate</option>
-        <option>Within 15 Days</option>
-        <option>Within 1 Month</option>
-        <option>Within 2 Months</option>
-        <option>Within 3 Months</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Notice Period</label>
-      <select id="ep_noticePeriod">
-        <option value="">Select</option>
-        <option>1 Month</option>
-        <option>2 Months</option>
-        <option>3 Months</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Lease Duration</label>
-      <select id="ep_leaseDuration">
-        <option value="">Any</option>
-        <option>11 Months</option>
-        <option>1 Year</option>
-        <option>2 Years</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Tenant Preference</label>
-      <select id="ep_tenantPref">
-        <option value="">Any</option>
-        <option>Family</option>
-        <option>Bachelors</option>
-        <option>Working Professionals</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Maintenance (₹/mo)</label>
-      <input type="number" id="ep_maintenance" placeholder="e.g. 2000"/>
-    </div>
-    <div class="listing-field">
-      <label>Pets Allowed</label>
-      <select id="ep_petsAllowed">
-        <option value="">Select</option>
-        <option>Yes</option>
-        <option>No</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Non-veg Allowed</label>
-      <select id="ep_nonVegAllowed">
-        <option value="">Select</option>
-        <option>Yes</option>
-        <option>No</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Piped Gas</label>
-      <select id="ep_pipedGas">
-        <option value="">Select</option>
-        <option>Yes</option>
-        <option>No</option>
-      </select>
-    </div>
-  </div>
-</div>
-
-<!-- ══ EDIT: LEASE EXTRA FIELDS ══ -->
-<div id="ep_leaseSection" style="display:none">
-  <div class="listing-section-label">Lease Terms</div>
-  <div class="listing-grid-3">
-    <div class="listing-field">
-      <label>Lease Amount (₹)</label>
-      <input type="number" id="ep_leaseAmount" placeholder="e.g. 2500000"/>
-    </div>
-    <div class="listing-field">
-      <label>Monthly Rent (₹)</label>
-      <input type="number" id="ep_leaseMonthlyRent" placeholder="e.g. 0"/>
-    </div>
-    <div class="listing-field">
-      <label>Maintenance (₹/mo)</label>
-      <input type="number" id="ep_leaseMaintenance" placeholder="e.g. 2000"/>
-    </div>
-    <div class="listing-field">
-      <label>Lease Duration</label>
-      <select id="ep_leaseDurationVal">
-        <option value="">Select</option>
-        <option>1 Year</option>
-        <option>2 Years</option>
-        <option>3 Years</option>
-        <option>5 Years</option>
-        <option>9 Years</option>
-        <option>15 Years</option>
-        <option>30 Years</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Lease Type</label>
-      <select id="ep_leaseType">
-        <option value="">Select</option>
-        <option>Residential</option>
-        <option>Commercial</option>
-        <option>Industrial</option>
-        <option>Mixed Use</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Lock-in Period</label>
-      <select id="ep_lockInPeriod">
-        <option value="">None</option>
-        <option>1 Year</option>
-        <option>2 Years</option>
-        <option>3 Years</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Available From</label>
-      <select id="ep_leaseAvailFrom">
-        <option value="">Immediate</option>
-        <option>Within 15 Days</option>
-        <option>Within 1 Month</option>
-        <option>Within 2 Months</option>
-        <option>Within 3 Months</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Notice Period</label>
-      <select id="ep_leaseNotice">
-        <option value="">Select</option>
-        <option>1 Month</option>
-        <option>2 Months</option>
-        <option>3 Months</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Rent Escalation</label>
-      <select id="ep_rentEscalation">
-        <option value="">None</option>
-        <option>5% per year</option>
-        <option>10% per year</option>
-        <option>15% per year</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Pets Allowed</label>
-      <select id="ep_leasePets">
-        <option value="">Select</option>
-        <option>Yes</option>
-        <option>No</option>
-      </select>
-    </div>
-    <div class="listing-field">
-      <label>Non-veg Allowed</label>
-      <select id="ep_leaseNonVeg">
-        <option value="">Select</option>
-        <option>Yes</option>
-        <option>No</option>
-      </select>
-    </div>
-  </div>
-</div>
           <div class="listing-field">
             <label>Meals Included<span style="color:red;">*</span></label>
             <select id="ep_pgMeals">
@@ -6316,8 +6166,6 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
               <option>No Meals</option>
             </select>
           </div>
-        </div>
-        <div class="listing-grid-3">
           <div class="listing-field">
             <label>Occupancy Available<span style="color:red;">*</span></label>
             <input type="text" id="ep_pgOccupancy" placeholder="e.g. 2 beds available"/>
@@ -6336,6 +6184,249 @@ document.getElementById('trustNotesModal').addEventListener('click',function(e){
             <select id="ep_pgBathroom">
               <option value="Yes">Yes</option>
               <option>Shared</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Meals Cost (₹/mo)</label>
+            <input type="number" id="ep_pgMealsCost" placeholder="e.g. 2000"/>
+          </div>
+          <div class="listing-field">
+            <label>Total Beds</label>
+            <input type="text" id="ep_pgTotalBeds" placeholder="e.g. 20"/>
+          </div>
+          <div class="listing-field">
+            <label>Room Furnishing</label>
+            <select id="ep_pgRoomFurnishing">
+              <option value="">Select</option>
+              <option>Fully Furnished</option>
+              <option>Semi Furnished</option>
+              <option>Unfurnished</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Food Type</label>
+            <select id="ep_pgFoodType">
+              <option value="">Select</option>
+              <option>Veg Only</option>
+              <option>Both Veg &amp; Non-veg</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Kitchen Access</label>
+            <select id="ep_pgKitchenAccess">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Available From</label>
+            <select id="ep_pgAvailableFrom">
+              <option value="">Immediate</option>
+              <option>Within 15 Days</option>
+              <option>Within 1 Month</option>
+              <option>Within 2 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Visitor Policy</label>
+            <select id="ep_pgVisitorPolicy">
+              <option value="">Select</option>
+              <option>Allowed</option>
+              <option>Not Allowed</option>
+              <option>Allowed till 10 PM</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Gate Closing Time</label>
+            <select id="ep_pgGateTime">
+              <option value="">No Restriction</option>
+              <option>9 PM</option>
+              <option>10 PM</option>
+              <option>11 PM</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Non-veg Allowed</label>
+            <select id="ep_pgNonVeg">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Pets Allowed</label>
+            <select id="ep_pgPets">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ EDIT: FOR RENT EXTRA FIELDS ══ -->
+      <div id="ep_rentSection" style="display:none">
+        <div class="listing-section-label">Availability &amp; Terms</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Available From</label>
+            <select id="ep_availableFrom">
+              <option value="">Immediate</option>
+              <option>Within 15 Days</option>
+              <option>Within 1 Month</option>
+              <option>Within 2 Months</option>
+              <option>Within 3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Notice Period</label>
+            <select id="ep_noticePeriod">
+              <option value="">Select</option>
+              <option>1 Month</option>
+              <option>2 Months</option>
+              <option>3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Lease Duration</label>
+            <select id="ep_leaseDuration">
+              <option value="">Any</option>
+              <option>11 Months</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Tenant Preference</label>
+            <select id="ep_tenantPref">
+              <option value="">Any</option>
+              <option>Family</option>
+              <option>Bachelors</option>
+              <option>Working Professionals</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Maintenance (₹/mo)</label>
+            <input type="number" id="ep_maintenance" placeholder="e.g. 2000"/>
+          </div>
+          <div class="listing-field">
+            <label>Pets Allowed</label>
+            <select id="ep_petsAllowed">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Non-veg Allowed</label>
+            <select id="ep_nonVegAllowed">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Piped Gas</label>
+            <select id="ep_pipedGas">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ EDIT: LEASE EXTRA FIELDS ══ -->
+      <div id="ep_leaseSection" style="display:none">
+        <div class="listing-section-label">Lease Terms</div>
+        <div class="listing-grid-3">
+          <div class="listing-field">
+            <label>Lease Amount (₹)</label>
+            <input type="number" id="ep_leaseAmount" placeholder="e.g. 2500000"/>
+          </div>
+          <div class="listing-field">
+            <label>Monthly Rent (₹)</label>
+            <input type="number" id="ep_leaseMonthlyRent" placeholder="e.g. 0"/>
+          </div>
+          <div class="listing-field">
+            <label>Maintenance (₹/mo)</label>
+            <input type="number" id="ep_leaseMaintenance" placeholder="e.g. 2000"/>
+          </div>
+          <div class="listing-field">
+            <label>Lease Duration</label>
+            <select id="ep_leaseDurationVal">
+              <option value="">Select</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+              <option>3 Years</option>
+              <option>5 Years</option>
+              <option>9 Years</option>
+              <option>15 Years</option>
+              <option>30 Years</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Lease Type</label>
+            <select id="ep_leaseType">
+              <option value="">Select</option>
+              <option>Residential</option>
+              <option>Commercial</option>
+              <option>Industrial</option>
+              <option>Mixed Use</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Lock-in Period</label>
+            <select id="ep_lockInPeriod">
+              <option value="">None</option>
+              <option>1 Year</option>
+              <option>2 Years</option>
+              <option>3 Years</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Available From</label>
+            <select id="ep_leaseAvailFrom">
+              <option value="">Immediate</option>
+              <option>Within 15 Days</option>
+              <option>Within 1 Month</option>
+              <option>Within 2 Months</option>
+              <option>Within 3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Notice Period</label>
+            <select id="ep_leaseNotice">
+              <option value="">Select</option>
+              <option>1 Month</option>
+              <option>2 Months</option>
+              <option>3 Months</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Rent Escalation</label>
+            <select id="ep_rentEscalation">
+              <option value="">None</option>
+              <option>5% per year</option>
+              <option>10% per year</option>
+              <option>15% per year</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Pets Allowed</label>
+            <select id="ep_leasePets">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="listing-field">
+            <label>Non-veg Allowed</label>
+            <select id="ep_leaseNonVeg">
+              <option value="">Select</option>
+              <option>Yes</option>
+              <option>No</option>
             </select>
           </div>
         </div>
