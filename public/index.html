@@ -3071,18 +3071,24 @@ document.getElementById('modalTitle').textContent = isAdmin ? p.title : '';
     : '';
 	
   // ── Dynamic details grid ──
-  // Admin: sees all fields. Non-admin: only the compare-equivalent fields.
-  const USER_ALLOWED_KEYS = new Set(['bhk','area','floor','furnishing','toilet','carparking','bikeparking','facing','age','deposit','amenities']);
-const MODAL_SKIP = new Set([
+  // Admin-only fields — never shown to regular users
+  const ADMIN_ONLY_KEYS = new Set(['ownerName','ownerNumber','fullAddress','createdAt','remarks','views']);
+  const MODAL_SKIP = new Set([
     ...MODAL_SKIP_BASE,
-...(isAdmin ? [] : ['title','loc','city','ownerName','ownerNumber','fullAddress','desc','createdAt','remarks',
-        'pgGender','pgRoomType','pgMeals','pgOccupancy','pgNotice','pgBathroom','toilet_type','views'])
+    ...(isAdmin ? [] : [...ADMIN_ONLY_KEYS])
   ]);
-  const MODAL_ORDER = ['city','loc','title','floor','ownerName','ownerNumber','fullAddress','deposit','bhk','toilet','toilet_type','furnishing','bikeparking','carparking','facing','age','area','amenities','desc','createdAt','remarks'];
+  const MODAL_ORDER = [
+    'city','loc','floor','deposit','bhk','toilet','toilet_type',
+    'furnishing','bikeparking','carparking','facing','age','area',
+    'pgGender','pgRoomType','pgMeals','pgOccupancy','pgNotice','pgBathroom',
+    'amenities','desc',
+    // admin-only below
+    'title','ownerName','ownerNumber','fullAddress','createdAt','remarks'
+  ];
   const entries = Object.entries(p).filter(([k, v]) => {
     if (MODAL_SKIP.has(k)) return false;
-    if (!isAdmin && !USER_ALLOWED_KEYS.has(k)) return false;
-    return v != null && v !== '';
+    if (k === 'amenities') return false; // rendered separately below
+    return v != null && v !== '' && !(Array.isArray(v) && v.length === 0);
   });
   entries.sort(([a],[b]) => {
     const ai = MODAL_ORDER.indexOf(a), bi = MODAL_ORDER.indexOf(b);
@@ -3093,7 +3099,10 @@ const MODAL_SKIP = new Set([
   });
   const detailRows = entries.map(([k, v]) => {
       const label = MODAL_LABELS[k] || (k.charAt(0).toUpperCase() + k.slice(1).replace(/([A-Z])/g,' $1'));
-      const val   = k === 'bhk' ? v + ' BHK' : v;
+      let val = v;
+      if (k === 'bhk')     val = v + ' BHK';
+      else if (k === 'deposit') val = '₹' + Number(v).toLocaleString('en-IN');
+      else if (k === 'area')    val = v + ' sqft';
       return `<div class="modal-detail">
         <div class="modal-detail-label">${escapeHtml(label)}</div>
         <div class="modal-detail-val">${escapeHtml(String(val))}</div>
