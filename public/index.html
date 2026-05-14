@@ -2818,19 +2818,66 @@ function renderProps(list){
 
 // ── DYNAMIC FILTER SYSTEM ──
 // Define which fields are "special" with custom labels / logic
-const FILTER_CONFIG = {
-  city:        { label:'City',         allLabel:'All Cities',  type:'string' },
-  area: 	   { label: "Area",        allLabel: "All Areas",   type: "string" },
-  loc: 	   	   { label: "Location",    allLabel: "All Locations", type: "string" },
-  bhk:         { label:'BHK',          allLabel:'Any BHK',     type:'bhk'    },
-  furnishing:  { label:'Furnishing',   allLabel:'Any',         type:'string' },
-  toilet:      { label:'Toilets',      allLabel:'Any',         type:'number' },
-  facing:      { label:'Facing',       allLabel:'Any',         type:'string' },
-  floorLevel:  { label:'Floor',        allLabel:'Any',         type:'string' },
-  age:         { label:'Age',          allLabel:'Any',         type:'string' },
-  carparking:  { label:'Car Parking',  allLabel:'Any',         type:'string' },
-  bikeparking: { label:'Bike Parking', allLabel:'Any',         type:'string' },
+const FILTER_CONFIG_RENT = {
+  city:        { label:'City',         allLabel:'All Cities',    type:'string' },
+  area:        { label:'Area',         allLabel:'All Areas',     type:'string' },
+  loc:         { label:'Location',     allLabel:'All Locations', type:'string' },
+  bhk:         { label:'BHK',          allLabel:'Any BHK',       type:'bhk'    },
+  furnishing:  { label:'Furnishing',   allLabel:'Any',           type:'string' },
+  toilet:      { label:'Toilets',      allLabel:'Any',           type:'number' },
+  facing:      { label:'Facing',       allLabel:'Any',           type:'string' },
+  floorLevel:  { label:'Floor',        allLabel:'Any',           type:'string' },
+  age:         { label:'Age',          allLabel:'Any',           type:'string' },
+  carparking:  { label:'Car Parking',  allLabel:'Any',           type:'string' },
+  bikeparking: { label:'Bike Parking', allLabel:'Any',           type:'string' },
 };
+
+const FILTER_CONFIG_LEASE = {
+  city:        { label:'City',         allLabel:'All Cities',    type:'string' },
+  area:        { label:'Area',         allLabel:'All Areas',     type:'string' },
+  loc:         { label:'Location',     allLabel:'All Locations', type:'string' },
+  bhk:         { label:'BHK',          allLabel:'Any BHK',       type:'bhk'    },
+  furnishing:  { label:'Furnishing',   allLabel:'Any',           type:'string' },
+  facing:      { label:'Facing',       allLabel:'Any',           type:'string' },
+  floorLevel:  { label:'Floor',        allLabel:'Any',           type:'string' },
+  age:         { label:'Age',          allLabel:'Any',           type:'string' },
+  carparking:  { label:'Car Parking',  allLabel:'Any',           type:'string' },
+  bikeparking: { label:'Bike Parking', allLabel:'Any',           type:'string' },
+};
+
+const FILTER_CONFIG_PG = {
+  city:         { label:'City',        allLabel:'All Cities',    type:'string' },
+  area:         { label:'Area',        allLabel:'All Areas',     type:'string' },
+  loc:          { label:'Location',    allLabel:'All Locations', type:'string' },
+  pgGender:     { label:'Gender',      allLabel:'Any',           type:'string' },
+  pgRoomType:   { label:'Room Type',   allLabel:'Any',           type:'string' },
+  pgOccupancy:  { label:'Occupancy',   allLabel:'Any',           type:'string' },
+  pgMeals:      { label:'Meals',       allLabel:'Any',           type:'string' },
+  pgFoodType:   { label:'Food Type',   allLabel:'Any',           type:'string' },
+  pgBathroom:   { label:'Bathroom',    allLabel:'Any',           type:'string' },
+  furnishing:   { label:'Furnishing',  allLabel:'Any',           type:'string' },
+};
+
+const FILTER_CONFIG_ALL = {
+  city:        { label:'City',         allLabel:'All Cities',    type:'string' },
+  area:        { label:'Area',         allLabel:'All Areas',     type:'string' },
+  loc:         { label:'Location',     allLabel:'All Locations', type:'string' },
+  bhk:         { label:'BHK',          allLabel:'Any BHK',       type:'bhk'    },
+  furnishing:  { label:'Furnishing',   allLabel:'Any',           type:'string' },
+  facing:      { label:'Facing',       allLabel:'Any',           type:'string' },
+  carparking:  { label:'Car Parking',  allLabel:'Any',           type:'string' },
+  bikeparking: { label:'Bike Parking', allLabel:'Any',           type:'string' },
+};
+
+function getActiveFilterConfig() {
+  if (activeFilter === 'For Rent') return FILTER_CONFIG_RENT;
+  if (activeFilter === 'Lease')    return FILTER_CONFIG_LEASE;
+  if (activeFilter === 'PG')       return FILTER_CONFIG_PG;
+  return FILTER_CONFIG_ALL;
+}
+
+// Alias so any existing code that reads FILTER_CONFIG still works
+const FILTER_CONFIG = FILTER_CONFIG_ALL;
 
 // Keys to SKIP (they are handled by filter chips or aren't useful dropdowns)
 const SKIP_KEYS = new Set(['id','title','price','displayPrice','floor','desc','color','icon','images','amenities']);
@@ -2898,12 +2945,14 @@ function buildFilters(){
   // ── 2. Rebuild dropdown filter bar ──
   const bar = document.getElementById('dynamicFilterBar');
   bar.querySelectorAll('.search-field').forEach(el => el.remove());
-  const keys = Object.keys(FILTER_CONFIG);
+  const activeConfig = getActiveFilterConfig();
+  const keys = Object.keys(activeConfig);
   let html = '';
 
   for(const key of keys){
-    const cfg = FILTER_CONFIG[key];
-    const vals = [...new Set(PROPERTIES.map(p=>p[key]).filter(v=>v!=null&&v!==''))].sort((a,b)=>{
+    const cfg = activeConfig[key];
+    const sourceProps = activeFilter === 'all' ? PROPERTIES : PROPERTIES.filter(p => p.status === activeFilter);
+    const vals = [...new Set(sourceProps.map(p=>p[key]).filter(v=>v!=null&&v!==''))].sort((a,b)=>{
       if(cfg.type==='number') return Number(a)-Number(b);
       if(cfg.type==='bhk') return Number(a)-Number(b);
       return String(a).localeCompare(String(b));
@@ -2932,17 +2981,18 @@ function getFilterVal(id){
 
 function filterProps(){
   let list = PROPERTIES;
+  const cfg = getActiveFilterConfig();
   // Apply each dynamic filter
-  for(const key of Object.keys(FILTER_CONFIG)){
+  for(const key of Object.keys(cfg)){
     const val = getFilterVal('sf_'+key);
     if(val==='all') continue;
-    if(FILTER_CONFIG[key].type==='bhk'){
+    if(cfg[key].type==='bhk'){
       list = list.filter(p => {
         const pBhk = parseInt(p[key]);
         const vBhk = parseInt(val);
         return vBhk >= 4 ? pBhk >= 4 : pBhk === vBhk;
       });
-    } else if(FILTER_CONFIG[key].type==='number'){
+    } else if(cfg[key].type==='number'){
       list = list.filter(p => String(p[key])===String(val));
     } else {
       list = list.filter(p => String(p[key]||'').toLowerCase()===String(val).toLowerCase());
@@ -2965,11 +3015,11 @@ function filterProps(){
 }
 
 function resetFilters(){
-  document.querySelectorAll('#dynamicFilterBar select').forEach(el=>el.value='all');
   activeFilter='all';
   document.querySelectorAll('.filter-chip').forEach(btn=>btn.classList.remove('active'));
   document.querySelector('.filter-chip.chip-all').classList.add('active');
-  renderProps(PROPERTIES);
+  buildFilters();
+  filterProps();
   document.querySelector('#listings').scrollIntoView({behavior:'smooth'});
 }
 
@@ -2981,12 +3031,8 @@ function setFilter(btn,val){
   document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   activeFilter=val;
-  // Rebuild budget dropdown with correct bands for this filter type
-  const budgetSel = document.getElementById('sf_budget');
-  if(budgetSel){
-    const activeBands = getActiveBudgetBands();
-    budgetSel.innerHTML = activeBands.map(b=>`<option value="${b.value}">${b.label}</option>`).join('');
-  }
+  // Rebuild all filter dropdowns for this listing type
+  buildFilters();
   filterProps();
 }
 
