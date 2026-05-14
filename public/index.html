@@ -3258,8 +3258,9 @@ var BASE_URL = location.hostname === 'localhost'
         isAdmin = !!user.isAdmin;
         // Restore admin API key from session
         if (isAdmin) {
-          try { window._adminKey = sessionStorage.getItem('kr_admin_key') || ''; } catch(e) {}
-        }
+  try { window._adminKey = sessionStorage.getItem('kr_admin_key') || ''; } catch(e) {}
+  loadSiteVisits(); // ← add this line here, after key is restored
+}
         // On restore, check server-side if user already reviewed (using stored email)
         if (!isAdmin && user.email) {
           fetch(BASE_URL + '/api/reviews/check/' + encodeURIComponent(user.email))
@@ -3409,7 +3410,6 @@ function applyLoginUI(firstName, lastName, admin) {
   const nameInput = document.getElementById('name');
   const addReviewTitle = document.getElementById('addYourReviewID');
   // Admin sees only reviews — no form, no gate, no title
-loadSiteVisits();
 
 if (isAdmin) {
     
