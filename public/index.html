@@ -677,9 +677,11 @@ nav{
   padding-top:11px;
   display:grid;
   grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:auto;
   gap:7px;
   margin-top:auto;
 }
+
 .prop-btn{
   padding:10px 0;
   border-radius:14px;
@@ -1102,8 +1104,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .footer-links{display:flex;flex-direction:column;gap:6px}
 .footer-links a{color:rgba(255,255,255,0.5);font-size:0.76rem;text-decoration:none;transition:color 0.15s;white-space:nowrap}
 .footer-links a:hover{color:var(--gold2)}
-.footer-bottom{display:flex;justify-content:flex-end;align-items:center;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.08);gap:1rem;flex-wrap:wrap}
-.footer-social{display:flex;gap:8px}
+.footer-bottom{display:flex;justify-content:center;align-items:center;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.08);gap:1rem;flex-wrap:wrap}
+.footer-social{display:flex;gap:8px;justify-content:center;}
 .social-btn{
   width:32px;height:32px;border-radius:8px;
   background:rgba(255,255,255,0.06);display:flex;
@@ -2823,7 +2825,7 @@ function renderProps(list){
 			<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
 		  </button>
 		</div>
-        ${isAdmin ? `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:8px">
+        ${isAdmin ? `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px">
           <button class="prop-btn prop-btn-outline" title="Edit" onclick="event.stopPropagation();openEditPropertyModal(${p.id})">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
