@@ -2157,17 +2157,17 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
 
 /* Founder cards grid */
 .about-founders-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  display:grid;grid-template-columns:repeat(2,1fr);
   gap:1.2rem;margin-bottom:2rem;
 }
 @media(max-width:560px){
-  .about-founders-grid{grid-template-columns:1fr 1fr;gap:0.9rem}
+  .about-founders-grid{grid-template-columns:repeat(2,1fr);gap:0.9rem}
   .about-modal-body{padding:1.3rem 1.2rem 2rem}
   .about-modal-header{padding:1.5rem 1.2rem 1.3rem}
   .about-modal-brand{font-size:1.6rem}
 }
 @media(max-width:340px){
-  .about-founders-grid{grid-template-columns:1fr}
+  .about-founders-grid{grid-template-columns:repeat(2,1fr)}
 }
 
 /* Founder card — mirrors agent-card style */
@@ -2228,11 +2228,8 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
     <div class="about-modal-header">
       <button class="about-modal-close" onclick="closeAboutModal()" aria-label="Close">✕</button>
       <div class="about-modal-brand"><span>Rent</span>In<span>Bangalore</span></div>
-      <div class="about-modal-tagline">HSR Layout's Premier Realty · Est. 2026</div>
       <p class="about-modal-story">
         We started RentInBangalore with a simple belief — finding a home should feel exciting, not overwhelming.
-        From a single desk in HSR Layout to a trusted name across Bengaluru, our team of passionate professionals
-        has helped hundreds of families find their perfect space.
       </p>
     </div>
 
@@ -2269,32 +2266,6 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
           </a>
         </div>
 
-        <!-- Founder 3 -->
-        <div class="founder-card">
-          <div class="founder-avatar" style="background:#e6f1fb;color:#185fa5">AM</div>
-          <div class="founder-badge">Partner</div>
-          <div class="founder-name">Arjun Menon</div>
-          <div class="founder-role">Head of Operations</div>
-          <div class="founder-bio">Expert in property legals, documentation, and builder negotiations for 8+ years.</div>
-          <a class="founder-contact" href="tel:9611459962">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-            9611459962
-          </a>
-        </div>
-
-        <!-- Founder 4 -->
-        <div class="founder-card">
-          <div class="founder-avatar" style="background:#f4f0ff;color:#5b21b6">SP</div>
-          <div class="founder-badge">Partner</div>
-          <div class="founder-name">Sunita Prasad</div>
-          <div class="founder-role">Finance & Home Loans</div>
-          <div class="founder-bio">Guides buyers through home loans, RERA compliance, and tax benefits seamlessly.</div>
-          <a class="founder-contact" href="tel:9611459963">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-            9611459963
-          </a>
-        </div>
-
       </div>
 
       <!-- Company Values -->
@@ -2311,7 +2282,7 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
           <div class="about-value-icon">🏡</div>
           <div class="about-value-text">
             <div class="about-value-heading">Local Expertise</div>
-            <div class="about-value-sub">Deep knowledge of every lane, sector, and building in HSR Layout.</div>
+            <div class="about-value-sub">Deep knowledge of every lane, sector, and building.</div>
           </div>
         </div>
         <div class="about-value-item">
