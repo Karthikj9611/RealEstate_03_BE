@@ -1596,6 +1596,11 @@ input {
   <a class="nav-logo" href="#"><span class="k">Rent</span>In<span class="k">Bangalore</span></a>
 <!--  <a class="nav-logo" href="#"><img src="Logo.png" alt="KR Logo" style="height:42px;width:42px;object-fit:contain;border-radius:6px;"/></a> -->
 
+<button id="navFavBtn" onclick="openFavDrawer()">
+      ❤️
+      <span id="navFavBadge"></span>
+    </button>
+
   <!-- Desktop + Mobile drawer links -->
 <div class="nav-links" id="navLinks">
     <!-- Properties & Agents: hidden on desktop (moved into More dropdown), visible in mobile drawer -->
@@ -1643,10 +1648,7 @@ input {
 
     <a href="#" id="navLoginLink" onclick="event.preventDefault();openAuthModal('login');closeNav()" style="display:inline-flex;align-items:center;gap:5px"><span class="icon"><svg><use href="#ic-user"/></svg></span>Sign In</a>
 
-    <button id="navFavBtn" onclick="openFavDrawer()">
-      ❤️ Shortlist
-      <span id="navFavBadge"></span>
-    </button>
+    
 
     <!-- ── Mobile-only user block (shown inside drawer after login) ── -->
     <div id="mobileUserBlock" style="display:none;margin-top:6px;padding:12px 14px;background:var(--gold-light);border-radius:var(--radius-xs);border:1.5px solid var(--gold);flex-direction:column;gap:4px">
@@ -7658,6 +7660,25 @@ nav.scrolled .nav-cta {
     text-align: center !important;
     white-space: nowrap !important;
     overflow: visible !important;
+  }
+}
+
+@media(max-width:760px){
+  /* Show shortlist button in nav bar on mobile */
+  #navFavBtn{
+    display:inline-flex !important;
+    align-items:center;
+    gap:6px;
+    font-size:0.78rem;
+    font-weight:700;
+    padding:7px 13px;
+    border-radius:99px;
+    border:1.5px solid var(--gold);
+    background:var(--gold-light);
+    color:var(--ink);
+    cursor:pointer;
+    font-family:inherit;
+    flex-shrink:0;
   }
 }
 
