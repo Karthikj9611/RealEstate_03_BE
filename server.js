@@ -848,21 +848,26 @@ app.post("/api/appointments", async (req, res) => {
       return res.status(400).json({ success: false, message: "Please select a future date." });
 
     // Prevent duplicate booking for same date + time slot
+    const cleanDate     = (date     || "").trim();
+    const cleanTimeSlot = (timeSlot || "").trim();
     const existing = await Appointment.findOne({
-      date,
-      timeSlot,
-      status: { $in: ["pending", "confirmed"] }
+      date:     cleanDate,
+      timeSlot: cleanTimeSlot,
+      status:   { $in: ["pending", "confirmed"] }
     });
     if (existing)
-      return res.status(409).json({ success: false, message: `The ${timeSlot} slot on ${date} is already booked. Please choose a different date or time slot.` });
+      return res.status(409).json({ success: false, message: `The ${cleanTimeSlot} slot on ${cleanDate} is already booked. Please choose a different date or time slot.` });
 
     const appt = await new Appointment({
-      name, email, mobile,
-      altMobile:  altMobile  || "",
-      purpose,
-      propertyId: propertyId || "",
-      date, timeSlot,
-      message: message || ""
+      name:       name.trim(),
+      email:      email.trim(),
+      mobile:     mobile.trim(),
+      altMobile:  (altMobile  || "").trim(),
+      purpose:    purpose.trim(),
+      propertyId: (propertyId || "").trim(),
+      date:       cleanDate,
+      timeSlot:   cleanTimeSlot,
+      message:    (message || "").trim()
     }).save();
 
     res.json({ success: true, message: "Appointment booked successfully!", appointmentId: appt._id });
