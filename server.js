@@ -52,7 +52,7 @@ const PropertySchema = new mongoose.Schema({
   displayPrice: { type: String, required: true },
   bhk: { type: Number, default: null },
   area:         String,
-  status:       { type: String, enum: ["For Sale","For Rent","New Launch","Sold","Lease","PG"], default: "For Sale" },
+  status:       { type: String, enum: ["For Sale","For Rent","New Launch","Sold","Booked","Lease","PG"], default: "For Sale" },
   furnishing:   { type: String, default: "Unfurnished" },
   floor: String, floorLevel: String, age: String, facing: String,
   carparking: String, bikeparking: String, toilet: String,
@@ -765,7 +765,7 @@ app.delete("/api/payments/:id", adminAuth, async (req, res) => {
 app.patch("/api/properties/:id/status", adminAuth, async (req, res) => {
   try {
     const { status } = req.body;
-    const validStatuses = ["For Sale","For Rent","New Launch","Sold","Lease","PG"];
+    const validStatuses = ["For Sale","For Rent","New Launch","Sold","Booked","Lease","PG"];
     if (!validStatuses.includes(status))
       return res.status(400).json({ message: "Invalid status" });
     if (!mongoose.Types.ObjectId.isValid(req.params.id))
