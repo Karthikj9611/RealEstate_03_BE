@@ -124,6 +124,22 @@ const ReviewSchema = new mongoose.Schema({
 });
 const Review = mongoose.model("Review", ReviewSchema);
 
+// ── APPOINTMENT SCHEMA ──
+const AppointmentSchema = new mongoose.Schema({
+  name:       { type: String, required: true },
+  email:      { type: String, required: true },
+  mobile:     { type: String, required: true },
+  altMobile:  { type: String, default: "" },
+  purpose:    { type: String, required: true },     // "For Rent" | "For Sale" | "Lease" | "PG" | "General Enquiry"
+  propertyId: { type: String, default: "" },
+  date:       { type: String, required: true },     // YYYY-MM-DD
+  timeSlot:   { type: String, required: true },     // "Morning" | "Afternoon" | "Evening"
+  message:    { type: String, default: "" },
+  status:     { type: String, enum: ["pending", "confirmed", "cancelled", "completed"], default: "pending" },
+  createdAt:  { type: Date, default: Date.now }
+});
+const Appointment = mongoose.model("Appointment", AppointmentSchema);
+
 // ── RAZORPAY ──
 const razorpay = new Razorpay({
   key_id:     process.env.RAZORPAY_KEY_ID,
@@ -808,6 +824,95 @@ app.get("/api/site-visit-public", async (req, res) => {
     res.json({ today: todayVisit ? todayVisit.count : 0, total });
   } catch(err) {
     res.status(500).json({ today: 0, total: 0 });
+  }
+});
+
+// ── APPOINTMENT ROUTES ──
+
+// CREATE Appointment (public)
+app.post("/api/appointments", async (req, res) => {
+  try {
+    const { name, email, mobile, altMobile, purpose, propertyId, date, timeSlot, message } = req.body;
+
+    if (!name || !email || !mobile || !purpose || !date || !timeSlot)
+      return res.status(400).json({ success: false, message: "Please fill all required fields." });
+
+    if (!/^[6-9]\d{9}$/.test(mobile))
+      return res.status(400).json({ success: false, message: "Invalid mobile number." });
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return res.status(400).json({ success: false, message: "Invalid email address." });
+
+    const today = new Date().toISOString().split('T')[0];
+    if (date < today)
+      return res.status(400).json({ success: false, message: "Please select a future date." });
+
+    // Prevent duplicate booking for same date + time slot
+    const existing = await Appointment.findOne({
+      date,
+      timeSlot,
+      status: { $in: ["pending", "confirmed"] }
+    });
+    if (existing)
+      return res.status(409).json({ success: false, message: `The ${timeSlot} slot on ${date} is already booked. Please choose a different date or time slot.` });
+
+    const appt = await new Appointment({
+      name, email, mobile,
+      altMobile:  altMobile  || "",
+      purpose,
+      propertyId: propertyId || "",
+      date, timeSlot,
+      message: message || ""
+    }).save();
+
+    res.json({ success: true, message: "Appointment booked successfully!", appointmentId: appt._id });
+
+  } catch (err) {
+    console.error("Appointment error:", err);
+    res.status(500).json({ success: false, message: "Server error. Please try again." });
+  }
+});
+
+// LIST All Appointments (admin)
+app.get("/api/appointments", adminAuth, async (req, res) => {
+  try {
+    const appts = await Appointment.find().sort({ createdAt: -1 });
+    res.json(appts);
+  } catch (err) {
+    res.status(500).json([]);
+  }
+});
+
+// UPDATE Appointment Status (admin)
+app.patch("/api/appointments/:id", adminAuth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid appointment ID" });
+
+    const validStatuses = ["pending", "confirmed", "cancelled", "completed"];
+    const { status } = req.body;
+    if (!validStatuses.includes(status))
+      return res.status(400).json({ message: "Invalid status" });
+
+    const appt = await Appointment.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!appt) return res.status(404).json({ message: "Appointment not found" });
+
+    res.json({ success: true, appointment: appt });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE Appointment (admin)
+app.delete("/api/appointments/:id", adminAuth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid appointment ID" });
+    const deleted = await Appointment.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Appointment not found" });
+    res.json({ success: true, message: "Appointment deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 
