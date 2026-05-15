@@ -1853,10 +1853,9 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
     <div class="hero-text-anim">
       <div class="hero-eyebrow">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        HSR Layout's Premier Realty
+        Find Your <em>Perfect</em> Home
       </div>
-      <h1>Find Your <em>Perfect</em> Home</h1>
-      <p class="hero-desc">Verified listings across HSR Layout.</p>
+      <h1>Verified listings <em>Only</em></h1>
     </div>
 
     <!-- AFTER -->
@@ -1866,7 +1865,7 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         Site Visitors
       </div>
-      <div class="hero-commission-title">People Exploring Properties on RentInBangalore</div>
+      <div class="hero-commission-title">People Exploring Properties on our platform</div>
       <div class="hero-commission-pills">
         <div class="hero-commission-pill hero-commission-pill-rent">
           <span class="hero-commission-pill-lbl">Today</span>
@@ -9247,6 +9246,41 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCompare
 }
 .share-wa-btn:hover { background: #1ebe5d; transform: translateY(-1px); }
 .share-wa-btn svg { fill: #fff; flex-shrink: 0; }
+
+
+@media(max-width:640px){
+  .hero-commission-box{
+    min-width:0; max-width:100%;
+    flex-direction:column;       /* stack vertically instead of row */
+    align-items:stretch;
+    gap:10px;
+    padding:1rem 1.2rem;
+  }
+  .hero-commission-box .hero-commission-divider,
+  .hero-commission-box .hero-commission-footer{ display:none; }
+  .hero-commission-title{ font-size:0.9rem }
+  .hero-commission-pills{ flex-shrink:0; justify-content:stretch; }
+  .hero-commission-pill{ flex:1; padding:8px 10px; }
+  .hero-commission-pill-val{ font-size:1.2rem }
+}
+
+@media(max-width:600px){
+  .commission-banner-inner{
+    flex-direction:column;       /* stack everything vertically */
+    align-items:flex-start;
+    gap:0.6rem;
+  }
+  .commission-banner-icon{ font-size:1.2rem }
+  .commission-banner-sub{ display:none }
+  .commission-pills{ width:100%; justify-content:space-between; }
+  .commission-pill{ flex:1; padding:6px 8px; min-width:0; }
+  .commission-pill-value{ font-size:1.1rem }
+  .commission-pill-divider{ display:none }
+  .commission-banner-close{
+    position:absolute; top:10px; right:10px;
+  }
+}
+
 </style>
 
 <div id="shareModal" onclick="if(event.target===this)closeShareModal()">
