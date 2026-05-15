@@ -2751,7 +2751,7 @@ function renderProps(list){
         <div class="img-overlay-gradient"></div>
         <div class="prop-img-color-stripe"></div>
         <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
-<button class="prop-fav ${favs.has(p.id)?'active':''}" onclick="toggleFav(event,${p.id})">${favs.has(p.id)?'❤️':'🤍'}</button>
+<button class=\"prop-fav ${favs.has(String(p._id))?'active':''}\" onclick=\"toggleFav(event,${p.id})\">${favs.has(String(p._id))?'❤️':'🤍'}</button>
 <div id="view-badge-${p.id}" style="position:absolute;bottom:10px;left:10px;z-index:5;background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:99px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)">
   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
   <span id="view-count-${p.id}">${p.views || 0}</span>
@@ -3053,8 +3053,10 @@ function setTab(btn,val){
 
 function toggleFav(e, id) {
   e.stopPropagation();
-  if (favs.has(id)) { favs.delete(id); showToast('Removed from shortlist'); }
-  else              { favs.add(id);    showToast('Saved to shortlist ❤️');  }
+  const p = PROPERTIES.find(x => x.id === id);
+  const stableId = p ? String(p._id) : String(id);
+  if (favs.has(stableId)) { favs.delete(stableId); showToast('Removed from shortlist'); }
+  else                    { favs.add(stableId);    showToast('Saved to shortlist ❤️');  }
   try { localStorage.setItem('kr_favs', JSON.stringify([...favs])); } catch(e) {}
   _updateFavBadge();
   filterProps();
@@ -8727,7 +8729,7 @@ function scrollSpeed(el, base) {
 (function() {
   try {
     const saved = localStorage.getItem('kr_favs');
-    if (saved) JSON.parse(saved).forEach(id => favs.add(id));
+if (saved) JSON.parse(saved).forEach(id => favs.add(String(id)));
   } catch(e) {}
   _updateFavBadge();
 })();
@@ -8741,7 +8743,7 @@ function _updateFavBadge() {
 
 function openFavDrawer() {
   const body = document.getElementById('favPanelBody');
-  const list = PROPERTIES.filter(p => favs.has(p.id));
+  const list = PROPERTIES.filter(p => favs.has(String(p._id)));
   if (!list.length) {
     body.innerHTML = `<div class="fav-empty"><span class="fav-empty-icon">🤍</span>No shortlisted properties yet.<br><span style="font-size:0.82rem">Tap ❤️ on any card to save it here.</span></div>`;
   } else {
@@ -8768,7 +8770,9 @@ function closeFavDrawer() {
 }
 
 function removeFav(id) {
-  favs.delete(id);
+  const pp = PROPERTIES.find(x => x.id === id);
+const stableId = pp ? String(pp._id) : String(id);
+favs.delete(stableId);
   try { localStorage.setItem('kr_favs', JSON.stringify([...favs])); } catch(e) {}
   _updateFavBadge();
   filterProps();
@@ -9599,7 +9603,7 @@ async function openProfileModal() {
   document.getElementById('profileDetailEmail').textContent = email || '—';
 
   // Saved / Favourites
-  const savedProps = PROPERTIES.filter(p => favs.has(p.id));
+  const savedProps = PROPERTIES.filter(p => favs.has(String(p._id)));
   document.getElementById('profileFavCount').textContent    = savedProps.length;
   document.getElementById('profileViewedCount').textContent = savedProps.length;
 
