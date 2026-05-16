@@ -905,11 +905,54 @@ app.patch("/api/appointments/:id", adminAuth, async (req, res) => {
     if (!validStatuses.includes(status))
       return res.status(400).json({ message: "Invalid status" });
 
+    // Fetch existing to check prior status
+    const existing = await Appointment.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: "Appointment not found" });
+
     const appt = await Appointment.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    if (!appt) return res.status(404).json({ message: "Appointment not found" });
+
+    // Send confirmation email only when transitioning TO confirmed
+    if (status === 'confirmed' && existing.status !== 'confirmed' && appt.email) {
+      const slotIcon = { Morning: '🌅', Afternoon: '☀️', Evening: '🌙' }[appt.timeSlot] || '🕐';
+      const emailHtml = `
+<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;background:#fff;border-radius:14px;overflow:hidden;border:1px solid #e0e0e0">
+  <div style="background:linear-gradient(135deg,#1b3a2d,#2e7d5a);padding:24px;text-align:center">
+    <h2 style="margin:0;color:#fff;font-size:1.4rem;font-family:Georgia,serif">KR Real Estate</h2>
+    <p style="margin:6px 0 0;color:rgba(255,255,255,0.7);font-size:0.82rem">Appointment Confirmed</p>
+  </div>
+  <div style="padding:30px 28px">
+    <p style="font-size:1rem;color:#222;margin-bottom:6px">Hi <strong>${appt.name}</strong>,</p>
+    <p style="color:#555;font-size:0.9rem;line-height:1.6;margin-bottom:24px">
+      Your appointment with <strong>KR Real Estate</strong> has been <span style="color:#1a7a5e;font-weight:700">confirmed</span>. Here are your details:
+    </p>
+    <div style="background:#f4f9f6;border-radius:10px;padding:18px 20px;border:1px solid #d0ece1;margin-bottom:24px">
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem">
+        <tr><td style="padding:7px 0;color:#666;width:40%">📅 Date</td><td style="padding:7px 0;font-weight:700;color:#111">${appt.date}</td></tr>
+        <tr><td style="padding:7px 0;color:#666">${slotIcon} Time Slot</td><td style="padding:7px 0;font-weight:700;color:#111">${appt.timeSlot}</td></tr>
+        <tr><td style="padding:7px 0;color:#666">🏠 Purpose</td><td style="padding:7px 0;font-weight:700;color:#111">${appt.purpose}</td></tr>
+        <tr><td style="padding:7px 0;color:#666">📞 Mobile</td><td style="padding:7px 0;font-weight:700;color:#111">${appt.mobile}</td></tr>
+        ${appt.message ? `<tr><td style="padding:7px 0;color:#666;vertical-align:top">💬 Message</td><td style="padding:7px 0;color:#333">${appt.message}</td></tr>` : ''}
+      </table>
+    </div>
+    <p style="color:#555;font-size:0.85rem;line-height:1.7;margin-bottom:20px">
+      Our team will be in touch if there are any changes. For queries, feel free to reply to this email or call us directly.
+    </p>
+    <div style="text-align:center">
+      <a href="tel:${appt.mobile}" style="display:inline-block;background:#1b3a2d;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:0.88rem;font-weight:700">📞 Contact Us</a>
+    </div>
+  </div>
+  <div style="background:#f9f9f9;padding:14px;text-align:center;font-size:0.72rem;color:#aaa">
+    © ${new Date().getFullYear()} KR Real Estate · This is an automated message
+  </div>
+</div>`;
+      // Fire-and-forget — don't block the response
+      sendEmailWithBrevo(appt.email, 'Your Appointment is Confirmed — KR Real Estate', emailHtml)
+        .catch(err => console.error('Appointment confirmation email error:', err));
+    }
 
     res.json({ success: true, appointment: appt });
   } catch (err) {
+    console.error('Appointment patch error:', err);
     res.status(500).json({ message: "Server error" });
   }
 });
