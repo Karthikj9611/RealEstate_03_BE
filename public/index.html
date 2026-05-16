@@ -1618,7 +1618,7 @@ input {
     </button>
 
 <!-- ── ADMIN NOTIFICATION BELL ── -->
-<div id="navNotifWrap" style="position:relative;flex-shrink:0;display:none" class="admin-notif-wrap">
+<div id="navNotifWrap" style="display:none;position:relative;flex-shrink:0">
   <button id="navNotifBtn" onclick="toggleNotifPanel(event)" title="New appointment notifications" aria-label="Notifications">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -1627,26 +1627,15 @@ input {
   </button>
   <div id="navNotifPanel" style="display:none">
     <div id="navNotifPanelHeader">
-      <span>🔔 Appointments <span id="navNotifCountBadge" style="display:none"></span></span>
+      <span>🔔 New Appointments</span>
       <button onclick="markNotifsRead()" id="navNotifMarkRead">Mark all read</button>
     </div>
     <div id="navNotifList">
       <div class="notif-empty">No new bookings yet</div>
     </div>
-<script>
-// Show bell immediately on page load if admin session exists (no flash/race)
-(function(){
-  try {
-    var u = JSON.parse(localStorage.getItem('kr_user')||'{}');
-    var k = localStorage.getItem('kr_admin_key')||'';
-    if (u.isAdmin && k) {
-      var el = document.getElementById('navNotifWrap');
-      if (el) el.style.display = 'flex';
-    }
-  } catch(e) {}
-})();
-</script>
-
+    <div id="navNotifFooter">
+      <button onclick="openAdminAppointmentsFromNotif()">View all appointments →</button>
+    </div>
   </div>
 </div>
 
@@ -3511,10 +3500,6 @@ function applyLoginUI(firstName, lastName, admin) {
   const pFloat = document.getElementById('adminResetViewsFloat');
   if (vFloat) vFloat.style.display = isAdmin ? 'flex' : 'none';
   if (pFloat) pFloat.style.display = isAdmin ? 'flex' : 'none';
-
-  // \u2500\u2500 Notification bell: always show for admin, always hide for non-admin \u2500\u2500
-  var notifWrap = document.getElementById('navNotifWrap');
-  if (notifWrap) notifWrap.style.display = isAdmin ? 'flex' : 'none';
 
   // ── Mobile user block ──
   const mobileBlock = document.getElementById('mobileUserBlock');
@@ -7776,7 +7761,7 @@ nav.scrolled .nav-cta {
   position:absolute;top:calc(100% + 10px);right:-8px;
   background:var(--surface);border:1px solid var(--border);
   border-radius:16px;box-shadow:var(--shadow-lg);
-  width:360px;max-height:520px;overflow:hidden;
+  width:320px;max-height:420px;overflow:hidden;
   display:flex;flex-direction:column;
   z-index:400;animation:notifSlideIn 0.22s cubic-bezier(0.34,1.2,0.64,1);
 }
@@ -7786,70 +7771,36 @@ nav.scrolled .nav-cta {
   padding:12px 16px 10px;
   border-bottom:1px solid var(--border);flex-shrink:0;
   font-size:0.84rem;font-weight:700;color:var(--ink);
-  gap:8px;
-}
-#navNotifCountBadge {
-  background:var(--red);color:#fff;
-  font-size:0.62rem;font-weight:800;
-  min-width:18px;height:18px;border-radius:99px;
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:0 5px;margin-left:4px;
 }
 #navNotifMarkRead {
   background:none;border:none;cursor:pointer;
   font-size:0.72rem;font-weight:600;color:var(--gold-dark);
   font-family:inherit;padding:4px 8px;border-radius:6px;
-  transition:background 0.15s;white-space:nowrap;margin-left:auto;
+  transition:background 0.15s;
 }
 #navNotifMarkRead:hover{background:var(--gold-light)}
 #navNotifList {
-  overflow-y:auto;flex:1;padding:8px 10px;
+  overflow-y:auto;flex:1;padding:6px 8px;
 }
 .notif-item {
-  display:flex;flex-direction:column;gap:0;
-  border-radius:12px;
-  border:1.5px solid var(--border);
-  margin-bottom:10px;
-  background:var(--surface);
+  display:flex;flex-direction:column;gap:2px;
+  padding:10px 10px 10px 10px;
+  border-radius:10px;cursor:pointer;
+  transition:background 0.15s;
+  border-bottom:1px solid var(--surface2);
   position:relative;
-  overflow:hidden;
-  transition:box-shadow 0.15s;
 }
-.notif-item:last-child{margin-bottom:0}
-.notif-item:hover{box-shadow:var(--shadow-md);}
-.notif-item.unread{border-left:3px solid var(--red);}
-.notif-item-top {
-  display:flex;align-items:flex-start;justify-content:space-between;
-  padding:10px 12px 5px 12px;gap:8px;
+.notif-item:last-child{border-bottom:none}
+.notif-item:hover{background:var(--gold-light)}
+.notif-item.unread::before{
+  content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);
+  width:6px;height:6px;border-radius:50%;background:var(--red);
 }
-.notif-item-name{font-size:0.86rem;font-weight:700;color:var(--ink);flex:1;min-width:0;}
-.notif-item-time{font-size:0.64rem;color:var(--ink3);white-space:nowrap;flex-shrink:0;padding-top:2px;}
-.notif-item-body{padding:0 12px 8px 12px;display:flex;flex-direction:column;gap:4px;}
-.notif-detail-row{display:flex;align-items:center;gap:5px;font-size:0.76rem;color:var(--ink2);}
-.notif-detail-row .nd-label{color:var(--ink3);min-width:52px;font-size:0.7rem;}
-.notif-detail-row .nd-val{font-weight:600;color:var(--ink);}
-.notif-item-status{
-  display:inline-block;font-size:0.62rem;font-weight:700;
-  padding:2px 8px;border-radius:99px;text-transform:capitalize;
-}
-.notif-item-status.pending  {background:var(--gold-light);color:var(--gold-dark);}
-.notif-item-status.confirmed{background:#e4f5ed;color:#1a5c3f;}
-.notif-item-status.cancelled{background:var(--red-light);color:var(--red);}
-.notif-item-status.completed{background:var(--teal-light);color:var(--teal);}
-.notif-item-footer{
-  display:flex;align-items:center;justify-content:flex-end;
-  padding:6px 10px 8px;
-  border-top:1px solid var(--surface2);gap:6px;
-}
-.notif-mark-btn{
-  background:none;border:1.5px solid var(--border2);cursor:pointer;
-  font-size:0.7rem;font-weight:600;color:var(--ink3);
-  font-family:inherit;padding:3px 10px;border-radius:99px;
-  transition:all 0.15s;
-}
-.notif-mark-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red);}
+.notif-item-name{font-size:0.84rem;font-weight:700;color:var(--ink);padding-left:12px}
+.notif-item-detail{font-size:0.74rem;color:var(--ink3);padding-left:12px}
+.notif-item-time{font-size:0.66rem;color:var(--ink3);padding-left:12px;margin-top:1px}
 .notif-empty{
-  padding:28px 16px;text-align:center;
+  padding:24px 16px;text-align:center;
   color:var(--ink3);font-size:0.82rem;
 }
 #navNotifFooter{
@@ -7859,16 +7810,15 @@ nav.scrolled .nav-cta {
   background:none;border:none;cursor:pointer;
   font-size:0.8rem;font-weight:600;color:var(--gold-dark);
   font-family:inherit;padding:6px 12px;border-radius:8px;
-  transition:background 0.15s;width:100%;
+  transition:background 0.15s;
 }
 #navNotifFooter button:hover{background:var(--gold-light)}
 @media(max-width:760px){
   #navNotifPanel{
     position:fixed;top:64px;right:8px;left:8px;width:auto;
-    border-radius:14px;max-height:75vh;
+    border-radius:14px;max-height:70vh;
   }
 }
-
 </style>
 
 <!-- Splash -->
@@ -10207,24 +10157,21 @@ let _sseSource  = null;   // EventSource
 
 /* ── bell badge ── */
 function updateNotifBell(count) {
-  const wrap   = document.getElementById('navNotifWrap');
-  const badge  = document.getElementById('navNotifBadge');
-  const cBadge = document.getElementById('navNotifCountBadge');
+  const wrap  = document.getElementById('navNotifWrap');
+  const badge = document.getElementById('navNotifBadge');
   if (!wrap) return;
   if (count > 0) {
-    const label = count > 99 ? '99+' : String(count);
-    badge.textContent = label;
+    badge.textContent = count > 99 ? '99+' : count;
     badge.style.display = 'flex';
+    // Pulse animation
     badge.style.animation = 'none';
     requestAnimationFrame(() => { badge.style.animation = ''; });
-    if (cBadge) { cBadge.textContent = label; cBadge.style.display = 'inline-flex'; }
   } else {
     badge.style.display = 'none';
-    if (cBadge) cBadge.style.display = 'none';
   }
-}* ── panel render ── */
-function statusCls(s){return({pending:'pending',confirmed:'confirmed',cancelled:'cancelled',completed:'completed'})[s]||'pending';}
+}
 
+/* ── panel render ── */
 function renderNotifList() {
   const list = document.getElementById('navNotifList');
   if (!list) return;
@@ -10232,32 +10179,15 @@ function renderNotifList() {
     list.innerHTML = '<div class="notif-empty">🎉 No new appointments</div>';
     return;
   }
-  list.innerHTML = _notifItems.map((appt, i) => {
-    const alt = appt.altMobile ? `<div class="notif-detail-row"><span class="nd-label">Alt. mobile</span><span class="nd-val">${appt.altMobile}</span></div>` : '';
-    const msg = appt.message   ? `<div class="notif-detail-row"><span class="nd-label">Message</span><span class="nd-val" style="font-weight:400;color:var(--ink2)">${appt.message}</span></div>` : '';
-    const prop = appt.propertyId ? `<div class="notif-detail-row"><span class="nd-label">Property</span><span class="nd-val">${appt.propertyId}</span></div>` : '';
-    return `
-    <div class="notif-item unread" id="notif-item-${i}">
-      <div class="notif-item-top">
-        <span class="notif-item-name">👤 ${appt.name}</span>
-        <span class="notif-item-time">${timeAgo(appt.createdAt)}</span>
-      </div>
-      <div class="notif-item-body">
-        <div class="notif-detail-row"><span class="nd-label">Mobile</span><span class="nd-val" style="color:var(--gold-dark)">${appt.mobile}</span></div>
-        ${alt}
-        <div class="notif-detail-row"><span class="nd-label">Purpose</span><span class="nd-val">${appt.purpose}</span></div>
-        <div class="notif-detail-row"><span class="nd-label">Date</span><span class="nd-val">${appt.date}</span></div>
-        <div class="notif-detail-row"><span class="nd-label">Time slot</span><span class="nd-val">${appt.timeSlot}</span></div>
-        ${prop}
-        ${msg}
-        <div class="notif-detail-row" style="margin-top:3px"><span class="nd-label">Status</span><span class="notif-item-status ${statusCls(appt.status)}">${appt.status}</span></div>
-      </div>
-      <div class="notif-item-footer">
-        <button class="notif-mark-btn" onclick="markOneRead(${i},event)">\u2713 Mark as read</button>
-      </div>
-    </div>`;
-  }).join('');
+  list.innerHTML = _notifItems.map(appt => `
+    <div class="notif-item unread" onclick="openAdminAppointmentsFromNotif()">
+      <div class="notif-item-name">👤 ${appt.name} · <span style="color:var(--gold-dark)">${appt.mobile}</span></div>
+      <div class="notif-item-detail">📋 ${appt.purpose} &nbsp;|&nbsp; 📅 ${appt.date} (${appt.timeSlot})</div>
+      <div class="notif-item-time">${timeAgo(appt.createdAt)} · <span style="text-transform:capitalize">${appt.status}</span></div>
+    </div>
+  `).join('');
 }
+
 window.toggleNotifPanel = function(e) {
   e.stopPropagation();
   const panel = document.getElementById('navNotifPanel');
@@ -10273,15 +10203,6 @@ window.markNotifsRead = function() {
   updateNotifBell(0);
   renderNotifList();
 };
-
-window.markOneRead = function(idx, e) {
-  if (e) e.stopPropagation();
-  _notifItems.splice(idx, 1);
-  updateNotifBell(_notifItems.length);
-  if (_notifItems.length === 0) setLastSeen(Date.now());
-  renderNotifList();
-};
-
 
 window.openAdminAppointmentsFromNotif = function() {
   const panel = document.getElementById('navNotifPanel');
@@ -10418,17 +10339,10 @@ document.addEventListener('click', function(e) {
 });
 
 /* ── init: admin already logged in on page load ── */
-// Show bell immediately (sync) — no flash
-(function() {
-  var k = '';
-  try { k = localStorage.getItem('kr_admin_key') || ''; } catch(e) {}
-  if (k) {
-    var w = document.getElementById('navNotifWrap');
-    if (w) w.style.display = 'flex';
-  }
-})();
 setTimeout(function() {
   if (window._adminKey) {
+    const wrap = document.getElementById('navNotifWrap');
+    if (wrap) wrap.style.display = 'flex';
     requestNotifPermission();
     fetchNotifications();
     connectSSE();
@@ -10436,7 +10350,7 @@ setTimeout(function() {
       window._notifInterval = setInterval(fetchNotifications, 60000);
     }
   }
-}, 200);
+}, 800);
 
 }());
 
