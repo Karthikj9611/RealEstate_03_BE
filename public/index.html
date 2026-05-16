@@ -1618,7 +1618,7 @@ input {
     </button>
 
 <!-- ── ADMIN NOTIFICATION BELL ── -->
-<div id="navNotifWrap" style="display:none;position:relative;flex-shrink:0">
+<div id="navNotifWrap" style="position:relative;flex-shrink:0;display:none" class="admin-notif-wrap">
   <button id="navNotifBtn" onclick="toggleNotifPanel(event)" title="New appointment notifications" aria-label="Notifications">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -1633,6 +1633,20 @@ input {
     <div id="navNotifList">
       <div class="notif-empty">No new bookings yet</div>
     </div>
+<script>
+// Show bell immediately on page load if admin session exists (no flash/race)
+(function(){
+  try {
+    var u = JSON.parse(localStorage.getItem('kr_user')||'{}');
+    var k = localStorage.getItem('kr_admin_key')||'';
+    if (u.isAdmin && k) {
+      var el = document.getElementById('navNotifWrap');
+      if (el) el.style.display = 'flex';
+    }
+  } catch(e) {}
+})();
+</script>
+
   </div>
 </div>
 
@@ -3497,6 +3511,10 @@ function applyLoginUI(firstName, lastName, admin) {
   const pFloat = document.getElementById('adminResetViewsFloat');
   if (vFloat) vFloat.style.display = isAdmin ? 'flex' : 'none';
   if (pFloat) pFloat.style.display = isAdmin ? 'flex' : 'none';
+
+  // \u2500\u2500 Notification bell: always show for admin, always hide for non-admin \u2500\u2500
+  var notifWrap = document.getElementById('navNotifWrap');
+  if (notifWrap) notifWrap.style.display = isAdmin ? 'flex' : 'none';
 
   // ── Mobile user block ──
   const mobileBlock = document.getElementById('mobileUserBlock');
@@ -10400,10 +10418,17 @@ document.addEventListener('click', function(e) {
 });
 
 /* ── init: admin already logged in on page load ── */
+// Show bell immediately (sync) — no flash
+(function() {
+  var k = '';
+  try { k = localStorage.getItem('kr_admin_key') || ''; } catch(e) {}
+  if (k) {
+    var w = document.getElementById('navNotifWrap');
+    if (w) w.style.display = 'flex';
+  }
+})();
 setTimeout(function() {
   if (window._adminKey) {
-    const wrap = document.getElementById('navNotifWrap');
-    if (wrap) wrap.style.display = 'flex';
     requestNotifPermission();
     fetchNotifications();
     connectSSE();
@@ -10411,7 +10436,7 @@ setTimeout(function() {
       window._notifInterval = setInterval(fetchNotifications, 60000);
     }
   }
-}, 800);
+}, 200);
 
 }());
 
