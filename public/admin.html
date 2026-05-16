@@ -567,6 +567,46 @@ footer i{color:var(--gold)}
   padding:4px 11px;font-weight:600;color:var(--ink2);
 }
 
+/* ── APPOINTMENT STATUS BADGES ── */
+.appt-status{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:99px;
+  font-size:0.72rem;font-weight:700;letter-spacing:0.3px;
+}
+.appt-status-pending  {background:#fff3e0;color:#e67e22}
+.appt-status-confirmed{background:var(--green-light);color:var(--green)}
+.appt-status-cancelled{background:var(--red-light);color:var(--red)}
+.appt-status-completed{background:#eef1fc;color:#5b7be8}
+
+/* ── APPOINTMENT PURPOSE BADGE ── */
+.purpose-badge{
+  display:inline-block;padding:3px 10px;border-radius:99px;
+  font-size:0.72rem;font-weight:700;
+  background:var(--gold-light);color:var(--gold-dark);
+  border:1px solid rgba(184,144,60,0.2);
+}
+
+/* ── STATUS CHANGE DROPDOWN ── */
+.appt-status-select{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:0.74rem;font-weight:600;
+  border:1.5px solid var(--border);border-radius:99px;
+  padding:5px 28px 5px 11px;outline:none;cursor:pointer;
+  background:var(--surface2);color:var(--ink2);
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8fa0'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color 0.18s;
+}
+.appt-status-select:hover,.appt-status-select:focus{border-color:var(--gold)}
+
+/* ── TIME SLOT PILL ── */
+.slot-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:99px;font-size:0.74rem;font-weight:600;
+  background:#eef1fc;color:#5b7be8;border:1px solid rgba(91,123,232,0.2);
+}
+
 /* ── MOBILE ── */
 @media(max-width:768px){
   body{padding:14px 12px 32px}
@@ -603,9 +643,103 @@ table.dataTable thead th.sorting_desc::after{font-size:0.65rem;opacity:0.5}
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc{background-image:none!important;padding-right:14px!important}
+
+/* ── LOGIN OVERLAY ── */
+#loginOverlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(12,13,16,0.82);
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.login-card{
+  background:#fff;border-radius:24px;
+  padding:40px 36px 36px;width:100%;max-width:400px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.35);
+  border:1px solid var(--border);
+  animation:fadeIn 0.25s ease;
+}
+.login-logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:28px;
+}
+.login-logo-icon{
+  width:48px;height:48px;background:var(--ink);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.login-logo-icon span{
+  font-family:'Cormorant Garamond',serif;font-size:1.1rem;
+  font-weight:700;color:#fff;
+}
+.login-logo-icon span em{color:var(--gold2);font-style:italic}
+.login-logo-text h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:700;color:var(--ink);line-height:1;
+}
+.login-logo-text p{font-size:0.75rem;color:var(--ink3);margin-top:3px;font-weight:500}
+.login-field{margin-bottom:16px}
+.login-field label{
+  display:block;font-size:0.75rem;font-weight:700;
+  color:var(--ink2);margin-bottom:6px;letter-spacing:0.3px;
+}
+.login-field input{
+  width:100%;padding:11px 15px;
+  border:1.5px solid var(--border);border-radius:var(--radius-xs);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;
+  color:var(--ink);background:var(--surface2);outline:none;
+  transition:border-color 0.18s,background 0.18s;
+}
+.login-field input:focus{border-color:var(--gold);background:#fff}
+.login-error{
+  font-size:0.78rem;color:var(--red);font-weight:600;
+  min-height:20px;margin-bottom:12px;
+}
+.login-btn{
+  width:100%;padding:13px;border:none;border-radius:var(--radius-xs);
+  background:var(--ink);color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;font-weight:700;
+  cursor:pointer;transition:all 0.18s;letter-spacing:0.3px;
+}
+.login-btn:hover{background:#2a2d38;box-shadow:0 6px 20px rgba(12,13,16,0.25)}
+.login-btn:disabled{opacity:0.6;cursor:not-allowed}
+
+/* ── LOGOUT BTN ── */
+.logout-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--surface);color:var(--ink2);
+  border:1.5px solid var(--border);padding:7px 16px;
+  border-radius:99px;cursor:pointer;font-size:0.78rem;
+  font-weight:600;transition:all 0.18s;font-family:inherit;
+}
+.logout-btn:hover{background:var(--red-light);color:var(--red);border-color:rgba(224,68,68,0.25)}
+
 </style>
 </head>
 <body>
+
+
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><span><em>K</em>R</span></div>
+      <div class="login-logo-text">
+        <h2>Admin Dashboard</h2>
+        <p><i class="fas fa-shield-halved"></i> Sign in to continue</p>
+      </div>
+    </div>
+    <div class="login-field">
+      <label for="loginEmail">Email / Username</label>
+      <input type="text" id="loginEmail" placeholder="admin@yourdomain.com" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()"/>
+    </div>
+    <div class="login-field">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
 
 <div class="dashboard-container" style="max-width:1380px;margin:0 auto">
 
@@ -618,7 +752,10 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
         <p><i class="fas fa-shield-halved"></i> Registered customer &amp; property details</p>
       </div>
     </div>
-    <div class="header-badge"><i class="fas fa-circle-dot"></i> Live</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="header-badge"><i class="fas fa-circle-dot"></i> Live &nbsp;·&nbsp; <span id="adminNameBadge">—</span></div>
+      <button class="logout-btn" onclick="doLogout()"><i class="fas fa-right-from-bracket"></i> Sign Out</button>
+    </div>
   </div>
 
   <!-- STATS -->
@@ -656,6 +793,11 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
       <i class="fas fa-building"></i>
       Properties
       <span class="tab-count" id="tab-properties-count">—</span>
+    </button>
+    <button class="tab-btn" id="tab-appointments" onclick="switchTab('appointments')">
+      <i class="fas fa-calendar-days"></i>
+      Appointments
+      <span class="tab-count" id="tab-appointments-count">—</span>
     </button>
   </div>
 
@@ -735,6 +877,66 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
     </div>
   </div>
 
+  <!-- ══ APPOINTMENTS PANEL ══ -->
+  <div class="tab-panel" id="panel-appointments">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Customer Appointments</div>
+          <div class="card-sub">Manage site visit & enquiry appointments · Update status inline</div>
+        </div>
+        <!-- Appointment filters -->
+        <div class="prop-filters" id="apptFilters">
+          <select class="prop-filter-select" id="filterApptStatus" onchange="applyApptFilters()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="completed">Completed</option>
+          </select>
+          <select class="prop-filter-select" id="filterApptPurpose" onchange="applyApptFilters()">
+            <option value="">All Purpose</option>
+            <option value="For Sale">For Sale</option>
+            <option value="For Rent">For Rent</option>
+            <option value="Lease">Lease</option>
+            <option value="PG">PG</option>
+            <option value="General Enquiry">General Enquiry</option>
+          </select>
+          <select class="prop-filter-select" id="filterApptSlot" onchange="applyApptFilters()">
+            <option value="">All Slots</option>
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+            <option value="Evening">Evening</option>
+          </select>
+          <button class="filter-clear-btn" id="apptFilterClearBtn" onclick="clearApptFilters()">
+            <i class="fas fa-times"></i> Clear
+          </button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="appointmentTable" class="display nowrap" style="width:100%">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Contact</th>
+              <th>Purpose</th>
+              <th>Date</th>
+              <th>Time Slot</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Booked On</th>
+              <th>Remarks</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="9" class="empty-state"><i class="fas fa-circle-notch fa-spin"></i>Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <i class="fas fa-mobile-screen-button"></i>
     Tap phone number to call · Tap email to open mail app
@@ -759,9 +961,75 @@ table.dataTable thead .sorting_desc{background-image:none!important;padding-righ
 </div>
 
 <script>
-let dataTable, propTable;
+let dataTable, propTable, apptTable;
 
 const BASE = 'https://kr-realestate.onrender.com';
+
+/* ── ADMIN KEY – set after login ── */
+let ADMIN_KEY = sessionStorage.getItem('kr_admin_key') || '';
+
+/* Helper: auth headers for all fetch() calls */
+function authHeaders(extra){
+  return Object.assign({ 'x-admin-key': ADMIN_KEY }, extra||{});
+}
+
+/* ── LOGIN ── */
+function showLogin(){ document.getElementById('loginOverlay').style.display='flex'; }
+function hideLogin(){ document.getElementById('loginOverlay').style.display='none'; }
+
+async function doLogin(){
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  const btn      = document.getElementById('loginBtn');
+  errEl.textContent = '';
+  if(!email || !password){ errEl.textContent = 'Please enter email and password.'; return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const res  = await fetch(BASE + '/api/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.adminKey){
+      errEl.textContent = data.message || 'Login failed or not an admin account.';
+      btn.disabled = false; btn.textContent = 'Sign In';
+      return;
+    }
+    ADMIN_KEY = data.adminKey;
+    sessionStorage.setItem('kr_admin_key', ADMIN_KEY);
+    const adminName = data.firstName || 'Admin';
+    sessionStorage.setItem('kr_admin_name', adminName);
+    document.getElementById('adminNameBadge').textContent = adminName;
+    hideLogin();
+    if(dataTable) dataTable.ajax.reload();
+    if(propTable) propTable.ajax.reload();
+    if(apptTable) apptTable.ajax.reload();
+  } catch(e){
+    errEl.textContent = 'Network error. Please try again.';
+  }
+  btn.disabled = false; btn.textContent = 'Sign In';
+}
+
+function doLogout(){
+  sessionStorage.removeItem('kr_admin_key');
+  ADMIN_KEY = '';
+  location.reload();
+}
+
+if(!ADMIN_KEY){
+  window.addEventListener('DOMContentLoaded', showLogin);
+} else {
+  // Key already in session — fetch user info to show name
+  fetch(BASE + '/api/users', { method:'GET', headers: authHeaders() })
+    .then(r => r.ok ? r.json() : [])
+    .catch(()=>[])
+    .then(()=>{
+      const stored = sessionStorage.getItem('kr_admin_name');
+      if(stored) document.getElementById('adminNameBadge').textContent = stored;
+    });
+}
 
 /* ── TAB SWITCHING ── */
 function switchTab(tab){
@@ -773,12 +1041,15 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
 
-  // Adjust DataTable columns when switching to properties (fixes column widths)
+  // Adjust DataTable columns when switching (fixes column widths)
   if(tab === 'properties' && propTable){
     setTimeout(()=>{ propTable.columns.adjust().draw(false); }, 50);
   }
   if(tab === 'customers' && dataTable){
     setTimeout(()=>{ dataTable.columns.adjust().draw(false); }, 50);
+  }
+  if(tab === 'appointments' && apptTable){
+    setTimeout(()=>{ apptTable.columns.adjust().draw(false); }, 50);
   }
 }
 
@@ -789,7 +1060,10 @@ function escapeHtml(str){
 
 /* ── USERS RENDERERS ── */
 function renderName(row){
-  const full = escapeHtml((row.firstName||'') + ' ' + (row.lastName||'')).trim() || 'Unknown';
+  const full = escapeHtml(
+    row.name ||
+    ((row.firstName||'') + ' ' + (row.lastName||'')).trim()
+  ) || 'Unknown';
   return `<div class="customer-name"><div><div class="customer-text-name">${full}</div></div></div>`;
 }
 function renderPhone(row){
@@ -845,7 +1119,7 @@ function updateStats(data){
 /* ── DELETE HANDLERS ── */
 window.deleteBooking = async function(mobile){
   if(!confirm('Delete this customer?')) return;
-  const res = await fetch(`${BASE}/api/users/mobile/${mobile}`, { method:'DELETE' });
+  const res = await fetch(`${BASE}/api/users/mobile/${mobile}`, { method:'DELETE', headers: authHeaders() });
   const data = await res.json().catch(()=>({}));
   if(res.ok){
     dataTable.ajax.reload(null,false);
@@ -862,7 +1136,7 @@ window.deleteBooking = async function(mobile){
 
 window.deleteProperty = async function(id){
   if(!confirm('Delete this property?')) return;
-  const res = await fetch(`${BASE}/api/properties/${id}`, { method:'DELETE' });
+  const res = await fetch(`${BASE}/api/properties/${id}`, { method:'DELETE', headers: authHeaders() });
   const data = await res.json().catch(()=>({}));
   if(res.ok){
     propTable.ajax.reload(null,false);
@@ -947,17 +1221,20 @@ async function saveRemark(cell, id, type){
   try {
     const url = type === 'customer'
       ? `${BASE}/api/users/mobile/${id}/remarks`
+      : type === 'appointment'
+      ? `${BASE}/api/appointments/${id}/remarks`
       : `${BASE}/api/properties/${id}/remarks`;
     const res = await fetch(url, {
       method: 'PATCH',
-      headers: {'Content-Type':'application/json'},
+      headers: authHeaders({'Content-Type':'application/json'}),
       body: JSON.stringify({ remarks: newVal })
     });
     if(!res.ok) throw new Error('Save failed');
 
     /* Reload table so the numbered list refreshes with the new entry */
-    if(type === 'customer' && dataTable) dataTable.ajax.reload(null, false);
-    if(type === 'property'  && propTable)  propTable.ajax.reload(null, false);
+    if(type === 'customer'    && dataTable) dataTable.ajax.reload(null, false);
+    if(type === 'property'    && propTable)  propTable.ajax.reload(null, false);
+    if(type === 'appointment' && apptTable)  apptTable.ajax.reload(null, false);
 
   } catch(e){
     alert('Could not save remark. Please try again.');
@@ -1035,6 +1312,9 @@ function flattenRemarks(r){
   return '';
 }
 
+// Suppress DataTables Ajax error popups globally
+$.fn.dataTable.ext.errMode = 'none';
+
 $(document).ready(function(){
 
   /* ════════════════════════════════════
@@ -1043,6 +1323,8 @@ $(document).ready(function(){
   dataTable = $('#bookingTable').DataTable({
     ajax:{
       url: BASE+'/api/users',
+      beforeSend: function(xhr){ xhr.setRequestHeader('x-admin-key', ADMIN_KEY); },
+      error: function(){ },
       dataSrc: function(res){
         if(!Array.isArray(res)) return [];
         updateStats(res);
@@ -1163,6 +1445,8 @@ $(document).ready(function(){
   propTable = $('#propertyTable').DataTable({
     ajax:{
       url: BASE+'/api/properties',
+      beforeSend: function(xhr){ xhr.setRequestHeader('x-admin-key', ADMIN_KEY); },
+      error: function(){ },
       dataSrc: function(res){
         if(!Array.isArray(res)) return [];
         document.getElementById('propCount').innerText = res.length;
@@ -1283,6 +1567,140 @@ $(document).ready(function(){
             if(phText&&phText!=='—') cells.eq(4).html('<a href="tel:'+phText+'">'+phText+'</a>');
           });
         }
+      }
+    ],
+    drawCallback:function(){}
+  });
+
+  /* ════════════════════════════════════
+     APPOINTMENTS TABLE
+  ════════════════════════════════════ */
+  apptTable = $('#appointmentTable').DataTable({
+    ajax:{
+      url: BASE+'/api/appointments',
+      beforeSend: function(xhr){ xhr.setRequestHeader('x-admin-key', ADMIN_KEY); },
+      error: function(){ },
+      dataSrc: function(res){
+        if(!Array.isArray(res)) return [];
+        updateApptStats(res);
+        return res;
+      }
+    },
+    columns:[
+      /* 0 – Customer Name */
+      { data:null, render:(d,t,row)=>{
+          if(t==='display') return renderName(row);
+          return ((row.name||row.firstName||'')+' '+(row.lastName||'')).trim();
+      }},
+      /* 1 – Contact */
+      { data:null, orderable:false, render:(d,t,row)=>{
+          if(t==='display') return renderApptContact(row);
+          return row.mobile||'';
+      }},
+      /* 2 – Purpose */
+      { data:'purpose', render:(d,t)=>
+          t==='display' ? `<span class="purpose-badge">${escapeHtml(d||'—')}</span>` : (d||'—')
+      },
+      /* 3 – Visit Date */
+      { data:'date', render:(d,t)=>
+          t==='display' ? renderApptDate(d) : (d||'—')
+      },
+      /* 4 – Time Slot */
+      { data:'timeSlot', render:(d,t)=>
+          t==='display' ? renderTimeSlot(d) : (d||'—')
+      },
+      /* 5 – Message */
+      { data:'message', orderable:false, render:(d)=>{
+          const msg = escapeHtml(d||'');
+          if(!msg) return '<span class="no-contact">—</span>';
+          return `<div style="max-width:200px;font-size:0.8rem;color:var(--ink2);white-space:normal;line-height:1.5;">${msg}</div>`;
+      }},
+      /* 6 – Status (inline change) */
+      { data:'status', render:(d,t,row)=>{
+          if(t==='display'){
+            _apptCache[row._id] = row;
+            return renderApptStatusSelect(row);
+          }
+          return d||'pending';
+      }},
+      /* 7 – Booked On */
+      { data:'createdAt', render:(d,t)=>
+          t==='display' ? formatDateTime(d) : (d||'—')
+      },
+      /* 8 – Remarks */
+      { data:'remarks', orderable:false, render:(d,t,row)=>{
+          if(t==='display') return remarkCellHtml(row._id, d, 'appointment');
+          return d||'';
+      }},
+      /* 9 – Action */
+      { data:null, orderable:false, render:(d,t,row)=>{
+          _apptCache[row._id] = row;
+          return `<button class="btn-delete" onclick="deleteAppointment('${row._id}')">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>`;
+      }}
+    ],
+    order:[[3,'asc']],
+    pageLength:10,
+    scrollX:true,
+    language:{
+      emptyTable:'<div class="empty-state"><i class="fas fa-calendar-xmark"></i>No appointments yet</div>',
+      zeroRecords:'<div class="empty-state"><i class="fas fa-magnifying-glass"></i>No matching appointments</div>',
+      search:'', searchPlaceholder:'Search appointments…',
+      lengthMenu:'Show _MENU_ entries',
+      info:'Showing _START_–_END_ of _TOTAL_ appointments',
+      paginate:{previous:'‹ Prev',next:'Next ›'}
+    },
+    dom:'<"top-controls"Bf>rt<"bottom-controls"ip>',
+    buttons:[
+      {
+        extend:'csv', text:'<i class="fas fa-file-csv"></i> CSV', title:'KR Appointments',
+        exportOptions:{ columns:[0,1,2,3,4,5,6,7,8],
+          format:{ body:function(data,row,col){
+            var rd=apptTable.row(row).data(); if(!rd) return data;
+            if(col===0) return (rd.name||((rd.firstName||'')+' '+(rd.lastName||''))).trim()||'—';
+            if(col===1) return (rd.mobile||'')+(rd.altMobile?' / '+rd.altMobile:'')+(rd.email?' | '+rd.email:'');
+            if(col===2) return rd.purpose||'—';
+            if(col===3) return rd.date||'—';
+            if(col===4) return rd.timeSlot||'—';
+            if(col===5) return rd.message||'—';
+            if(col===6) return rd.status||'—';
+            if(col===7){ if(!rd.createdAt) return '—'; const d=new Date(rd.createdAt); return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+            if(col===8) return flattenRemarks(rd.remarks);
+            return data;
+          }}
+        }
+      },
+      {
+        extend:'excel', text:'<i class="fas fa-file-excel"></i> Excel', title:'KR Appointments',
+        exportOptions:{ columns:[0,1,2,3,4,5,6,7,8],
+          format:{ body:function(data,row,col){
+            var rd=apptTable.row(row).data(); if(!rd) return data;
+            if(col===0) return (rd.name||((rd.firstName||'')+' '+(rd.lastName||''))).trim()||'—';
+            if(col===1) return (rd.mobile||'')+(rd.altMobile?' / '+rd.altMobile:'');
+            if(col===2) return rd.purpose||'—';
+            if(col===3) return rd.date||'—';
+            if(col===4) return rd.timeSlot||'—';
+            if(col===5) return rd.message||'—';
+            if(col===6) return rd.status||'—';
+            if(col===7){ if(!rd.createdAt) return '—'; return new Date(rd.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+            if(col===8) return flattenRemarks(rd.remarks);
+            return data;
+          }}
+        }
+      },
+      {
+        extend:'pdf', text:'<i class="fas fa-file-pdf"></i> PDF',
+        orientation:'landscape', pageSize:'A4', title:'KR Real-Estate — Appointments',
+        exportOptions:{columns:[0,2,3,4,6,7]},
+        customize:function(doc){
+          doc.styles.tableHeader={fillColor:'#0c0d10',color:'white',bold:true,fontSize:9,alignment:'center'};
+          doc.defaultStyle={fontSize:8,color:'#0c0d10'};
+        }
+      },
+      {
+        extend:'print', text:'<i class="fas fa-print"></i> Print', title:'KR Appointments',
+        exportOptions:{columns:[0,1,2,3,4,5,6,7]}
       }
     ],
     drawCallback:function(){}
@@ -1622,7 +2040,132 @@ $.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
 });
 
 
-/* ═════════ CUSTOMER MODAL ═════════ */
+/* ════════════════════════════════════
+   APPOINTMENT HELPERS & TABLE
+════════════════════════════════════ */
+
+const APPT_STATUS_CONFIG = {
+  pending  : { cls:'appt-status-pending',   icon:'fa-clock',        label:'Pending'   },
+  confirmed: { cls:'appt-status-confirmed',  icon:'fa-circle-check', label:'Confirmed' },
+  cancelled: { cls:'appt-status-cancelled',  icon:'fa-ban',          label:'Cancelled' },
+  completed: { cls:'appt-status-completed',  icon:'fa-flag-checkered',label:'Completed'},
+};
+
+function apptStatusBadge(s){
+  const cfg = APPT_STATUS_CONFIG[s] || APPT_STATUS_CONFIG['pending'];
+  return `<span class="appt-status ${cfg.cls}"><i class="fas ${cfg.icon}"></i>${cfg.label}</span>`;
+}
+
+function renderApptContact(row){
+  const lines = [];
+  if(row.mobile) lines.push(`<a href="tel:${row.mobile}" class="phone-link"><i class="fas fa-phone-flip"></i>${escapeHtml(row.mobile)}</a>`);
+  if(row.altMobile) lines.push(`<a href="tel:${row.altMobile}" class="phone-link" style="background:#f0f9ff;color:#2563eb;border-color:rgba(37,99,235,0.18)"><i class="fas fa-phone"></i>${escapeHtml(row.altMobile)}</a>`);
+  if(row.email) lines.push(`<a href="mailto:${row.email}" class="email-link" title="${escapeHtml(row.email)}"><i class="fas fa-envelope"></i>${escapeHtml(row.email)}</a>`);
+  return lines.length
+    ? `<div class="contact-col">${lines.join('')}</div>`
+    : `<span class="no-contact">—</span>`;
+}
+
+function renderApptDate(dateStr){
+  if(!dateStr) return '—';
+  const d = new Date(dateStr+'T00:00:00');
+  const opts = {weekday:'short',day:'2-digit',month:'short',year:'numeric'};
+  const formatted = d.toLocaleDateString('en-GB', opts);
+  return `<div class="date-cell"><div class="date-main"><i class="far fa-calendar-alt" style="color:var(--gold);margin-right:5px"></i>${formatted}</div></div>`;
+}
+
+function renderTimeSlot(slot){
+  const icons = {Morning:'fa-sun',Afternoon:'fa-cloud-sun',Evening:'fa-moon'};
+  const icon = icons[slot] || 'fa-clock';
+  return `<span class="slot-pill"><i class="fas ${icon}"></i>${escapeHtml(slot||'—')}</span>`;
+}
+
+function renderApptStatusSelect(row){
+  const opts = ['pending','confirmed','cancelled','completed']
+    .map(s=>`<option value="${s}" ${row.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`)
+    .join('');
+  return `<select class="appt-status-select" data-id="${row._id}" onchange="updateApptStatus(this)">${opts}</select>`;
+}
+
+window.updateApptStatus = async function(sel){
+  const id     = sel.dataset.id;
+  const status = sel.value;
+  try {
+    const res  = await fetch(`${BASE}/api/appointments/${id}`, {
+      method:'PATCH',
+      headers: authHeaders({'Content-Type':'application/json'}),
+      body: JSON.stringify({status})
+    });
+    if(!res.ok) throw new Error('Update failed');
+    // Refresh badge in cache & redraw
+    if(_apptCache[id]) _apptCache[id].status = status;
+    if(apptTable) apptTable.ajax.reload(null, false);
+  } catch(e){
+    alert('Could not update status. Please try again.');
+    if(apptTable) apptTable.ajax.reload(null, false);
+  }
+};
+
+window.deleteAppointment = async function(id){
+  if(!confirm('Delete this appointment?')) return;
+  const res  = await fetch(`${BASE}/api/appointments/${id}`, { method:'DELETE', headers: authHeaders() });
+  const data = await res.json().catch(()=>({}));
+  if(res.ok){
+    apptTable.ajax.reload(null,false);
+    setTimeout(()=>{
+      const total = apptTable.data().count();
+      document.getElementById('tab-appointments-count').innerText = total;
+    }, 600);
+  } else {
+    alert(data.message || 'Delete failed');
+  }
+};
+
+function updateApptStats(data){
+  document.getElementById('tab-appointments-count').innerText = data.length;
+}
+
+const _apptCache = {};
+const _apptFilterState = {status:'', purpose:'', slot:''};
+
+function applyApptFilters(){
+  ['filterApptStatus','filterApptPurpose','filterApptSlot'].forEach(id=>{
+    document.getElementById(id).classList.toggle('active-filter', !!document.getElementById(id).value);
+  });
+  const anyActive = !!(document.getElementById('filterApptStatus').value ||
+                       document.getElementById('filterApptPurpose').value ||
+                       document.getElementById('filterApptSlot').value);
+  document.getElementById('apptFilterClearBtn').classList.toggle('visible', anyActive);
+  _apptFilterState.status  = document.getElementById('filterApptStatus').value;
+  _apptFilterState.purpose = document.getElementById('filterApptPurpose').value;
+  _apptFilterState.slot    = document.getElementById('filterApptSlot').value;
+  if(apptTable) apptTable.draw();
+}
+
+function clearApptFilters(){
+  ['filterApptStatus','filterApptPurpose','filterApptSlot'].forEach(id=>{
+    document.getElementById(id).value='';
+    document.getElementById(id).classList.remove('active-filter');
+  });
+  document.getElementById('apptFilterClearBtn').classList.remove('visible');
+  _apptFilterState.status  = '';
+  _apptFilterState.purpose = '';
+  _apptFilterState.slot    = '';
+  if(apptTable) apptTable.draw();
+}
+
+$.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+  if(settings.nTable.id !== 'appointmentTable') return true;
+  const row = apptTable ? apptTable.row(dataIndex).data() : null;
+  if(!row) return true;
+  const {status, purpose, slot} = _apptFilterState;
+  if(status  && (row.status ||'') !== status)  return false;
+  if(purpose && (row.purpose||'') !== purpose) return false;
+  if(slot    && (row.timeSlot||'') !== slot)   return false;
+  return true;
+});
+
+
 function openCustomerModal(id){
 
   const c = _customerCache[id];

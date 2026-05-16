@@ -136,6 +136,12 @@ const AppointmentSchema = new mongoose.Schema({
   timeSlot:   { type: String, required: true },     // "Morning" | "Afternoon" | "Evening"
   message:    { type: String, default: "" },
   status:     { type: String, enum: ["pending", "confirmed", "cancelled", "completed"], default: "pending" },
+  remarks: [
+    {
+      remark: { type: String, default: "" },
+      date:   { type: Date,   default: Date.now }
+    }
+  ],
   createdAt:  { type: Date, default: Date.now }
 });
 const Appointment = mongoose.model("Appointment", AppointmentSchema);
@@ -904,6 +910,29 @@ app.patch("/api/appointments/:id", adminAuth, async (req, res) => {
 
     res.json({ success: true, appointment: appt });
   } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ADD Remark to Appointment (admin)
+app.patch("/api/appointments/:id/remarks", adminAuth, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id))
+      return res.status(400).json({ message: "Invalid appointment ID" });
+
+    const remarkText = (req.body.remarks || "").trim();
+
+    const appt = await Appointment.findById(req.params.id);
+    if (!appt) return res.status(404).json({ message: "Appointment not found" });
+
+    if (!Array.isArray(appt.remarks)) appt.remarks = [];
+
+    appt.remarks.push({ remark: remarkText, date: new Date() });
+    await appt.save();
+
+    res.json({ message: "Remark added", remarks: appt.remarks });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
