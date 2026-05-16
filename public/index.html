@@ -3921,14 +3921,17 @@ async function doLogin() {
         }
       }
     } catch(e) {}
-    unlockReviewForm(data.firstName, data.lastName || '', admin, loginEmail);
-    // If admin just logged in, store key and reload properties to get full data
+    // Set admin key BEFORE applyLoginUI so connectSSE() finds it immediately
     if (admin) {
       try {
         const keyToStore = data.adminKey || data.token || password;
         localStorage.setItem('kr_admin_key', keyToStore);
         window._adminKey = keyToStore;
       } catch(e) {}
+    }
+    unlockReviewForm(data.firstName, data.lastName || '', admin, loginEmail);
+    // Reload properties with full admin data
+    if (admin) {
       loadPropertiesFromDB();
     }
     document.getElementById('loginEmail').value = '';
@@ -10133,19 +10136,14 @@ async function submitAppointment(){
   }
 }
 // ══════════════════════════════════════════
-// ADMIN APPOINTMENT NOTIFICATIONS
+// ADMIN APPOINTMENT NOTIFICATIONS  (SSE + fallback poll)
 // ══════════════════════════════════════════
-(function() {
+(function () {
 
-const NOTIF_KEY = 'kr_notif_last_seen'; // localStorage: timestamp ms
-
-function getLastSeen() {
-  try { return parseInt(localStorage.getItem(NOTIF_KEY) || '0', 10); } catch(e) { return 0; }
-}
-function setLastSeen(ts) {
-  try { localStorage.setItem(NOTIF_KEY, String(ts)); } catch(e) {}
-}
-
+/* ── helpers ── */
+const NOTIF_KEY = 'kr_notif_last_seen';
+function getLastSeen() { try { return parseInt(localStorage.getItem(NOTIF_KEY) || '0', 10); } catch(e) { return 0; } }
+function setLastSeen(ts) { try { localStorage.setItem(NOTIF_KEY, String(ts)); } catch(e) {} }
 function timeAgo(dateStr) {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
   if (diff < 60) return 'just now';
@@ -10155,22 +10153,9 @@ function timeAgo(dateStr) {
 }
 
 let _notifItems = [];
-let _panelOpen = false;
+let _sseSource  = null;   // EventSource
 
-async function fetchNotifications() {
-  if (!window.isAdmin) return;
-  try {
-    const since = getLastSeen();
-    const res = await fetch(BASE_URL + '/api/appointments/unread?since=' + since, {
-      headers: adminHeaders()
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    _notifItems = data.recent || [];
-    updateNotifBell(data.count || 0);
-  } catch(e) {}
-}
-
+/* ── bell badge ── */
 function updateNotifBell(count) {
   const wrap  = document.getElementById('navNotifWrap');
   const badge = document.getElementById('navNotifBadge');
@@ -10178,20 +10163,15 @@ function updateNotifBell(count) {
   if (count > 0) {
     badge.textContent = count > 99 ? '99+' : count;
     badge.style.display = 'flex';
+    // Pulse animation
+    badge.style.animation = 'none';
+    requestAnimationFrame(() => { badge.style.animation = ''; });
   } else {
     badge.style.display = 'none';
   }
 }
 
-window.toggleNotifPanel = function(e) {
-  e.stopPropagation();
-  const panel = document.getElementById('navNotifPanel');
-  if (!panel) return;
-  _panelOpen = panel.style.display === 'none' || panel.style.display === '';
-  panel.style.display = _panelOpen ? 'flex' : 'none';
-  if (_panelOpen) renderNotifList();
-};
-
+/* ── panel render ── */
 function renderNotifList() {
   const list = document.getElementById('navNotifList');
   if (!list) return;
@@ -10208,6 +10188,15 @@ function renderNotifList() {
   `).join('');
 }
 
+window.toggleNotifPanel = function(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('navNotifPanel');
+  if (!panel) return;
+  const isOpen = panel.style.display === 'flex';
+  panel.style.display = isOpen ? 'none' : 'flex';
+  if (!isOpen) renderNotifList();
+};
+
 window.markNotifsRead = function() {
   setLastSeen(Date.now());
   _notifItems = [];
@@ -10216,37 +10205,131 @@ window.markNotifsRead = function() {
 };
 
 window.openAdminAppointmentsFromNotif = function() {
-  // Close panel
   const panel = document.getElementById('navNotifPanel');
   if (panel) panel.style.display = 'none';
   markNotifsRead();
-  // Open admin appointments modal if it exists
-  if (typeof openAdminAppointmentsModal === 'function') {
-    openAdminAppointmentsModal();
-  } else {
-    // fallback: scroll to appointments section
-    showToast('Open Admin → Appointments to see bookings', 'success');
-  }
+  if (typeof openAdminAppointmentsModal === 'function') openAdminAppointmentsModal();
+  else showToast('Open Admin → Appointments to see bookings', 'success');
 };
 
-// Show/hide bell when admin logs in/out
+/* ── browser push notification ── */
+function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') Notification.requestPermission();
+}
+function showBrowserNotif(appt) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const n = new Notification('📅 New Appointment — KR Real Estate', {
+    body: `${appt.name} booked ${appt.timeSlot} on ${appt.date}\n📋 ${appt.purpose} · 📞 ${appt.mobile}`,
+    icon: '/favicon.ico',
+    badge: '/favicon.ico',
+    tag: 'kr-appt-' + appt._id
+  });
+  n.onclick = function() { window.focus(); openAdminAppointmentsFromNotif(); n.close(); };
+}
+
+/* ── handle a new appointment pushed from server ── */
+function handleNewAppointment(appt) {
+  // Prepend to local list if not already there
+  if (!_notifItems.find(a => a._id === appt._id)) {
+    _notifItems.unshift(appt);
+  }
+  updateNotifBell(_notifItems.length);
+
+  // Re-render panel if open
+  const panel = document.getElementById('navNotifPanel');
+  if (panel && panel.style.display === 'flex') renderNotifList();
+
+  // In-page toast
+  if (typeof showToast === 'function') {
+    showToast(`🔔 New appointment: ${appt.name} — ${appt.date} (${appt.timeSlot})`, 'success');
+  }
+
+  // Browser notification (background tab / desktop)
+  showBrowserNotif(appt);
+
+  // Sound (optional — a short beep using Web Audio)
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine'; osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    osc.start(); osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+}
+
+/* ── fallback REST poll (30 s, used when SSE is unavailable) ── */
+async function fetchNotifications() {
+  if (!window._adminKey) return;
+  try {
+    const since = getLastSeen();
+    const res = await fetch(BASE_URL + '/api/appointments/unread?since=' + since, { headers: adminHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    _notifItems = data.recent || [];
+    updateNotifBell(data.count || 0);
+  } catch(e) {}
+}
+
+/* ── SSE connection ── */
+function connectSSE() {
+  if (_sseSource) { _sseSource.close(); _sseSource = null; }
+
+  const adminKey = window._adminKey;
+  if (!adminKey) { console.warn('[KR Notif] connectSSE: no adminKey, aborting'); return; }
+
+  // SSE can't send custom headers — pass key as query param
+  const url = BASE_URL + '/api/appointments/sse?key=' + encodeURIComponent(adminKey);
+  _sseSource = new EventSource(url);
+  console.log('[KR Notif] SSE connecting...');
+
+  _sseSource.onopen = function() {
+    console.log('[KR Notif] SSE connected \u2705');
+  };
+
+  _sseSource.onmessage = function(e) {
+    console.log('[KR Notif] SSE message received:', e.data);
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'new_appointment') handleNewAppointment(msg.appointment);
+    } catch(ex) { console.error('[KR Notif] parse error', ex); }
+  };
+
+  _sseSource.onerror = function(e) {
+    console.warn('[KR Notif] SSE error/reconnecting', e);
+    fetchNotifications();
+  };
+}
+
+function disconnectSSE() {
+  if (_sseSource) { _sseSource.close(); _sseSource = null; }
+}
+
+/* ── login / logout hook ── */
 const _origApplyLoginUI = window.applyLoginUI;
 window.applyLoginUI = function(firstName, lastName, admin) {
   if (_origApplyLoginUI) _origApplyLoginUI(firstName, lastName, admin);
   const wrap = document.getElementById('navNotifWrap');
   if (wrap) wrap.style.display = admin ? 'flex' : 'none';
   if (admin) {
-    fetchNotifications();
+    requestNotifPermission();
+    fetchNotifications();                  // immediate REST pull
+    connectSSE();                          // live push
+    // Fallback poll every 60 s (catches anything SSE misses)
     if (!window._notifInterval) {
-      window._notifInterval = setInterval(fetchNotifications, 30000);
+      window._notifInterval = setInterval(fetchNotifications, 60000);
     }
   } else {
+    disconnectSSE();
     if (window._notifInterval) { clearInterval(window._notifInterval); window._notifInterval = null; }
     updateNotifBell(0);
   }
 };
 
-// Close panel on outside click
+/* ── close panel on outside click ── */
 document.addEventListener('click', function(e) {
   const wrap = document.getElementById('navNotifWrap');
   if (wrap && !wrap.contains(e.target)) {
@@ -10255,27 +10338,21 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Also notify on new appointment submission (customer side)
-const _origSubmitAppointment = window.submitAppointment;
-window.submitAppointment = async function() {
-  if (_origSubmitAppointment) await _origSubmitAppointment();
-  // If admin is also the one testing, refresh after short delay
-  if (window.isAdmin) setTimeout(fetchNotifications, 1500);
-};
-
-// Init: if admin already logged in on page load
+/* ── init: admin already logged in on page load ── */
 setTimeout(function() {
-  if (window.isAdmin) {
+  if (window._adminKey) {
     const wrap = document.getElementById('navNotifWrap');
     if (wrap) wrap.style.display = 'flex';
+    requestNotifPermission();
     fetchNotifications();
+    connectSSE();
     if (!window._notifInterval) {
-      window._notifInterval = setInterval(fetchNotifications, 30000);
+      window._notifInterval = setInterval(fetchNotifications, 60000);
     }
   }
 }, 800);
 
-})();
+}());
 
 </script>
 

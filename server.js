@@ -146,6 +146,53 @@ const AppointmentSchema = new mongoose.Schema({
 });
 const Appointment = mongoose.model("Appointment", AppointmentSchema);
 
+// ── REAL-TIME ADMIN NOTIFICATION (SSE) ──
+// Map of res objects for all connected admin SSE clients
+const sseAdminClients = new Set();
+
+function emitAppointmentNotification(appt) {
+  console.log('[SSE] Emitting to', sseAdminClients.size, 'admin client(s)');
+  const payload = JSON.stringify({
+    type: 'new_appointment',
+    appointment: {
+      _id:      appt._id,
+      name:     appt.name,
+      mobile:   appt.mobile,
+      purpose:  appt.purpose,
+      date:     appt.date,
+      timeSlot: appt.timeSlot,
+      status:   appt.status,
+      createdAt: appt.createdAt
+    }
+  });
+  for (const client of sseAdminClients) {
+    try { client.write(`data: ${payload}\n\n`); } catch(e) { sseAdminClients.delete(client); }
+  }
+}
+
+// SSE endpoint — admin browser connects here to receive live pushes
+// EventSource can't send headers, so we also accept the key as ?key= query param
+function sseAdminAuth(req, res, next) {
+  const key = req.headers['x-admin-key'] || req.query.key;
+  if (!key || key !== process.env.ADMIN_API_KEY) {
+    return res.status(403).end('Forbidden');
+  }
+  next();
+}
+app.get('/api/appointments/sse', sseAdminAuth, (req, res) => {
+  res.setHeader('Content-Type',  'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection',    'keep-alive');
+  res.flushHeaders();
+
+  // Keep-alive ping every 20 s so proxies don't drop the connection
+  const ping = setInterval(() => { try { res.write(': ping\n\n'); } catch(e) {} }, 20000);
+
+  sseAdminClients.add(res);
+  console.log('[SSE] Admin connected. Total clients:', sseAdminClients.size);
+  req.on('close', () => { clearInterval(ping); sseAdminClients.delete(res); console.log('[SSE] Admin disconnected. Remaining:', sseAdminClients.size); });
+});
+
 // ── RAZORPAY ──
 const razorpay = new Razorpay({
   key_id:     process.env.RAZORPAY_KEY_ID,
@@ -875,6 +922,9 @@ app.post("/api/appointments", async (req, res) => {
       timeSlot:   cleanTimeSlot,
       message:    (message || "").trim()
     }).save();
+
+    // 🔔 Push instant notification to all connected admin browsers
+    emitAppointmentNotification(appt);
 
     res.json({ success: true, message: "Appointment booked successfully!", appointmentId: appt._id });
 
