@@ -884,6 +884,21 @@ app.post("/api/appointments", async (req, res) => {
   }
 });
 
+// UNREAD Appointment count since a given timestamp (admin)
+app.get("/api/appointments/unread", adminAuth, async (req, res) => {
+  try {
+    const since = req.query.since ? new Date(Number(req.query.since)) : new Date(0);
+    const count = await Appointment.countDocuments({ createdAt: { $gt: since } });
+    const recent = await Appointment.find({ createdAt: { $gt: since } })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('name mobile purpose date timeSlot createdAt status');
+    res.json({ count, recent });
+  } catch (err) {
+    res.status(500).json({ count: 0, recent: [] });
+  }
+});
+
 // LIST All Appointments (admin)
 app.get("/api/appointments", adminAuth, async (req, res) => {
   try {
