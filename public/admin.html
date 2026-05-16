@@ -239,69 +239,112 @@ table.dataTable.no-footer{border-bottom:none!important}
 .btn-delete:hover{background:var(--red);color:#fff;box-shadow:0 4px 12px rgba(224,68,68,0.3)}
 .btn-delete i{font-size:0.72rem}
 
-/* ── REMARKS CELL ── */
+/* ══════════════════════════════════════
+   REMARKS — subgrid card design
+   ══════════════════════════════════════ */
 .remark-cell{
-  position:relative;min-width:180px;max-width:240px;
+  min-width:220px;max-width:280px;
   text-align:left!important;
+  padding:2px 0!important;
 }
-.remark-display{
-  display:flex;align-items:flex-start;gap:6px;cursor:pointer;
-  padding:5px 8px;border-radius:var(--radius-xs);
-  transition:background 0.15s;
+
+/* Card container holding all remark cards + add row */
+.remark-subgrid{
+  display:flex;flex-direction:column;gap:5px;
 }
-.remark-display:hover{background:var(--gold-light)}
-.remark-edit-icon{
-  font-size:0.65rem;color:var(--gold-dark);opacity:0;
-  transition:opacity 0.15s;flex-shrink:0;
+
+/* Each individual remark card */
+.remark-card{
+  display:grid;
+  grid-template-columns:20px 1fr auto;
+  align-items:start;gap:6px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:7px 9px;
+  transition:border-color 0.15s, box-shadow 0.15s;
 }
-.remark-display:hover .remark-edit-icon{opacity:1}
-/* Numbered list of remarks */
-.remark-list{
-  display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;
+.remark-card:hover{
+  border-color:var(--gold);
+  box-shadow:0 2px 8px rgba(184,144,60,0.12);
 }
-.remark-item{
-  display:flex;align-items:baseline;gap:5px;
-  font-size:0.78rem;line-height:1.4;
-}
+
+/* Serial number bubble */
 .remark-sl{
-  flex-shrink:0;min-width:16px;
-  font-size:0.65rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  width:20px;height:20px;
+  font-size:0.62rem;font-weight:800;
   color:var(--gold-dark);background:var(--gold-light);
-  border-radius:99px;padding:1px 5px;
-  text-align:center;line-height:1.6;
+  border-radius:50%;flex-shrink:0;line-height:1;
+  border:1px solid rgba(184,144,60,0.25);
+  margin-top:1px;
+}
+
+/* Text + date stacked */
+.remark-card-body{
+  display:flex;flex-direction:column;gap:3px;min-width:0;
 }
 .remark-item-text{
-  color:var(--ink2);font-weight:500;
-  white-space:normal;word-break:break-word;
+  font-size:0.8rem;font-weight:500;color:var(--ink2);
+  white-space:normal;word-break:break-word;line-height:1.45;
 }
 .remark-item-date{
-  font-size:0.62rem;color:var(--ink3);
-  white-space:nowrap;margin-left:2px;
+  font-size:0.62rem;color:var(--ink3);font-weight:500;
+  display:flex;align-items:center;gap:3px;
 }
-.remark-input-wrap{display:none;align-items:center;gap:4px}
-.remark-input-wrap.active{display:flex}
-.remark-display.hidden{display:none}
+.remark-item-date i{font-size:0.56rem}
+
+/* Delete button on each card */
+.remark-card-del{
+  display:flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;
+  border:none;background:transparent;cursor:pointer;
+  color:var(--ink3);font-size:0.65rem;
+  opacity:0;transition:opacity 0.15s,background 0.15s,color 0.15s;
+  flex-shrink:0;margin-top:1px;
+}
+.remark-card:hover .remark-card-del{opacity:1}
+.remark-card-del:hover{background:var(--red-light);color:var(--red)}
+
+/* Empty placeholder */
+.remark-empty{
+  font-size:0.75rem;color:var(--ink3);
+  font-style:italic;padding:4px 2px;
+}
+
+/* Add-remark row (always visible at bottom) */
+.remark-add-row{
+  display:flex;align-items:center;gap:5px;
+  margin-top:2px;
+}
+.remark-add-icon{
+  display:flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--gold-light);color:var(--gold-dark);
+  font-size:0.6rem;flex-shrink:0;
+  border:1px dashed rgba(184,144,60,0.4);
+}
 .remark-input{
+  flex:1;min-width:0;
   font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:0.8rem;color:var(--ink);
-  border:1.5px solid var(--gold);border-radius:var(--radius-xs);
-  padding:4px 9px;outline:none;width:130px;
+  font-size:0.78rem;color:var(--ink);
+  border:1.5px solid var(--border);border-radius:99px;
+  padding:5px 10px;outline:none;
   background:var(--surface);
+  transition:border-color 0.18s,box-shadow 0.18s;
 }
+.remark-input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(184,144,60,0.12);
+}
+.remark-input::placeholder{color:var(--ink3)}
 .remark-save-btn{
   display:inline-flex;align-items:center;justify-content:center;
   width:26px;height:26px;border-radius:50%;cursor:pointer;
   border:none;background:var(--green);color:#fff;
   font-size:0.7rem;transition:all 0.15s;flex-shrink:0;
 }
-.remark-save-btn:hover{background:var(--green-light);color:var(--green)}
-.remark-cancel-btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:26px;height:26px;border-radius:50%;cursor:pointer;
-  border:none;background:var(--surface2);color:var(--ink3);
-  font-size:0.7rem;transition:all 0.15s;flex-shrink:0;
-}
-.remark-cancel-btn:hover{background:var(--red-light);color:var(--red)}
+.remark-save-btn:hover{background:#14604a;box-shadow:0 2px 8px rgba(26,122,94,0.35)}
 .remark-saving{opacity:0.5;pointer-events:none}
 
 /* ── PROPERTY TABLE ── */
@@ -1301,7 +1344,6 @@ function remarkCellHtml(id, remark, type){
 
   /* Build ordered array of {text, date} entries */
   let entries = [];
-
   if(Array.isArray(remark) && remark.length){
     entries = remark
       .filter(r => r && (r.remark||'').trim())
@@ -1313,55 +1355,52 @@ function remarkCellHtml(id, remark, type){
     entries = [{ text: remark.trim(), date: '' }];
   }
 
-  /* Latest text for the input */
-  const latestText = entries.length ? entries[entries.length-1].text : '';
-
-  /* Build the numbered list display */
-  let listHtml = '';
+  /* Remark cards */
+  let cardsHtml = '';
   if(entries.length){
-    listHtml = entries.map((e, i) => {
+    cardsHtml = entries.map((e, i) => {
       const dateStr = e.date
-        ? `<span class="remark-item-date">${new Date(e.date).toLocaleDateString('en-GB')}</span>`
+        ? `<div class="remark-item-date"><i class="far fa-clock"></i>${new Date(e.date).toLocaleDateString('en-GB')}</div>`
         : '';
-      return `<div class="remark-item">
-        <span class="remark-sl">${i+1}</span>
-        <span class="remark-item-text">${escapeHtml(e.text)}</span>
-        ${dateStr}
-      </div>`;
+      return `
+        <div class="remark-card">
+          <div class="remark-sl">${i+1}</div>
+          <div class="remark-card-body">
+            <div class="remark-item-text">${escapeHtml(e.text)}</div>
+            ${dateStr}
+          </div>
+          <button class="remark-card-del" title="Delete remark" onclick="deleteRemark(this,'${id}','${type}',${i})">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>`;
     }).join('');
   } else {
-    listHtml = `<span style="font-size:0.78rem;color:var(--ink3);font-style:italic">Add remark…</span>`;
+    cardsHtml = `<div class="remark-empty"><i class="fas fa-comment-slash" style="margin-right:4px;opacity:0.4"></i>No remarks yet</div>`;
   }
 
   return `
     <div class="remark-cell" data-id="${id}" data-type="${type}">
-
-      <div class="remark-display">
-        <div class="remark-list">${listHtml}</div>
-        <i class="fas fa-pen remark-edit-icon" style="flex-shrink:0;margin-top:3px"></i>
+      <div class="remark-subgrid">
+        ${cardsHtml}
+        <div class="remark-add-row">
+          <div class="remark-add-icon"><i class="fas fa-plus"></i></div>
+          <input
+            class="remark-input"
+            type="text"
+            maxlength="200"
+            placeholder="Add remark…"
+          />
+          <button class="remark-save-btn" title="Save remark"><i class="fas fa-check"></i></button>
+        </div>
       </div>
-
-      <div class="remark-input-wrap">
-        <input
-          class="remark-input"
-          type="text"
-          maxlength="200"
-          value="${escapeHtml(latestText)}"
-          placeholder="Type remark…"
-        />
-        <button class="remark-save-btn" title="Save"><i class="fas fa-check"></i></button>
-        <button class="remark-cancel-btn" title="Cancel"><i class="fas fa-times"></i></button>
-      </div>
-
     </div>
   `;
 }
 
 async function saveRemark(cell, id, type){
-  const wrap    = cell.querySelector('.remark-input-wrap');
-  const input   = cell.querySelector('.remark-input');
-  const display = cell.querySelector('.remark-display');
-  const newVal  = input.value.trim();
+  const input  = cell.querySelector('.remark-input');
+  const newVal = input.value.trim();
+  if(!newVal) return;
 
   cell.classList.add('remark-saving');
   try {
@@ -1376,36 +1415,37 @@ async function saveRemark(cell, id, type){
       body: JSON.stringify({ remarks: newVal })
     });
     if(!res.ok) throw new Error('Save failed');
-
-    /* Reload table so the numbered list refreshes with the new entry */
+    input.value = '';
     if(type === 'customer'    && dataTable) dataTable.ajax.reload(null, false);
     if(type === 'property'    && propTable)  propTable.ajax.reload(null, false);
     if(type === 'appointment' && apptTable)  apptTable.ajax.reload(null, false);
-
   } catch(e){
     alert('Could not save remark. Please try again.');
-    wrap.classList.remove('active');
-    display.classList.remove('hidden');
   }
   cell.classList.remove('remark-saving');
 }
 
-$(document).on('click', '.remark-display', function(){
-  const cell  = this.closest('.remark-cell');
-  const wrap  = cell.querySelector('.remark-input-wrap');
-  const input = cell.querySelector('.remark-input');
-  this.classList.add('hidden');
-  wrap.classList.add('active');
-  input.focus();
-  input.select();
-});
-$(document).on('click', '.remark-cancel-btn', function(){
-  const cell    = this.closest('.remark-cell');
-  const wrap    = cell.querySelector('.remark-input-wrap');
-  const display = cell.querySelector('.remark-display');
-  wrap.classList.remove('active');
-  display.classList.remove('hidden');
-});
+window.deleteRemark = async function(btn, id, type, idx){
+  if(!confirm('Delete this remark?')) return;
+  const cell = btn.closest('.remark-cell');
+  cell.classList.add('remark-saving');
+  try {
+    const url = type === 'customer'
+      ? `${BASE}/api/users/mobile/${id}/remarks/${idx}`
+      : type === 'appointment'
+      ? `${BASE}/api/appointments/${id}/remarks/${idx}`
+      : `${BASE}/api/properties/${id}/remarks/${idx}`;
+    const res = await fetch(url, { method:'DELETE', headers: authHeaders() });
+    if(!res.ok) throw new Error('Delete failed');
+    if(type === 'customer'    && dataTable) dataTable.ajax.reload(null, false);
+    if(type === 'property'    && propTable)  propTable.ajax.reload(null, false);
+    if(type === 'appointment' && apptTable)  apptTable.ajax.reload(null, false);
+  } catch(e){
+    alert('Could not delete remark. Please try again.');
+  }
+  cell.classList.remove('remark-saving');
+};
+
 $(document).on('click', '.remark-save-btn', function(){
   const cell = this.closest('.remark-cell');
   saveRemark(cell, cell.dataset.id, cell.dataset.type);
@@ -1414,9 +1454,6 @@ $(document).on('keydown', '.remark-input', function(e){
   if(e.key === 'Enter'){
     const cell = this.closest('.remark-cell');
     saveRemark(cell, cell.dataset.id, cell.dataset.type);
-  }
-  if(e.key === 'Escape'){
-    $(this).closest('.remark-cell').find('.remark-cancel-btn').trigger('click');
   }
 });
 
