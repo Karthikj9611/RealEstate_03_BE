@@ -588,6 +588,18 @@ nav{
 .badge-booked{background:linear-gradient(135deg,#c03040,#e05060);color:#fff;box-shadow:0 2px 10px rgba(192,48,64,0.45)}
 
 /* ── FAV BUTTON ── */
+.prop-ra-overlay{
+  position:absolute;bottom:100px;right:12px;z-index:6;
+  width:36px;height:36px;
+  background:rgba(255,255,255,0.95);
+  border:none;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  box-shadow:0 2px 10px rgba(0,0,0,0.18);
+  color:#2e7d5a;
+}
+.prop-ra-overlay:hover{background:#e4f5ed;transform:scale(1.2) rotate(-5deg);color:#1a5c3f;}
 .prop-appt{
   position:absolute;bottom:56px;right:12px;z-index:6;
   width:36px;height:36px;
@@ -1170,6 +1182,8 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 .modal-btn-wa{background:#25D366;color:#fff;flex:1;padding:12px;border-radius:var(--radius-xs);font-size:0.86rem;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:all 0.18s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px}
 .modal-btn-wa:hover{background:#1ebe5d}
 .modal-btn-call:hover{background:#10534b}
+.modal-btn-ra{background:linear-gradient(135deg,#1b3a2d,#2e7d5a);color:#fff;flex:1;padding:12px;border-radius:var(--radius-xs);font-size:0.86rem;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:all 0.18s;}
+.modal-btn-ra:hover{background:linear-gradient(135deg,#10534b,#1a6644);transform:translateY(-1px);}
 
 /* ── IMAGE GALLERY ── */
 .img-gallery{position:relative;width:100%;height:100%;overflow:hidden}
@@ -2693,6 +2707,7 @@ function closeAboutModal(){
       <div class="modal-desc" id="modalDesc"></div>
       <div class="modal-actions">
         <button class="modal-btn-call" onclick="window.location.href='tel:9611459960'" style="display:inline-flex;align-items:center;justify-content:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.01 2.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> Call Agent</button>
+
       </div>
       <!-- Admin navigate button slot -->
       <div id="modalAdminNavSlot"></div>
@@ -2786,6 +2801,10 @@ function renderProps(list){
         <div class="img-overlay-gradient"></div>
         <div class="prop-img-color-stripe"></div>
         <div class="prop-badge ${getBadgeClass(p.status)}">${p.status}</div>
+${(p.status === 'For Rent' || p.status === 'PG' || p.status === 'Lease') ? `\
+<button class=\"prop-ra-overlay\" title=\"Rental Agreement\" onclick=\"event.stopPropagation();_raCurrentProperty=PROPERTIES.find(x=>x.id===${p.id})||null;openRentalAgreementModal()\">\
+  <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/></svg>\
+</button>` : ''}\
 <button class=\"prop-appt\" title=\"Schedule Visit\" onclick=\"event.stopPropagation();openAppointmentModal('${p.title}')\">\
   <svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\
     <rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/>\
@@ -3232,6 +3251,9 @@ document.getElementById('modalTitle').textContent = isAdmin ? p.title : '';
 
   document.getElementById('propModal').classList.add('open');
   document.body.style.overflow='hidden';
+
+  // Rental Agreement button — show for rentable properties
+  if(typeof updateModalRentalAgreementBtn === 'function') updateModalRentalAgreementBtn(p);
 
   // Admin: Navigate button (shown if coordinates available)
   const adminNavSlot = document.getElementById('modalAdminNavSlot');
@@ -9845,7 +9867,575 @@ function closeProfileModal() {
 </div>
 
 
-<!-- ══════════ APPOINTMENT MODAL STYLES ══════════ -->
+<!-- ══════════ RENTAL AGREEMENT MODAL ══════════ -->
+<style>
+#rentalAgreementModal{
+  display:none;position:fixed;inset:0;z-index:10000;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);
+  align-items:flex-start;justify-content:center;padding:12px;
+  overflow-y:auto;
+}
+#rentalAgreementModal.open{display:flex;}
+.ra-card{
+  background:var(--surface);border-radius:22px;
+  width:100%;max-width:640px;margin:auto;
+  box-shadow:0 32px 80px rgba(0,0,0,0.32);
+  animation:apptSlideUp 0.32s cubic-bezier(0.34,1.56,0.64,1);
+}
+.ra-header{
+  background:linear-gradient(135deg,#1b3a2d,#2e7d5a);
+  padding:22px 24px 18px;border-radius:22px 22px 0 0;position:relative;
+}
+.ra-header h2{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:#fff;margin-bottom:3px;}
+.ra-header p{font-size:0.77rem;color:rgba(255,255,255,0.65);}
+.ra-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:background 0.18s;}
+.ra-close:hover{background:rgba(255,255,255,0.28);}
+.ra-tabs{display:flex;border-bottom:1.5px solid var(--border);background:var(--surface2);}
+.ra-tab{flex:1;padding:12px 8px;font-size:0.78rem;font-weight:700;color:var(--ink3);cursor:pointer;text-align:center;border:none;background:none;font-family:inherit;transition:all 0.18s;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;}
+.ra-tab.active{color:#2e7d5a;border-bottom-color:#2e7d5a;background:var(--surface);}
+.ra-body{padding:22px 24px 24px;display:flex;flex-direction:column;gap:18px;}
+.ra-section-title{font-size:0.72rem;font-weight:800;color:#2e7d5a;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:-8px;}
+.ra-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.ra-row{grid-template-columns:1fr;}}
+.ra-field{display:flex;flex-direction:column;gap:5px;}
+.ra-field label{font-size:0.72rem;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:0.5px;}
+.ra-field label .req{color:#ef4444;margin-left:2px;}
+.ra-field input,.ra-field select,.ra-field textarea{width:100%;font-family:inherit;font-size:0.88rem;color:var(--ink);background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;transition:border-color 0.18s,box-shadow 0.18s;outline:none;-webkit-appearance:none;appearance:none;}
+.ra-field input:focus,.ra-field select:focus,.ra-field textarea:focus{border-color:#2e7d5a;box-shadow:0 0 0 3px rgba(46,125,90,0.13);background:var(--surface);}
+.ra-field textarea{resize:vertical;min-height:70px;}
+.ra-costs-box{background:linear-gradient(135deg,#f0faf5,#e8f5ee);border:1.5px solid #b6e0ca;border-radius:14px;padding:16px;}
+.ra-costs-title{font-size:0.78rem;font-weight:800;color:#1b3a2d;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ra-cost-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px dashed #c8e6d8;font-size:0.82rem;}
+.ra-cost-row:last-child{border-bottom:none;font-weight:800;color:#1b3a2d;font-size:0.88rem;margin-top:4px;}
+.ra-cost-label{color:var(--ink2);}
+.ra-cost-val{font-weight:700;color:#1a5c3f;}
+.ra-cost-note{font-size:0.68rem;color:var(--ink3);margin-top:6px;line-height:1.5;}
+.ra-info-badge{display:flex;align-items:flex-start;gap:10px;background:#fff8e1;border:1.5px solid #f59e0b33;border-radius:10px;padding:11px 13px;font-size:0.78rem;color:#92400e;line-height:1.5;}
+.ra-clauses{display:flex;flex-direction:column;gap:8px;}
+.ra-clause{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:10px;border-left:3px solid #2e7d5a;}
+.ra-clause-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.ra-clause-text{font-size:0.8rem;color:var(--ink2);line-height:1.5;}
+.ra-clause-text strong{color:var(--ink);display:block;font-size:0.78rem;margin-bottom:2px;}
+.ra-submit{width:100%;padding:14px;background:linear-gradient(135deg,#1b3a2d,#2e7d5a);color:#fff;font-family:inherit;font-size:0.92rem;font-weight:700;border:none;border-radius:12px;cursor:pointer;letter-spacing:0.3px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ra-submit:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);}
+.ra-submit:disabled{opacity:0.65;cursor:not-allowed;}
+.ra-doc-preview{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:24px;font-size:0.82rem;line-height:1.9;color:#222;max-height:380px;overflow-y:auto;}
+.ra-doc-preview h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:4px;}
+.ra-doc-preview .ra-doc-sub{text-align:center;font-size:0.75rem;color:#555;margin-bottom:16px;}
+.ra-doc-preview .ra-doc-clause{margin-bottom:10px;}
+.ra-doc-preview .ra-doc-clause b{font-size:0.8rem;color:#1b3a2d;}
+.ra-tab-panel{display:none;}
+.ra-tab-panel.active{display:flex;flex-direction:column;gap:18px;}
+.ra-divider{height:1px;background:var(--border);}
+</style>
+
+<div id="rentalAgreementModal" onclick="if(event.target===this)closeRentalAgreementModal()">
+  <div class="ra-card">
+    <div class="ra-header">
+      <button class="ra-close" onclick="closeRentalAgreementModal()">✕</button>
+      <h2>📄 Rental Agreement</h2>
+      <p>Bangalore-compliant rental agreement with accurate stamp duty & charges (Karnataka 2025)</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="ra-tabs">
+      <button class="ra-tab active" onclick="switchRATab('details',this)">📝 Details</button>
+      <button class="ra-tab" onclick="switchRATab('costs',this)">💰 Costs</button>
+      <button class="ra-tab" onclick="switchRATab('clauses',this)">⚖️ Clauses</button>
+      <button class="ra-tab" onclick="switchRATab('preview',this)">👁️ Preview</button>
+    </div>
+
+    <div class="ra-body">
+
+      <!-- TAB 1: Details -->
+      <div class="ra-tab-panel active" id="raTab-details">
+        <div class="ra-section-title">🏠 Property & Parties</div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Landlord Full Name <span class="req">*</span></label>
+            <input type="text" id="raLandlordName" placeholder="e.g. Suresh Kumar">
+          </div>
+          <div class="ra-field">
+            <label>Landlord Mobile <span class="req">*</span></label>
+            <input type="tel" id="raLandlordMobile" placeholder="10-digit" maxlength="10">
+          </div>
+        </div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Tenant Full Name <span class="req">*</span></label>
+            <input type="text" id="raTenantName" placeholder="e.g. Rahul Sharma">
+          </div>
+          <div class="ra-field">
+            <label>Tenant Mobile <span class="req">*</span></label>
+            <input type="tel" id="raTenantMobile" placeholder="10-digit" maxlength="10">
+          </div>
+        </div>
+        <div class="ra-field">
+          <label>Full Property Address <span class="req">*</span></label>
+          <textarea id="raPropertyAddress" placeholder="Flat No., Building, Street, Area, Bangalore – 560XXX" rows="2"></textarea>
+        </div>
+        <div class="ra-divider"></div>
+        <div class="ra-section-title">📋 Rental Terms</div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Monthly Rent (₹) <span class="req">*</span></label>
+            <input type="number" id="raRent" placeholder="e.g. 25000" oninput="recalcRACosts()">
+          </div>
+          <div class="ra-field">
+            <label>Security Deposit (₹) <span class="req">*</span></label>
+            <input type="number" id="raDeposit" placeholder="e.g. 50000" oninput="recalcRACosts()">
+          </div>
+        </div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Agreement Duration <span class="req">*</span></label>
+            <select id="raDuration" onchange="recalcRACosts()">
+              <option value="11">11 Months (most common)</option>
+              <option value="12">12 Months</option>
+              <option value="24">24 Months</option>
+              <option value="36">36 Months</option>
+            </select>
+          </div>
+          <div class="ra-field">
+            <label>Agreement Start Date <span class="req">*</span></label>
+            <input type="date" id="raStartDate">
+          </div>
+        </div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Monthly Maintenance (₹)</label>
+            <input type="number" id="raMaintenance" placeholder="e.g. 2000" value="0">
+          </div>
+          <div class="ra-field">
+            <label>Notice Period</label>
+            <select id="raNotice">
+              <option value="1 month">1 Month</option>
+              <option value="2 months" selected>2 Months</option>
+              <option value="3 months">3 Months</option>
+            </select>
+          </div>
+        </div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Annual Rent Hike %</label>
+            <select id="raHike">
+              <option value="0">No Hike</option>
+              <option value="5" selected>5%</option>
+              <option value="8">8%</option>
+              <option value="10">10%</option>
+            </select>
+          </div>
+          <div class="ra-field">
+            <label>Lock-in Period</label>
+            <select id="raLockin">
+              <option value="None">None</option>
+              <option value="3 months" selected>3 Months</option>
+              <option value="6 months">6 Months</option>
+              <option value="11 months">Full Tenure</option>
+            </select>
+          </div>
+        </div>
+        <div class="ra-row">
+          <div class="ra-field">
+            <label>Pets Allowed</label>
+            <select id="raPets">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+              <option value="With permission">With Permission</option>
+            </select>
+          </div>
+          <div class="ra-field">
+            <label>Non-Veg Cooking</label>
+            <select id="raNonVeg">
+              <option value="Allowed">Allowed</option>
+              <option value="Not Allowed">Not Allowed</option>
+            </select>
+          </div>
+        </div>
+        <button class="ra-submit" onclick="switchRATab('costs',document.querySelector('.ra-tab:nth-child(2)'))">
+          Next: View Costs →
+        </button>
+      </div>
+
+      <!-- TAB 2: Costs -->
+      <div class="ra-tab-panel" id="raTab-costs">
+        <div class="ra-info-badge">
+          <span style="font-size:1.1rem">ℹ️</span>
+          <span>These charges are as per <strong>Karnataka Stamp Act & Registration Rules 2025</strong>. The 11-month agreement avoids mandatory registration. Amounts are calculated on your entered rent & deposit.</span>
+        </div>
+
+        <div class="ra-costs-box">
+          <div class="ra-costs-title">📊 Estimated Costs — Bangalore 2025</div>
+          <div class="ra-cost-row">
+            <span class="ra-cost-label">Stamp Paper Value</span>
+            <span class="ra-cost-val" id="rcStampPaper">₹200</span>
+          </div>
+          <div class="ra-cost-row">
+            <span class="ra-cost-label">Stamp Duty</span>
+            <span class="ra-cost-val" id="rcStampDuty">—</span>
+          </div>
+          <div class="ra-cost-row">
+            <span class="ra-cost-label">Registration Fee</span>
+            <span class="ra-cost-val" id="rcRegFee">Not required (&lt;12 months)</span>
+          </div>
+          <div class="ra-cost-row">
+            <span class="ra-cost-label">Notary / Attestation</span>
+            <span class="ra-cost-val" id="rcNotary">₹200 – ₹500</span>
+          </div>
+          <div class="ra-cost-row">
+            <span class="ra-cost-label">Document Drafting</span>
+            <span class="ra-cost-val" id="rcDrafting">₹500 – ₹1,000</span>
+          </div>
+          <div class="ra-cost-row">
+            <span class="ra-cost-label" style="font-weight:700">Estimated Total</span>
+            <span class="ra-cost-val" id="rcTotal">—</span>
+          </div>
+          <div class="ra-cost-note" id="rcNote"></div>
+        </div>
+
+        <!-- Costs breakdown table -->
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;">
+          <div style="font-size:0.75rem;font-weight:800;color:var(--ink);margin-bottom:10px;">📋 Karnataka Stamp Duty Slabs (Rental Agreements)</div>
+          <table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
+            <thead>
+              <tr style="background:#e4f5ed;">
+                <th style="padding:7px 10px;text-align:left;border-radius:6px 0 0 6px;color:#1b3a2d;">Duration</th>
+                <th style="padding:7px 10px;text-align:left;color:#1b3a2d;">Stamp Duty</th>
+                <th style="padding:7px 10px;text-align:left;border-radius:0 6px 6px 0;color:#1b3a2d;">Registration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:7px 10px;">Less than 1 year</td>
+                <td style="padding:7px 10px;">0.5% of annual rent (max ₹500)</td>
+                <td style="padding:7px 10px;color:#16a34a;">Not required</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:7px 10px;">1 – 10 years</td>
+                <td style="padding:7px 10px;">1% of annual rent + deposit (max ₹500)</td>
+                <td style="padding:7px 10px;color:#f59e0b;">1% of annual rent + deposit</td>
+              </tr>
+              <tr>
+                <td style="padding:7px 10px;">10 – 20 years</td>
+                <td style="padding:7px 10px;">2% of annual rent</td>
+                <td style="padding:7px 10px;color:#f59e0b;">1% of annual rent + deposit</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ra-info-badge" style="background:#fef2f2;border-color:#fca5a533;">
+          <span style="font-size:1rem">⚠️</span>
+          <span><strong>Penalty Alert:</strong> Unregistered agreements (for 12+ months) or insufficient stamp duty can attract penalties up to <strong>10× the original duty</strong>. Always use proper stamp paper.</span>
+        </div>
+
+        <button class="ra-submit" onclick="switchRATab('clauses',document.querySelector('.ra-tab:nth-child(3)'))">
+          Next: Review Clauses →
+        </button>
+      </div>
+
+      <!-- TAB 3: Standard Clauses -->
+      <div class="ra-tab-panel" id="raTab-clauses">
+        <div class="ra-info-badge">
+          <span>📜</span>
+          <span>Standard clauses as per <strong>Karnataka Rent Control Act, 2001</strong> and Bangalore market practice 2025. These protect both landlord and tenant.</span>
+        </div>
+        <div class="ra-clauses" id="raClausesList">
+          <!-- populated by JS -->
+        </div>
+        <button class="ra-submit" onclick="switchRATab('preview',document.querySelector('.ra-tab:nth-child(4)'));generateRAPreview()">
+          Next: Preview Agreement →
+        </button>
+      </div>
+
+      <!-- TAB 4: Preview & Download -->
+      <div class="ra-tab-panel" id="raTab-preview">
+        <div class="ra-doc-preview" id="raDocPreview">
+          <p style="text-align:center;color:var(--ink3);font-size:0.82rem;">Fill in Details tab first, then come here.</p>
+        </div>
+        <div class="ra-info-badge">
+          <span>💡</span>
+          <span>This is a draft for reference. Print on appropriate <strong>e-stamp paper</strong> from Karnataka's Kaveri online portal or an authorized vendor. Sign in presence of 2 witnesses.</span>
+        </div>
+        <button class="ra-submit" onclick="downloadRAasPDF()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Draft Agreement
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ RENTAL AGREEMENT FEATURE ══════════ */
+
+let _raCurrentProperty = null;
+
+function openRentalAgreementModal(prop){
+  if(prop) _raCurrentProperty = prop;
+  const modal = document.getElementById('rentalAgreementModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Pre-fill from property if available
+  if(_raCurrentProperty){
+    const addr = document.getElementById('raPropertyAddress');
+    if(addr && _raCurrentProperty.fullAddress) addr.value = _raCurrentProperty.fullAddress;
+    else if(addr && _raCurrentProperty.loc) addr.value = _raCurrentProperty.loc + ', Bangalore';
+    const rentEl = document.getElementById('raRent');
+    if(rentEl && _raCurrentProperty.price && (_raCurrentProperty.status === 'For Rent' || _raCurrentProperty.status === 'PG')) {
+      rentEl.value = _raCurrentProperty.price;
+    }
+    const depEl = document.getElementById('raDeposit');
+    if(depEl && _raCurrentProperty.deposit) depEl.value = _raCurrentProperty.deposit;
+  }
+  // Set today as default start date
+  const sd = document.getElementById('raStartDate');
+  if(sd && !sd.value) sd.value = new Date().toISOString().split('T')[0];
+  // Pre-fill user data
+  try{
+    const u = JSON.parse(localStorage.getItem('kr_user')||'{}');
+    if(u.firstName){
+      const tn = document.getElementById('raTenantName');
+      if(tn && !tn.value) tn.value = u.firstName + (u.lastName ? ' ' + u.lastName : '');
+    }
+    if(u.mobile){
+      const tm = document.getElementById('raTenantMobile');
+      if(tm && !tm.value) tm.value = u.mobile;
+    }
+  }catch(e){}
+  recalcRACosts();
+  buildRAClauses();
+  // Reset to first tab
+  switchRATab('details', document.querySelector('.ra-tab'));
+}
+
+function closeRentalAgreementModal(){
+  document.getElementById('rentalAgreementModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchRATab(name, tabEl){
+  document.querySelectorAll('.ra-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ra-tab-panel').forEach(p => p.classList.remove('active'));
+  if(tabEl) tabEl.classList.add('active');
+  const panel = document.getElementById('raTab-' + name);
+  if(panel) panel.classList.add('active');
+}
+
+function recalcRACosts(){
+  const rent = parseFloat(document.getElementById('raRent').value) || 0;
+  const deposit = parseFloat(document.getElementById('raDeposit').value) || 0;
+  const duration = parseInt(document.getElementById('raDuration').value) || 11;
+
+  const annualRent = rent * 12;
+  const totalBase = annualRent + deposit;
+
+  let stampDuty = 0, regFee = 0, stampDutyStr = '', regFeeStr = '', note = '';
+
+  if(duration < 12){
+    // < 1 year: 0.5% of annual rent, max ₹500
+    stampDuty = Math.min(annualRent * 0.005, 500);
+    stampDutyStr = `₹${Math.round(stampDuty).toLocaleString('en-IN')} (0.5% of annual rent, capped at ₹500)`;
+    regFeeStr = 'Not required (< 12 months)';
+    note = '✅ 11-month agreements are most common in Bangalore — avoids mandatory sub-registrar registration. Simply notarize and stamp.';
+  } else if(duration <= 120){ // 1–10 years
+    stampDuty = Math.min(totalBase * 0.01, 500);
+    regFee = totalBase * 0.01;
+    stampDutyStr = `₹${Math.round(stampDuty).toLocaleString('en-IN')} (1% of rent+deposit, capped ₹500)`;
+    regFeeStr = `₹${Math.round(regFee).toLocaleString('en-IN')} (1% of annual rent + deposit)`;
+    note = '⚠️ Agreements ≥ 12 months must be registered at the Sub-Registrar Office. Carry Aadhaar, property docs & 2 witnesses.';
+  } else {
+    stampDuty = annualRent * 0.02;
+    regFee = totalBase * 0.01;
+    stampDutyStr = `₹${Math.round(stampDuty).toLocaleString('en-IN')} (2% of annual rent)`;
+    regFeeStr = `₹${Math.round(regFee).toLocaleString('en-IN')} (1% of annual rent + deposit)`;
+    note = '⚠️ Long-term lease — registration is mandatory. Consider getting legal counsel to draft the agreement.';
+  }
+
+  const stampPaperVal = duration < 12 ? 200 : 500;
+  const notary = duration < 12 ? 300 : 0; // avg
+  const drafting = 750; // avg
+  const total = stampPaperVal + Math.round(stampDuty) + Math.round(regFee) + notary + drafting;
+
+  document.getElementById('rcStampPaper').textContent = `₹${stampPaperVal}`;
+  document.getElementById('rcStampDuty').textContent = rent > 0 ? stampDutyStr : '—';
+  document.getElementById('rcRegFee').textContent = duration < 12 ? 'Not required (< 12 months)' : regFeeStr;
+  document.getElementById('rcNotary').textContent = duration < 12 ? '₹200 – ₹500' : '—';
+  document.getElementById('rcDrafting').textContent = '₹500 – ₹1,000';
+  document.getElementById('rcTotal').textContent = rent > 0 ? `₹${total.toLocaleString('en-IN')} approx.` : '—';
+  document.getElementById('rcNote').textContent = note;
+}
+
+function buildRAClauses(){
+  const rent = parseFloat(document.getElementById('raRent').value) || 0;
+  const deposit = parseFloat(document.getElementById('raDeposit').value) || 0;
+  const hike = document.getElementById('raHike').value;
+  const notice = document.getElementById('raNotice').value;
+  const lockin = document.getElementById('raLockin').value;
+  const pets = document.getElementById('raPets').value;
+  const nonVeg = document.getElementById('raNonVeg').value;
+  const maint = parseFloat(document.getElementById('raMaintenance').value) || 0;
+
+  const clauses = [
+    {icon:'💰', title:'Rent & Payment', text:`Monthly rent of ₹${rent.toLocaleString('en-IN')} is due by the 5th of each month. Late payment beyond 10 days attracts a penalty of ₹500/day. Preferred mode: bank transfer / UPI.`},
+    {icon:'🏦', title:'Security Deposit', text:`Refundable security deposit of ₹${deposit.toLocaleString('en-IN')} is paid upfront. Refunded within 30 days of vacating after deducting unpaid dues or damages beyond normal wear & tear.`},
+    {icon:'📈', title:'Annual Rent Hike', text: hike === '0' ? 'Rent shall remain fixed for the entire tenure with no increase.' : `Rent shall increase by ${hike}% annually on renewal, with 30 days' written notice to the tenant.`},
+    {icon:'🔒', title:'Lock-in Period', text: lockin === 'None' ? 'No lock-in period. Either party may terminate with proper notice.' : `Lock-in period of ${lockin}. Neither party may terminate the agreement during this period without paying rent for the remaining lock-in duration.`},
+    {icon:'📢', title:'Notice Period', text:`Either party must provide ${notice} written notice to terminate the agreement after the lock-in period. Notice via registered post or WhatsApp message is acceptable.`},
+    {icon:'🔧', title:'Maintenance & Repairs', text:`Tenant handles minor repairs up to ₹1,000 per incident. Landlord is responsible for structural issues, plumbing, and electrical systems. Monthly maintenance of ₹${maint.toLocaleString('en-IN')} covers society charges.`},
+    {icon:'🚫', title:'Subletting', text:`Tenant shall NOT sublet, assign, or part with possession of the premises or any part thereof without prior written consent of the landlord.`},
+    {icon:'🐾', title:'Pets', text:`Pets are ${pets.toLowerCase()} in the premises. ${pets === 'With permission' ? 'Prior written approval required.' : ''}`},
+    {icon:'🍗', title:'Food Habits', text:`Non-vegetarian cooking is ${nonVeg.toLowerCase()} in the premises. Tenant must ensure no damage to walls or permanent odors.`},
+    {icon:'💡', title:'Utilities', text:`Electricity, water, gas, and internet charges are paid directly by the tenant based on actual usage. Society electricity bills (if any) are shared proportionally.`},
+    {icon:'🔑', title:'Access & Inspection', text:`Landlord may inspect the premises with at least 24 hours' prior notice. Entry without notice is prohibited except in emergencies.`},
+    {icon:'📋', title:'End of Tenancy', text:`Tenant shall restore the property to its original condition. A joint inspection shall be done before refunding the deposit. Tenant must return all keys and access cards on vacating.`},
+    {icon:'⚖️', title:'Jurisdiction', text:`This agreement is governed by the Karnataka Rent Control Act, 2001. Any disputes shall be subject to the jurisdiction of courts in Bangalore.`}
+  ];
+
+  const list = document.getElementById('raClausesList');
+  list.innerHTML = clauses.map(c => `
+    <div class="ra-clause">
+      <span class="ra-clause-icon">${c.icon}</span>
+      <div class="ra-clause-text"><strong>${c.title}</strong>${c.text}</div>
+    </div>
+  `).join('');
+}
+
+function generateRAPreview(){
+  const landlord = document.getElementById('raLandlordName').value || '[Landlord Name]';
+  const landlordMob = document.getElementById('raLandlordMobile').value || '[Landlord Mobile]';
+  const tenant = document.getElementById('raTenantName').value || '[Tenant Name]';
+  const tenantMob = document.getElementById('raTenantMobile').value || '[Tenant Mobile]';
+  const addr = document.getElementById('raPropertyAddress').value || '[Property Address]';
+  const rent = parseFloat(document.getElementById('raRent').value) || 0;
+  const deposit = parseFloat(document.getElementById('raDeposit').value) || 0;
+  const duration = document.getElementById('raDuration').value;
+  const start = document.getElementById('raStartDate').value;
+  const notice = document.getElementById('raNotice').value;
+  const lockin = document.getElementById('raLockin').value;
+  const hike = document.getElementById('raHike').value;
+  const pets = document.getElementById('raPets').value;
+  const nonVeg = document.getElementById('raNonVeg').value;
+  const maint = parseFloat(document.getElementById('raMaintenance').value) || 0;
+
+  const startDate = start ? new Date(start).toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'}) : '[Start Date]';
+  const endDate = start ? (() => {
+    const d = new Date(start);
+    d.setMonth(d.getMonth() + parseInt(duration));
+    d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'});
+  })() : '[End Date]';
+
+  const doc = document.getElementById('raDocPreview');
+  doc.innerHTML = `
+    <h3>RENTAL AGREEMENT</h3>
+    <div class="ra-doc-sub">Karnataka Rent Control Act, 2001 | Bangalore, Karnataka</div>
+    <hr style="border:1px solid #ddd;margin-bottom:14px;">
+
+    <div class="ra-doc-clause"><b>PARTIES</b><br>
+    This Rental Agreement is entered into on <u>${startDate}</u> between:<br><br>
+    <b>LANDLORD:</b> ${landlord}, Mobile: ${landlordMob} (hereinafter "Landlord")<br>
+    <b>TENANT:</b> ${tenant}, Mobile: ${tenantMob} (hereinafter "Tenant")
+    </div>
+
+    <div class="ra-doc-clause"><b>1. PROPERTY</b><br>
+    The Landlord agrees to let out the property situated at: <u>${addr}</u> to the Tenant for residential purposes only.
+    </div>
+
+    <div class="ra-doc-clause"><b>2. TERM</b><br>
+    The agreement commences on <u>${startDate}</u> and expires on <u>${endDate}</u> (${duration} months), unless renewed in writing by mutual consent.
+    </div>
+
+    <div class="ra-doc-clause"><b>3. RENT</b><br>
+    Monthly rent: <b>₹${rent.toLocaleString('en-IN')}</b>, payable by the 5th of each month via bank transfer/UPI. Late payment penalty: ₹500 per day after 10-day grace period.
+    ${hike !== '0' ? `Annual rent increase: ${hike}% on renewal with 30 days' written notice.` : 'Rent shall remain fixed for the tenure.'}
+    </div>
+
+    <div class="ra-doc-clause"><b>4. SECURITY DEPOSIT</b><br>
+    Refundable security deposit of <b>₹${deposit.toLocaleString('en-IN')}</b> paid by Tenant to Landlord. To be refunded within 30 days of vacating, after deducting dues or damage costs.
+    </div>
+
+    ${maint > 0 ? `<div class="ra-doc-clause"><b>5. MAINTENANCE</b><br>Monthly maintenance charges of ₹${maint.toLocaleString('en-IN')} shall be paid by the Tenant (society/building charges). Tenant pays all utility bills separately.</div>` : ''}
+
+    <div class="ra-doc-clause"><b>${maint > 0 ? 6 : 5}. LOCK-IN & NOTICE PERIOD</b><br>
+    Lock-in period: <u>${lockin}</u>. Notice period for termination: <u>${notice}</u> written notice by either party after lock-in.
+    </div>
+
+    <div class="ra-doc-clause"><b>${maint > 0 ? 7 : 6}. RESTRICTIONS & CONDITIONS</b><br>
+    • Subletting: Strictly prohibited without written consent.<br>
+    • Pets: ${pets}<br>
+    • Non-vegetarian cooking: ${nonVeg}<br>
+    • Structural modifications: Not permitted without written approval.<br>
+    • Landlord entry: Minimum 24 hours' prior notice required.
+    </div>
+
+    <div class="ra-doc-clause"><b>${maint > 0 ? 8 : 7}. REPAIRS & MAINTENANCE RESPONSIBILITY</b><br>
+    Tenant: Minor repairs up to ₹1,000 per incident, daily upkeep, cleanliness.<br>
+    Landlord: Structural issues, plumbing, electrical systems, water leaks.
+    </div>
+
+    <div class="ra-doc-clause"><b>${maint > 0 ? 9 : 8}. GOVERNING LAW & JURISDICTION</b><br>
+    This agreement is governed by the <i>Karnataka Rent Control Act, 2001</i>. All disputes subject to Bangalore courts.
+    </div>
+
+    <hr style="border:1px solid #ddd;margin:16px 0 12px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:0.78rem;">
+      <div>
+        <b>LANDLORD SIGNATURE</b><br>
+        <br><br>
+        ___________________________<br>
+        ${landlord}<br>
+        Date: ___________________
+      </div>
+      <div>
+        <b>TENANT SIGNATURE</b><br>
+        <br><br>
+        ___________________________<br>
+        ${tenant}<br>
+        Date: ___________________
+      </div>
+    </div>
+    <br>
+    <div style="font-size:0.75rem;color:#555;">
+      <b>WITNESSES:</b><br>
+      1. Name: _________________________ Signature: _____________<br>
+      2. Name: _________________________ Signature: _____________
+    </div>
+    <br>
+    <div style="font-size:0.68rem;color:#888;text-align:center;">
+      Stamp paper value as per Karnataka Stamp Act | Agreement Date: ${startDate}
+    </div>
+  `;
+}
+
+function downloadRAasPDF(){
+  generateRAPreview();
+  const content = document.getElementById('raDocPreview').innerHTML;
+  const w = window.open('','_blank','width=800,height=900');
+  w.document.write(`<!DOCTYPE html><html><head><title>Rental Agreement</title>
+  <style>
+    body{font-family:Georgia,serif;font-size:13px;line-height:1.9;color:#111;max-width:720px;margin:30px auto;padding:20px;}
+    h3{font-size:20px;text-align:center;margin-bottom:4px;}
+    .ra-doc-sub{text-align:center;font-size:11px;color:#555;margin-bottom:16px;}
+    .ra-doc-clause{margin-bottom:12px;}
+    b{color:#1b3a2d;}
+    @media print{body{margin:10mm;}}
+  </style></head><body>${content}
+  <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+/* Show/hide Rental Agreement button based on property status */
+function updateModalRentalAgreementBtn(prop){
+  const btn = document.getElementById('modalRentalAgreementBtn');
+  if(!btn) return;
+  const isRentable = prop && (prop.status === 'For Rent' || prop.status === 'PG' || prop.status === 'Lease');
+  btn.style.display = 'inline-flex'; // Always show — useful for all property types
+  _raCurrentProperty = prop || null;
+}
+</script>
 <style>
 #appointmentModal{
   display:none;position:fixed;inset:0;z-index:9999;
