@@ -886,12 +886,7 @@ nav{
 .testi-form button:hover{background:var(--gold);color:var(--ink)}
 
 /* ── AGENTS ── */
-.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem}
-@media(max-width:640px){
-  .agents-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;overflow-x:auto;flex-wrap:nowrap;grid-auto-flow:column;grid-auto-columns:minmax(160px,200px);padding-bottom:12px;scroll-snap-type:x mandatory}
-  .agent-card{scroll-snap-align:start;width:100%}
-  .agents-grid::-webkit-scrollbar{display:none}
-}
+
 .agent-card{
   background:var(--surface);border-radius:var(--radius);padding:1.5rem;
   text-align:center;box-shadow:var(--shadow);transition:all 0.2s;cursor:pointer;
@@ -908,12 +903,6 @@ nav{
 .agent-stats{display:flex;justify-content:center;gap:1.2rem;font-size:0.74rem;color:var(--ink2)}
 .agent-stat-num{font-weight:700;color:var(--ink);display:block;font-size:1rem}
 
-
-.agents-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:1.5rem;
-}
 
 /* Desktop: normal grid */
 @media(min-width:769px){
@@ -949,10 +938,7 @@ nav{
   .agents-grid::-webkit-scrollbar{
     display:none;
   }
-  .agents-grid{
-    -ms-overflow-style:none;
-    scrollbar-width:none;
-  }
+  .agents-grid { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
 /* Very small phones: ensure cards are readable */
@@ -1003,21 +989,7 @@ nav{
 
 
 /* ── AUTH SECTION ── */
-.auth-section{
-  display:none;position:fixed;inset:0;z-index:600;
-  background:rgba(12,13,16,0.7);
-  align-items:center;justify-content:center;
-  padding:1rem;backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.auth-section.open{display:flex}
-.auth-card{
-  background:var(--surface);
-  border-radius:24px;
-  box-shadow:0 40px 100px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04);
-  width:100%;max-width:440px;overflow:hidden;
-  position:relative;max-height:92vh;overflow-y:auto;
-}
+/* .auth-section and .auth-card — see full definition with mobile animation below */
 .auth-brand{
   background:linear-gradient(135deg,var(--accent),var(--gold-dark));
   padding:1.3rem 1.8rem;
@@ -1259,17 +1231,6 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
 }
 #waFloat:hover .wa-tooltip{opacity:1}
 
-/* ── SWAL CUSTOMIZATION ── */
-.swal2-popup{
-  border-radius:18px!important;
-  font-family:'Plus Jakarta Sans',sans-serif!important;
-  padding:2rem 2rem 1.8rem!important;
-}
-.swal2-title{font-family:'Cormorant Garamond',serif!important;font-size:1.5rem!important;color:var(--ink)!important}
-.swal2-content,.swal2-html-container{font-size:0.9rem!important;color:var(--ink2)!important;line-height:1.6!important}
-.swal2-confirm{background:var(--ink)!important;border-radius:99px!important;font-weight:700!important;font-family:'Plus Jakarta Sans',sans-serif!important;padding:11px 28px!important}
-.swal2-confirm:hover{background:var(--gold)!important;color:var(--ink)!important}
-.swal2-cancel{border-radius:99px!important;font-family:'Plus Jakarta Sans',sans-serif!important;padding:11px 28px!important}
 
 /* ── BACK TO TOP ── */
 #btt{
@@ -1336,57 +1297,15 @@ footer{background:var(--ink);color:rgba(255,255,255,0.55);padding:clamp(2rem,4vw
   background:#f1eee9; /* slightly cleaner */
 }
 
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.form-row > * {
-  width: calc(50% - 6px); /* 2 items per row */
-}
-
-/* form layout handled per-section */
-
-* {
-  box-sizing: border-box;
-}
-
-.full-width {
-  width: 100% !important;
-}
-
+/* Form layout */
+.full-width { width: 100% !important; }
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
-
-.form-row input,
-.form-row select,
-.form-row textarea {
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .form-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-input {
-  width: 100%;
-}
-
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.form-row > div {
-  width: calc(50% - 5px);
-}
+.form-row input, .form-row select, .form-row textarea { width: 100%; }
+@media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
 
 
 /* Default: show (mobile) */
@@ -1438,7 +1357,6 @@ input {
     display:none;        /* optional: remove dot in mobile */
   }
 }
-
 
 
 /* Replace .auth-section */
@@ -1499,7 +1417,7 @@ input {
 
 </style>
 <style>
-/* ── SWEETALERT2 CUSTOM THEME ── */
+/* ── SWEETALERT2 CUSTOM THEME (authoritative) ── */
 .swal2-popup{
   border-radius:20px !important;
   font-family:'Plus Jakarta Sans',sans-serif !important;
@@ -2099,8 +2017,6 @@ nav.scrolled .nav-more-btn:hover { background: rgba(46,125,90,0.25); color: #fff
 </section>
 
 
-
-
 <!-- AGENTS -->
 <section class="section" id="agents">
   <div class="section-inner">
@@ -2468,7 +2384,6 @@ function closeAboutModal(){
 <!-- END AUTH MODAL -->
 
 
-
 <!-- LOGIN ALERT MODAL -->
 <div class="modal-wrap" id="loginAlertModal">
   <div class="modal" style="max-width:380px;text-align:center">
@@ -2485,7 +2400,6 @@ function closeAboutModal(){
 </div>
 
 <!-- HERO -->
-
 
 
 <!-- TESTIMONIALS -->
@@ -2716,11 +2630,11 @@ function closeAboutModal(){
 </div>
 
 <script>
-/* ══════════════════════════════════════════════
-   HOISTED — applyCardTilt must be declared before
-   the IIFE below calls it (original definition is
-   later in the file; this copy ensures availability)
-══════════════════════════════════════════════ */
+/* ── applyCardTilt: global helper for 3D card tilt.
+   Declared here so it's available to the renderProps
+   animation wrapper below. The GSAP section redefines
+   this with cleaner syntax (card._tiltApplied guard
+   prevents double-binding on re-renders). ── */
 function applyCardTilt() {
   document.querySelectorAll('.prop-card').forEach(card => {
     if (card._tiltApplied) return;
@@ -3096,9 +3010,6 @@ function resetFilters(){
   document.querySelector('#listings').scrollIntoView({behavior:'smooth'});
 }
 
-// Legacy stubs (no-ops now)
-function populateFilters(){}
-function setOptions(){}
 
 function setFilter(btn,val){
   activeFilter=val;
@@ -3899,8 +3810,6 @@ async function onOtpInput(input) {
     _otpVerifying = false;
   }
 }
-
-
 
 
 // ── LOGIN ──
@@ -7135,7 +7044,10 @@ window.addEventListener('DOMContentLoaded', function () {
   gsap.utils.toArray('.section-title').forEach(el => {
     gsap.fromTo(el,
       { opacity: 0, x: -24 },
-      { opacity: 1, x: 0, duration: scrollSpeed(el, 0.6), ease: 'power3.out',
+      { opacity: 1, x: 0, duration: /* Helper: returns animation duration scaled to element size */
+function scrollSpeed(el, base) { return base; }
+
+scrollSpeed(el, 0.6), ease: 'power3.out',
         scrollTrigger: { trigger: el, start: 'top 92%', once: true,
           onEnter: () => el.classList.add('line-animate') }
       });
@@ -7199,25 +7111,7 @@ window.addEventListener('DOMContentLoaded', function () {
   /* filter chips — now handled by revealPage() */
 });
 
-/* Re-animate new property cards when renderProps is called */
-const _origRenderProps = window.renderProps;
-if (typeof window.renderProps === 'function') {
-  // override after page load to re-animate
-  window.addEventListener('load', () => {
-    const orig = window.renderProps;
-    if (orig) {
-      window.renderProps = function(props) {
-        orig(props);
-        setTimeout(() => {
-          const cards = document.querySelectorAll('#propertyGrid .prop-card');
-          gsap.fromTo(cards,
-            { opacity: 0, y: 40, scale: 0.93 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.06, ease: 'power3.out' });
-        }, 60);
-      };
-    }
-  });
-}
+/* renderProps animation patched in main app script block above */
 
 /* ══════════════════════════════════════════════
    5.  CUSTOM CURSOR (desktop only)
@@ -7657,16 +7551,6 @@ nav.scrolled .nav-cta {
   }
 }
 
-/* Fix: on mobile, the drawer has a white background — keep link text dark even when nav is scrolled */
-@media (max-width: 760px) {
-  nav.scrolled .nav-links a {
-    color: var(--ink2) !important;
-  }
-  nav.scrolled .nav-links a:hover {
-    background: var(--gold-light) !important;
-    color: var(--gold-dark) !important;
-  }
-}
 
 /* ── MOBILE MENU CSS SLIDE (override the old display:none approach) ── */
 @media(max-width:760px){
@@ -8068,20 +7952,7 @@ function revealPage() {
     };
   }
 
-  /* Re-animate on renderProps */
-  var origRP = window.renderProps;
-  if (typeof origRP === 'function') {
-    window.renderProps = function(props) {
-      origRP(props);
-      setTimeout(function() {
-        document.querySelectorAll('#propertyGrid .prop-card').forEach(function(card, i) {
-          gsap.fromTo(card,
-            {opacity:0,y:26,scale:0.94},
-            {opacity:1,y:0,scale:1,duration:0.34,delay:(i%6)*0.042,ease:'power3.out'});
-        });
-      }, 60);
-    };
-  }
+  /* renderProps already patched in main app script block */
 }
 
 async function pickContact(inputId) {
@@ -8760,10 +8631,6 @@ window._promoPos = null;
   } catch(err) {
     Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Could not update.' });
   }
-}
-
-function scrollSpeed(el, base) {
-  return base;
 }
 
 
