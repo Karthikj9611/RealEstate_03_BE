@@ -312,24 +312,61 @@ table.dataTable.no-footer{border-bottom:none!important}
   font-style:italic;padding:4px 2px;
 }
 
-/* Add-remark row (always visible at bottom) */
-.remark-add-row{
-  display:flex;align-items:center;gap:5px;
-  margin-top:2px;
+/* ── Add trigger button (always visible) ── */
+.remark-add-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:4px;
+  padding:5px 12px 5px 8px;
+  border:1.5px dashed rgba(184,144,60,0.45);
+  border-radius:99px;
+  background:transparent;
+  color:var(--gold-dark);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:0.74rem;font-weight:600;
+  cursor:pointer;
+  transition:background 0.18s,border-color 0.18s,color 0.18s;
+  white-space:nowrap;
 }
-.remark-add-icon{
+.remark-add-btn:hover{
+  background:var(--gold-light);
+  border-color:var(--gold);
+}
+.remark-add-btn i{
   display:flex;align-items:center;justify-content:center;
-  width:22px;height:22px;border-radius:50%;
-  background:var(--gold-light);color:var(--gold-dark);
-  font-size:0.6rem;flex-shrink:0;
-  border:1px dashed rgba(184,144,60,0.4);
+  width:18px;height:18px;border-radius:50%;
+  background:var(--gold-light);
+  font-size:0.6rem;
+  transition:background 0.18s,transform 0.22s;
+}
+.remark-add-btn.open i{
+  transform:rotate(45deg);
+  background:var(--gold);color:#fff;
+}
+
+/* ── Slide-down input panel ── */
+.remark-input-panel{
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows 0.25s ease;
+  margin-top:0;
+}
+.remark-input-panel.open{
+  grid-template-rows:1fr;
+  margin-top:5px;
+}
+.remark-input-panel-inner{
+  overflow:hidden;
+}
+.remark-input-row{
+  display:flex;align-items:center;gap:5px;
+  padding:1px 0 2px;
 }
 .remark-input{
   flex:1;min-width:0;
   font-family:'Plus Jakarta Sans',sans-serif;
   font-size:0.78rem;color:var(--ink);
   border:1.5px solid var(--border);border-radius:99px;
-  padding:5px 10px;outline:none;
+  padding:6px 12px;outline:none;
   background:var(--surface);
   transition:border-color 0.18s,box-shadow 0.18s;
 }
@@ -340,11 +377,18 @@ table.dataTable.no-footer{border-bottom:none!important}
 .remark-input::placeholder{color:var(--ink3)}
 .remark-save-btn{
   display:inline-flex;align-items:center;justify-content:center;
-  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  width:27px;height:27px;border-radius:50%;cursor:pointer;
   border:none;background:var(--green);color:#fff;
   font-size:0.7rem;transition:all 0.15s;flex-shrink:0;
 }
-.remark-save-btn:hover{background:#14604a;box-shadow:0 2px 8px rgba(26,122,94,0.35)}
+.remark-save-btn:hover{background:#14604a;box-shadow:0 2px 8px rgba(26,122,94,0.3)}
+.remark-cancel-small{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:27px;height:27px;border-radius:50%;cursor:pointer;
+  border:none;background:var(--surface2);color:var(--ink3);
+  font-size:0.7rem;transition:all 0.15s;flex-shrink:0;
+}
+.remark-cancel-small:hover{background:var(--red-light);color:var(--red)}
 .remark-saving{opacity:0.5;pointer-events:none}
 
 /* ── PROPERTY TABLE ── */
@@ -1342,7 +1386,6 @@ window.deleteProperty = async function(id){
 /* ── REMARKS ── */
 function remarkCellHtml(id, remark, type){
 
-  /* Build ordered array of {text, date} entries */
   let entries = [];
   if(Array.isArray(remark) && remark.length){
     entries = remark
@@ -1382,20 +1425,59 @@ function remarkCellHtml(id, remark, type){
     <div class="remark-cell" data-id="${id}" data-type="${type}">
       <div class="remark-subgrid">
         ${cardsHtml}
-        <div class="remark-add-row">
-          <div class="remark-add-icon"><i class="fas fa-plus"></i></div>
-          <input
-            class="remark-input"
-            type="text"
-            maxlength="200"
-            placeholder="Add remark…"
-          />
-          <button class="remark-save-btn" title="Save remark"><i class="fas fa-check"></i></button>
+
+        <!-- Plus trigger button -->
+        <button class="remark-add-btn" onclick="toggleRemarkInput(this)">
+          <i class="fas fa-plus"></i> Add Remark
+        </button>
+
+        <!-- Slide-down input panel -->
+        <div class="remark-input-panel">
+          <div class="remark-input-panel-inner">
+            <div class="remark-input-row">
+              <input
+                class="remark-input"
+                type="text"
+                maxlength="200"
+                placeholder="Type remark and press ↵"
+              />
+              <button class="remark-save-btn" title="Save"><i class="fas fa-check"></i></button>
+              <button class="remark-cancel-small" title="Cancel" onclick="closeRemarkInput(this)"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   `;
 }
+
+/* Toggle the slide-down input panel */
+window.toggleRemarkInput = function(btn){
+  const cell   = btn.closest('.remark-cell');
+  const panel  = cell.querySelector('.remark-input-panel');
+  const input  = cell.querySelector('.remark-input');
+  const isOpen = panel.classList.contains('open');
+  if(isOpen){
+    panel.classList.remove('open');
+    btn.classList.remove('open');
+    input.value = '';
+  } else {
+    panel.classList.add('open');
+    btn.classList.add('open');
+    setTimeout(()=>input.focus(), 220);
+  }
+};
+
+window.closeRemarkInput = function(cancelBtn){
+  const cell   = cancelBtn.closest('.remark-cell');
+  const panel  = cell.querySelector('.remark-input-panel');
+  const addBtn = cell.querySelector('.remark-add-btn');
+  const input  = cell.querySelector('.remark-input');
+  panel.classList.remove('open');
+  addBtn && addBtn.classList.remove('open');
+  input.value = '';
+};
 
 async function saveRemark(cell, id, type){
   const input  = cell.querySelector('.remark-input');
@@ -1454,6 +1536,10 @@ $(document).on('keydown', '.remark-input', function(e){
   if(e.key === 'Enter'){
     const cell = this.closest('.remark-cell');
     saveRemark(cell, cell.dataset.id, cell.dataset.type);
+  }
+  if(e.key === 'Escape'){
+    const cancelBtn = this.closest('.remark-cell').querySelector('.remark-cancel-small');
+    if(cancelBtn) closeRemarkInput(cancelBtn);
   }
 });
 
